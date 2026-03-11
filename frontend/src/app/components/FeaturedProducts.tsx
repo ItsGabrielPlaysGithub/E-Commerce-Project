@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { ProductCard } from "./ProductCard";
+import { ProductCard } from "./cards/ProductCard";
 import { products } from "../data/products";
 
 export function FeaturedProducts() {

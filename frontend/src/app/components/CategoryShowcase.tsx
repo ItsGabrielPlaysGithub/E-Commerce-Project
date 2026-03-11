@@ -8,7 +8,7 @@ export function CategoryShowcase() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-10">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#bf262f" }}>
+            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#bf262f" }}>btn
               Browse
             </span>
             <h2
