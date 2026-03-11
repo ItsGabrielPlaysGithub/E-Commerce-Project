@@ -1,0 +1,52 @@
+[
+  {
+    "hex": "#f9e9ea",
+    "rgb": "rgb(249, 233, 234)",
+    "token": "redLight"
+  },
+  {
+    "hex": "#f5dee0",
+    "rgb": "rgb(245, 222, 224)",
+    "token": "redLightHover"
+  },
+  {
+    "hex": "#ebbcbf",
+    "rgb": "rgb(235, 188, 191)",
+    "token": "redLightActive"
+  },
+  {
+    "hex": "#bf262f",
+    "rgb": "rgb(191, 38, 47)",
+    "token": "redNormal"
+  },
+  {
+    "hex": "#ac222a",
+    "rgb": "rgb(172, 34, 42)",
+    "token": "redNormalHover"
+  },
+  {
+    "hex": "#991e26",
+    "rgb": "rgb(153, 30, 38)",
+    "token": "redNormalActive"
+  },
+  {
+    "hex": "#8f1d23",
+    "rgb": "rgb(143, 29, 35)",
+    "token": "redDark"
+  },
+  {
+    "hex": "#73171c",
+    "rgb": "rgb(115, 23, 28)",
+    "token": "redDarkHover"
+  },
+  {
+    "hex": "#561115",
+    "rgb": "rgb(86, 17, 21)",
+    "token": "redDarkActive"
+  },
+  {
+    "hex": "#430d10",
+    "rgb": "rgb(67, 13, 16)",
+    "token": "redDarker"
+  }
+]   
