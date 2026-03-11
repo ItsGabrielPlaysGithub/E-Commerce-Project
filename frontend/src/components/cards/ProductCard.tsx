@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { Product } from "../../data/products";
+import type { Product } from "../../../data/products";
 
 type ProductCardProps = {
   product: Product;
