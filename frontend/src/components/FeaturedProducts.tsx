@@ -34,7 +34,7 @@ export function FeaturedProducts() {
         </div>
         <div className="text-center mt-12">
           <Link
-            href="/products"
+            href="/b2b/products"
             className="inline-flex items-center gap-2 text-white px-9 py-3.5 rounded-full font-semibold hover:opacity-90 transition-all shadow-lg shadow-red-100 hover:-translate-y-0.5"
             style={{ backgroundColor: "#bf262f" }}
           >
