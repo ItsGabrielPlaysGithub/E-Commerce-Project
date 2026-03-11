@@ -28,18 +28,6 @@ export const heroSlides = [
     accent: "Save up to 35% vs. retail pricing",
     badge: "WHOLESALE · From 12 Units",
   },
-  {
-    tag: "SAP Integrated",
-    headline: "Enterprise-Grade B2B with SAP S/4HANA",
-    sub: "Real-time inventory, automated invoicing, and financial analytics — all powered by SAP.",
-    cta: "SAP Portal",
-    ctaPath: "/sap-portal",
-    secondary: "Learn More",
-    secondaryPath: "/inquiry",
-    image: "https://images.unsplash.com/photo-1762922425155-d03e6997e33e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-    accent: "Live inventory sync · Instant e-invoices",
-    badge: "SAP S/4HANA · CONNECTED",
-  },
 ];
 
 export const features = [
