@@ -33,9 +33,9 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
   const inStock = true;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden group hover:shadow-sm hover:border-gray-200 transition-all">
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden group hover:shadow-sm hover:border-gray-200 transition-all h-full flex flex-col">
       {/* Image */}
-      <div className="relative overflow-hidden bg-gray-50 aspect-square">
+      <div className="relative overflow-hidden bg-gray-50 aspect-square flex-shrink-0">
         <img
           src={product.image}
           alt={product.name}
@@ -49,15 +49,15 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
       </div>
 
       {/* Info */}
-      <div className="p-3.5">
-        <div className="text-xs text-gray-300 mb-1 uppercase tracking-wider">{product.category}</div>
+      <div className="p-2 sm:p-3 md:p-3.5 flex flex-col flex-grow gap-2">
+        <div className="text-xs text-gray-300 mb-0.5 uppercase tracking-wider truncate">{product.category}</div>
         <Link href={`/b2b/products/${product.id}`}>
-          <p className="text-gray-800 text-xs font-medium mb-2 line-clamp-2 hover:text-red-600 transition-colors leading-snug">
+          <p className="text-gray-800 text-xs sm:text-sm font-medium mb-1 line-clamp-2 hover:text-red-600 transition-colors leading-snug">
             {product.name}
           </p>
         </Link>
 
-        <div className="flex items-center gap-1 mb-3">
+        <div className="flex items-center gap-0.5 mb-auto">
           {[1, 2, 3, 4, 5].map((s) => (
             <Star
               key={s}
@@ -69,32 +69,38 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
           <span className="text-gray-300 text-xs ml-0.5">({reviewCount})</span>
         </div>
 
-        <div className="flex items-center justify-between gap-2">
-          <div>
-            <div className="text-gray-900 font-bold text-sm">₱{displayPrice.toLocaleString()}</div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mt-2">
+          <div className="order-2 sm:order-1">
+            <div className="text-gray-900 font-bold text-sm sm:text-base">₱{displayPrice.toLocaleString()}</div>
             {activeTier !== "retail" && (
               <div className="text-gray-300 text-xs line-through">₱{retailPrice.toLocaleString()}</div>
             )}
           </div>
+          <div className="w-full sm:w-auto order-1 sm:order-2">
           {isLoggedIn && inStock ? (
             <button
               onClick={() => addItem(product, 1)}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity text-white"
+              className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-90 transition-opacity text-white whitespace-nowrap"
               style={{ backgroundColor: RED }}
             >
-              <ShoppingCart size={11} /> Add
+              <ShoppingCart size={14} className="sm:hidden" />
+              <ShoppingCart size={12} className="hidden sm:block" />
+              <span>Add</span>
             </button>
           ) : !isLoggedIn ? (
             <Link
               href="/b2b/login"
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
+              className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
               style={{ backgroundColor: RED_LIGHT, color: RED }}
             >
-              <LogIn size={11} /> Order
+              <LogIn size={14} className="sm:hidden" />
+              <LogIn size={12} className="hidden sm:block" />
+              <span>Order</span>
             </Link>
           ) : (
             <span className="text-xs text-gray-300 font-medium">Sold Out</span>
           )}
+          </div>
         </div>
       </div>
     </div>

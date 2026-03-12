@@ -1,4 +1,4 @@
-import { Products } from "@/src/templates/b2b/products";
+import { Products } from "@/pages/b2b/productsPage";
 
 export default function Page() {
   return <Products />;

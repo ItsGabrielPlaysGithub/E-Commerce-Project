@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 export function InquiryCTA() {
   return (
-    <section className="py-20 px-4" style={{ backgroundColor: "#f8f5f5" }}>
+    <section className="py-20 px-4" style={{ backgroundColor: "#f5f3ed" }}>
       <div className="max-w-3xl mx-auto text-center">
         <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#bf262f" }}>
           Get in Touch

@@ -1,6 +1,6 @@
 import { Grid, List } from "lucide-react";
-import { SearchBar } from "../../ui/SearchBar";
-import { DropdownFilter } from "../../ui/DropdownFilter";
+import { SearchBar } from "../../../components/ui/SearchBar";
+import { DropdownFilter } from "../../../components/ui/DropdownFilter";
 import { CATEGORIES, SORT_OPTIONS, RED } from "../../../data/constants";
 
 interface FilterBarProps {
@@ -57,10 +57,13 @@ export function FilterBar({
             <button
               key={cat}
               onClick={() => onCategoryChange(cat)}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all"
-              style={activeCategory === cat
-                ? { backgroundColor: RED, color: "#fff" }
-                : { backgroundColor: "#f3f4f6", color: "#374151" }}
+              className={
+                `px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ` +
+                (activeCategory === cat
+                  ? "bg-red-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-red-500 hover:text-white")
+              }
+              style={activeCategory === cat ? { backgroundColor: RED, color: "#fff" } : {}}
             >
               {cat}
             </button>

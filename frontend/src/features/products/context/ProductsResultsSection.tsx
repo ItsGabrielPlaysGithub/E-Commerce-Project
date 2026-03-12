@@ -1,6 +1,6 @@
-import { NoProducts } from "./NoProducts";
-import { ProductsGrid } from "./ProductsGrid";
-import { ProductsList } from "./ProductsList";
+import { NoProducts } from "../components/NoProducts";
+import { ProductsGrid } from "../components/ProductsGrid";
+import { ProductsList } from "../components/ProductsList";
 import { useProductsPage } from "./ProductsPageProvider";
 
 export function ProductsResultsSection() {

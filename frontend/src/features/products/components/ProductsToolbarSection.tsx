@@ -1,6 +1,6 @@
 import { FilterBar } from "./FilterBar";
 import { PricingNotice } from "./PricingNotice";
-import { useProductsPage } from "./ProductsPageProvider";
+import { useProductsPage } from "../context/ProductsPageProvider";
 
 export function ProductsToolbarSection() {
   const {
