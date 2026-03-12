@@ -1,4 +1,5 @@
-import { Search, ChevronDown, Grid, List } from "lucide-react";
+import { ChevronDown, Grid, List } from "lucide-react";
+import { SearchBar } from "../../ui/SearchBar";
 import { CATEGORIES, SORT_OPTIONS, RED } from "../../../data/constants";
 
 interface FilterBarProps {
@@ -30,15 +31,11 @@ export function FilterBar({
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mb-5 flex flex-col gap-3">
       {/* Search bar with sort dropdown */}
       <div className="flex items-center gap-2">
-        <div className="flex-1 relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search products…"
+        <div className="flex-1">
+          <SearchBar
             value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none text-sm bg-white"
-            style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+            onChange={onSearchChange}
+            placeholder="Search products…"
           />
         </div>
         {/* Sort dropdown */}

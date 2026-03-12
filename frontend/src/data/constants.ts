@@ -1,7 +1,7 @@
 export const RED = "#bf262f";
 export const RED_LIGHT = "#f9e9ea";
 
-export const CATEGORIES = ["All", "Bakeware", "Cookware", "Dinnerware", "Glassware", "Hydration", "Vacuum Flask"];
+export const CATEGORIES = ["All", "Bakeware", "Cookware", "Dinnerware", "Glassware", "Hydration", "Vacuum Flask", ];
 
 export const SORT_OPTIONS = [
   { value: "featured", label: "Featured" },
