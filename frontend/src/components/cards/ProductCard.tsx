@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Star, ShoppingCart, LogIn } from "lucide-react";
 import { Product } from "../../data/products";
+import {
+  getProductPrice,
+  getProductReviewCount,
+  getRetailPrice,
+} from "../../data/pricing";
 // import { useCart } from "../context/CartContext";
 // import { useAuth } from "../context/AuthContext";
 
@@ -22,13 +27,10 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
   const addItem = () => {};
 
   const activeTier = company?.accountType ?? showPricing;
-  const price =
-    activeTier === "wholesale" ? product.wholesalePrice
-    : activeTier === "bulk" ? product.bulkPrice
-    : product.retailPrice;
-
-  // Fallback price if undefined
-  const displayPrice = price ?? 0;
+  const displayPrice = getProductPrice(product, activeTier);
+  const retailPrice = getRetailPrice(product);
+  const reviewCount = getProductReviewCount(product);
+  const inStock = true;
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden group hover:shadow-sm hover:border-gray-200 transition-all">
@@ -39,15 +41,7 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
-        {product.badge && (
-          <span
-            className="absolute top-2 left-2 text-white text-xs px-2 py-0.5 rounded-md font-semibold"
-            style={{ backgroundColor: RED }}
-          >
-            {product.badge}
-          </span>
-        )}
-        {!product.inStock && (
+        {!inStock && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
             <span className="bg-gray-700 text-white text-xs px-3 py-1 rounded-full">Out of Stock</span>
           </div>
@@ -72,17 +66,17 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
               stroke={s <= Math.round(product.rating) ? "#f59e0b" : "#d1d5db"}
             />
           ))}
-          <span className="text-gray-300 text-xs ml-0.5">({product.reviewCount})</span>
+          <span className="text-gray-300 text-xs ml-0.5">({reviewCount})</span>
         </div>
 
         <div className="flex items-center justify-between gap-2">
           <div>
             <div className="text-gray-900 font-bold text-sm">₱{displayPrice.toLocaleString()}</div>
             {activeTier !== "retail" && (
-              <div className="text-gray-300 text-xs line-through">₱{(product.retailPrice ?? 0).toLocaleString()}</div>
+              <div className="text-gray-300 text-xs line-through">₱{retailPrice.toLocaleString()}</div>
             )}
           </div>
-          {isLoggedIn && product.inStock ? (
+          {isLoggedIn && inStock ? (
             <button
               onClick={() => addItem(product, 1)}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity text-white"

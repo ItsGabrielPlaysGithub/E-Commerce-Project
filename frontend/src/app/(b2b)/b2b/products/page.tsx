@@ -1,3 +1,5 @@
-import ProductsPage from "./products";
+import { Products } from "@/src/templates/b2b/products";
 
-export default ProductsPage;
+export default function Page() {
+  return <Products />;
+}

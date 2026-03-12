@@ -17,7 +17,7 @@ export function PromoBanners() {
               alt={banner.label}
               className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 to-black/20" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/85 to-black/20" />
             <div className="relative p-6 flex flex-col h-full justify-end min-h-[220px]">
               <h3 className="text-white font-bold">{banner.label}</h3>
               <p className="text-white/70 text-sm mt-1">{banner.sub}</p>
