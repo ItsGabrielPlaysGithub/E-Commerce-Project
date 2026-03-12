@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, ChevronDown, LogIn, ShoppingCart, LayoutDashboard, LogOut, User } from "lucide-react";
-import { useAuth } from "../../app/lib/authLogic";
+import { useAuth } from "../../lib/authLogic";
 
 // Placeholder for useCart - uncomment when CartContext is available
 // import { useCart } from "../../context/CartContext";

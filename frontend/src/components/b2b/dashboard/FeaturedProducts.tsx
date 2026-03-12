@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { ProductCard } from "./cards/ProductCard";
-import { products } from "../data/products";
+import { ProductCard } from "../../cards/ProductCard";
+import { products } from "../../../data/products";
 
 export function FeaturedProducts() {
   return (
@@ -38,7 +38,7 @@ export function FeaturedProducts() {
             className="inline-flex items-center gap-2 text-white px-9 py-3.5 rounded-full font-semibold hover:opacity-90 transition-all shadow-lg shadow-red-100 hover:-translate-y-0.5"
             style={{ backgroundColor: "#bf262f" }}
           >
-            View Full Catalog <ArrowRight size={17} />
+            View Full Products <ArrowRight size={17} />
           </Link>
         </div>
       </div>

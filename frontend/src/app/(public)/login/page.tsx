@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, Lock, Mail, AlertCircle } from "lucide-react";
-import { useAuth } from "../../lib/authLogic";
+import { useAuth } from "../../../lib/authLogic";
 
 export default function Login() {
   const router = useRouter();

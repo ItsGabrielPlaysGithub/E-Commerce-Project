@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { categories } from "../data/homeData";
+import { categories } from "../../../data/homeData";
 
 export function CategoryShowcase() {
   return (
@@ -8,12 +8,13 @@ export function CategoryShowcase() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-end justify-between mb-10">
           <div>
-            <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#bf262f" }}>btn
-              Browse
-            </span>
             <h2
               className="mt-1 text-gray-900"
-              style={{ fontFamily: "'Playfair Display', serif", fontSize: "2.125rem", fontWeight: 700 }}
+              style={{
+                fontFamily: "'Playfair Display', serif",
+                fontSize: "2.125rem",
+                fontWeight: 700,
+              }}
             >
               Shop by Category
             </h2>

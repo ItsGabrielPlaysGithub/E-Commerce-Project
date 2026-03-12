@@ -1,4 +1,4 @@
-import { stats } from "../data/homeData";
+import { stats } from "../../../data/homeData";
 
 export function StatsSection() {
   return (

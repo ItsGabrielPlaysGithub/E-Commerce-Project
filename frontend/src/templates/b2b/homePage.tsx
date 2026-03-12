@@ -1,24 +1,24 @@
 "use client";
 
-import { HeroCarousel } from "../../components/HeroCarousel";
-import { FeatureStrip } from "../../components/FeatureStrip";
-import { OrderTypesSection } from "../../components/OrderTypesSection";
-import { StatsSection } from "../../components/StatsSection";
-import { CategoryShowcase } from "../../components/CategoryShowcase";
-import { FeaturedProducts } from "../../components/FeaturedProducts";
-import { Testimonials } from "../../components/Testimonials";
-import { PromoBanners } from "../../components/PromoBanners";
-import { InquiryCTA } from "../../components/InquiryCTA";
+import { HeroCarousel } from "../../components/b2b/dashboard/HeroCarousel";
+import { FeatureStrip } from "../../components/b2b/dashboard/FeatureStrip";
+import { OrderTypesSection } from "../../components/b2b/dashboard/OrderTypesSection";
+import { StatsSection } from "../../components/b2b/dashboard/StatsSection";
+import { CategoryShowcase } from "../../components/b2b/dashboard/CategoryShowcase";
+import { FeaturedProducts } from "../../components/b2b/dashboard/FeaturedProducts";
+import { Testimonials } from "../../components/b2b/dashboard/Testimonials";
+import { PromoBanners } from "../../components/b2b/dashboard/PromoBanners";
+import { InquiryCTA } from "../../components/b2b/dashboard/InquiryCTA";
 
 export function HomePage() {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif" }}>
       <HeroCarousel />
       <FeatureStrip />
-      <OrderTypesSection />
-      <StatsSection />
       <CategoryShowcase />
       <FeaturedProducts />
+      <StatsSection />
+      <OrderTypesSection />
       <Testimonials />
       <PromoBanners />
       <InquiryCTA />
