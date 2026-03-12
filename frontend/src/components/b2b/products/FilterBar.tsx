@@ -1,5 +1,6 @@
-import { ChevronDown, Grid, List } from "lucide-react";
+import { Grid, List } from "lucide-react";
 import { SearchBar } from "../../ui/SearchBar";
+import { DropdownFilter } from "../../ui/DropdownFilter";
 import { CATEGORIES, SORT_OPTIONS, RED } from "../../../data/constants";
 
 interface FilterBarProps {
@@ -39,19 +40,12 @@ export function FilterBar({
           />
         </div>
         {/* Sort dropdown */}
-        <div className="relative shrink-0">
-          <select
+        <div className="shrink-0">
+          <DropdownFilter
             value={sort}
-            onChange={(e) => onSortChange(e.target.value)}
-            className="appearance-none border border-gray-200 rounded-lg px-3 py-2.5 text-xs text-gray-600 pr-6 focus:outline-none cursor-pointer bg-white"
-          >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            options={SORT_OPTIONS}
+            onChange={onSortChange}
+          />
         </div>
       </div>
 
