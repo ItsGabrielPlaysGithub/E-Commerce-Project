@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, Lock, Mail, AlertCircle } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { LOGIN_MUTATION } from "@/features/auth/services/mutation";
+import { useMutation } from "@apollo/client/react";
 
 interface LoginFormData {
   email: string;
@@ -11,22 +13,28 @@ interface LoginFormData {
   remember: boolean;
 }
 
+interface LoginMutationData {
+  login: {
+    message: string;
+  };
+}
+
+interface LoginMutationVariables {
+  emailAddress: string;
+  password: string;
+}
+
 export const LoginForm = () => {
   const router = useRouter();
   const { login, isLoggedIn } = useAuth();
   const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const mountedRef = useRef(true);
 
-  // Redirect if already logged in
-  useEffect(() => {
-    mountedRef.current = true;
-    if (isLoggedIn) router.replace("/homePage");
-    return () => {
-      mountedRef.current = false;
-    };
-  }, [isLoggedIn, router]);
+  const [runLogin, { loading: mutationLoading, error: mutationError }] = useMutation<
+    LoginMutationData,
+    LoginMutationVariables
+  >(LOGIN_MUTATION);
 
   const [loginForm, setLoginForm] = useState<LoginFormData>({
     email: "",
@@ -44,19 +52,31 @@ export const LoginForm = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
+    if (!loginForm.email || !loginForm.password) {
+      setError("Invalid credentials. Please try again.");
+      return;
+    }
 
-    // Simulate API call
-    await new Promise((r) => setTimeout(r, 1000));
+    try {
+      const response = await runLogin({
+        variables: {
+          emailAddress: loginForm.email,
+          password: loginForm.password,
+        },
+      });
 
-    if (!mountedRef.current) return;
+      if (!mountedRef.current) return;
 
-    setLoading(false);
+      if (!response.data?.login?.message) {
+        setError("Login failed. Please try again.");
+        return;
+      }
 
-    if (loginForm.email && loginForm.password) {
+      // Keep local auth context in sync with successful backend login for UI routing.
       login(loginForm.email, loginForm.password);
       router.push("/b2b/dashboard");
-    } else {
+    } catch {
+      if (!mountedRef.current) return;
       setError("Invalid credentials. Please try again.");
     }
   };
@@ -72,10 +92,10 @@ export const LoginForm = () => {
       </div>
 
       {/* Error Message */}
-      {error && (
+      {(error || mutationError) && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl text-sm mb-5">
           <AlertCircle size={16} />
-          {error}
+          {error || mutationError?.message || "Login failed. Please try again."}
         </div>
       )}
 
@@ -144,11 +164,11 @@ export const LoginForm = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          disabled={loading}
+          disabled={mutationLoading}
           className="w-full text-white py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
           style={{ backgroundColor: "#bf262f" }}
         >
-          {loading ? (
+          {mutationLoading ? (
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
             <>

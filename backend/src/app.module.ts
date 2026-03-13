@@ -21,9 +21,10 @@ import { InvoicesModule } from './modules/admin/invoices/invoices.module';
     DatabaseConfig,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: process.env.AUTO_SCHEMA === 'true',
+      autoSchemaFile: true,
       playground: process.env.PLAYGROUND === 'true',
-      context: ({ req }) => ({ req }),
+      csrfPrevention: true,
+      context: ({ req, res }) => ({ req, res }),
     }),
     AuthModule,
     UsersCrudModule,

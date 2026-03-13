@@ -5,6 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, ShoppingCart, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuth } from "../../features/auth/hooks/useAuth";
+import { useMutation } from "@apollo/client/react";
+import { LOGOUT_MUTATION } from "@/features/auth/services/mutation";
 import { Logo } from "../ui/Logo";
 import { NavLinks } from "./NavLinks";
 import { ProfileDropdown } from "./ProfileDropdown";
@@ -48,13 +50,20 @@ export function Header() {
   const router = useRouter();
   const { isLoggedIn, company, logout } = useAuth();
   const { itemCount, lastAdded } = useCart();
+  const [runLogout] = useMutation(LOGOUT_MUTATION);
 
   const isActive = (path: string) => pathname === path;
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await runLogout();
+    } catch {
+      // Continue client logout even if network request fails.
+    }
+
     logout();
     setProfileOpen(false);
-    router.push("/");
+    router.replace("/login");
   };
 
   return (
@@ -163,7 +172,10 @@ export function Header() {
                 <ShoppingCart size={15} /> Cart {itemCount > 0 && `(${itemCount})`}
               </Link>
               <button
-                onClick={() => { logout(); setMobileOpen(false); router.push("/"); }}
+                onClick={async () => {
+                  await handleLogout();
+                  setMobileOpen(false);
+                }}
                 className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-red-600 border border-red-100 text-sm font-semibold"
               >
                 <LogOut size={15} /> Sign Out

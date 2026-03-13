@@ -4,32 +4,31 @@ import { UsersTbl } from './entity/users.tbl';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { LoginDto } from './dto/login.dto';
-import { SignupDto } from './dto/signup.dto';
 
 @Injectable()
 export class AuthService {
-    constructor(@InjectRepository(UsersTbl) private readonly usersRepo: Repository<UsersTbl>,
-        private readonly jwtService: JwtService){}
+    constructor(
+        @InjectRepository(UsersTbl) private readonly usersRepo: Repository<UsersTbl>,
+        private readonly jwtService: JwtService,
+    ) {}
 
-    async validateUser(emailAddress: string, password: string){
+    async validateUser(emailAddress: string, password: string): Promise<UsersTbl | null> {
         const users = await this.usersRepo.findOne({ where: { emailAddress } });
 
-        if(!users){
-            console.log('User not found');
+        if (!users) {
             return null;
         }
 
         const isPasswordValid = await bcrypt.compare(password, users.password);
 
-        if(!isPasswordValid){
-            console.log('Invalid password');
+        if (!isPasswordValid) {
             return null;
         }
+
         return users;
     }
 
-    async login(users: UsersTbl): Promise<{ accessToken: string }> {
+    async login(users: UsersTbl): Promise<string> {
         const payload = {
             sub: users.userId,
             userId: users.userId,
@@ -37,9 +36,7 @@ export class AuthService {
             role: users.role,
         };
 
-        const accessToken = this.jwtService.sign(payload);
-
-        return { accessToken };
+        return this.jwtService.signAsync(payload);
     }
 
     // Query for signup 

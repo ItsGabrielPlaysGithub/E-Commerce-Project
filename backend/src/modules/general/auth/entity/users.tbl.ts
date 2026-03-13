@@ -1,6 +1,5 @@
 import { Field, ObjectType, Int } from "@nestjs/graphql";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { TicketsTbl } from "src/modules/client-modules/tickets/entity/tickets.tbl";
 
 @Entity('users_tbl')
 @ObjectType()
@@ -9,19 +8,15 @@ export class UsersTbl {
     @Field()
     userId: number;
 
-    @Column({ type: 'json', nullable: true })
-    @Field(() => [Int], { nullable: true })
-    clientServicesId?: number[];
-
-    @Column({ unique: true })
+    @Column()
     @Field()
     firstName: string;
 
-    @Column({ unique: true })
+    @Column()
     @Field()
     middleName: string;
 
-    @Column({ unique: true })
+    @Column()
     @Field()
     lastName: string;
 
@@ -44,7 +39,7 @@ export class UsersTbl {
     @Column()
     password: string;
 
-    @Column({ default: 'client' })
+    @Column({ default: 'partner' })
     @Field()
     role: string;
 
@@ -59,9 +54,6 @@ export class UsersTbl {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
     @Field()
     updatedAt: Date;
-
-    @OneToMany(() => TicketsTbl, (ticket) => ticket.user)
-    tickets: TicketsTbl[];
 
     @Field()
     get fullName(): string {
