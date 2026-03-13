@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseConfig } from '../config/db.config';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AuthModule } from './modules/general/auth/auth.module';
@@ -19,12 +19,19 @@ import { InvoicesModule } from './modules/admin/invoices/invoices.module';
       isGlobal: true,
     }),
     DatabaseConfig,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      autoSchemaFile: true,
-      playground: process.env.PLAYGROUND === 'true',
-      csrfPrevention: true,
-      context: ({ req, res }) => ({ req, res }),
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        return {
+          autoSchemaFile: true,
+          playground: !isProduction,
+          introspection: !isProduction,
+          csrfPrevention: true,
+          context: ({ req, res }) => ({ req, res }),
+        };
+      },
     }),
     AuthModule,
     UsersCrudModule,

@@ -47,6 +47,8 @@ export const LoginForm = () => {
       ...prev,
       [field]: value,
     }));
+    // Clear error when user starts typing
+    setError("");
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -75,9 +77,29 @@ export const LoginForm = () => {
       // Keep local auth context in sync with successful backend login for UI routing.
       login(loginForm.email, loginForm.password);
       router.push("/b2b/dashboard");
-    } catch {
+    } catch (err: any) {
       if (!mountedRef.current) return;
-      setError("Invalid credentials. Please try again.");
+
+      // Extract detailed error message from Apollo Client error
+      let errorMessage = "Invalid credentials. Please try again.";
+
+      // Check for GraphQL errors (array of error objects)
+      if (err?.graphQLErrors && err.graphQLErrors.length > 0) {
+        const firstError = err.graphQLErrors[0];
+        if (firstError?.message) {
+          errorMessage = firstError.message;
+        }
+      }
+      // Check for direct message property
+      else if (err?.message) {
+        errorMessage = err.message;
+      }
+      // Check for nested extensions (some Apollo configs)
+      else if (err?.graphQLErrors?.[0]?.extensions?.message) {
+        errorMessage = err.graphQLErrors[0].extensions.message;
+      }
+
+      setError(errorMessage);
     }
   };
 
@@ -95,7 +117,12 @@ export const LoginForm = () => {
       {(error || mutationError) && (
         <div className="flex items-center gap-2 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl text-sm mb-5">
           <AlertCircle size={16} />
-          {error || mutationError?.message || "Login failed. Please try again."}
+          <span>
+            {error ||
+              (mutationError as any)?.graphQLErrors?.[0]?.message ||
+              mutationError?.message ||
+              "Login failed. Please try again."}
+          </span>
         </div>
       )}
 
@@ -114,7 +141,7 @@ export const LoginForm = () => {
               placeholder="you@company.com"
               value={loginForm.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-red-400 transition-colors bg-gray-50/50"
+              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-red-400 transition-colors bg-gray-50/50"
             />
           </div>
         </div>
@@ -135,7 +162,7 @@ export const LoginForm = () => {
               placeholder="••••••••"
               value={loginForm.password}
               onChange={(e) => handleInputChange("password", e.target.value)}
-              className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-red-400 transition-colors bg-gray-50/50"
+              className="w-full pl-10 pr-10 py-3 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:border-red-400 transition-colors bg-gray-50/50"
             />
             <button
               type="button"

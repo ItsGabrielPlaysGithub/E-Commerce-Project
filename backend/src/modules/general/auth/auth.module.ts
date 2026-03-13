@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthResolver } from './auth.resolver';
+import { RateLimitService } from './services/rate-limit.service';
+import { BruteForceService } from './services/brute-force.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersTbl } from './entity/users.tbl';
 import { JwtModule } from '@nestjs/jwt';
@@ -19,6 +21,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
     }),
   ],
-  providers: [AuthService, AuthResolver]
+  providers: [AuthService, AuthResolver, RateLimitService, BruteForceService]
 })
 export class AuthModule {}
