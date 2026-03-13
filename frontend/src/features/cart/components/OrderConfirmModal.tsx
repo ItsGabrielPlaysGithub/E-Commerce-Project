@@ -1,3 +1,5 @@
+"use client";
+
 import { X, AlertTriangle, MapPin, AlertCircle, Package } from "lucide-react";
 import { CartItem, Company, DeliveryDetails } from "../types";
 import { CART_COLORS, CART_CONFIG } from "../constants/cartConstants";

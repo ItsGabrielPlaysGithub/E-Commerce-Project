@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { ShoppingCart, ArrowRight } from "lucide-react";
 import { CART_COLORS } from "../constants/cartConstants";

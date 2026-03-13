@@ -1,4 +1,6 @@
-import { Link } from "react-router";
+"use client";
+
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CartItem, Company } from "../types";
 import { CART_COLORS, CART_CONFIG } from "../constants/cartConstants";
@@ -100,7 +102,7 @@ export function CartSummary({
           Proceed to Order <ArrowRight size={15} />
         </button>
         <Link
-          to="/products"
+          href="/products"
           className="w-full mt-2.5 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 text-gray-600 border border-gray-200 hover:border-gray-300 transition-colors"
         >
           Continue Adding Products

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { Product } from "../../../data/products";
 
 export type AccountType = "wholesale" | "bulk" | "retail";
@@ -50,6 +50,40 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
   const [items, setItems] = useState<CartItem[]>([]);
   const [pricingTier, setPricingTier] = useState<AccountType>("retail");
   const [lastAdded, setLastAdded] = useState<Product | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedItems = localStorage.getItem("cart_items");
+      const savedTier = localStorage.getItem("cart_tier") as AccountType;
+      
+      if (savedItems) {
+        setItems(JSON.parse(savedItems));
+      }
+      if (savedTier) {
+        setPricingTier(savedTier);
+      }
+    } catch (error) {
+      console.error("Failed to load cart from localStorage:", error);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, []);
+
+  // Save items to localStorage whenever they change
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem("cart_items", JSON.stringify(items));
+    }
+  }, [items, isHydrated]);
+
+  // Save pricing tier to localStorage whenever it changes
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem("cart_tier", pricingTier);
+    }
+  }, [pricingTier, isHydrated]);
 
   const addItem = (product: Product, qty: number, opts?: { color?: string; size?: string }) => {
     const unitPrice = getUnitPrice(product, pricingTier);
@@ -90,7 +124,13 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     items, pricingTier, setPricingTier,
     addItem, updateQty, removeItem, clearCart,
     itemCount, subtotal, lastAdded,
-  }}, children);
+  }}, isHydrated ? children : null);
 }
 
-export const useCart = () => useContext(CartContext);
+export const useCart = () => {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCart must be used within CartProvider");
+  }
+  return context;
+};

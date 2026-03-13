@@ -30,18 +30,7 @@ export function NavLinks({
 }: NavLinksProps) {
   return (
     <nav className="hidden lg:flex items-center gap-1">
-      {isLoggedIn && (
-        <Link
-          href="/b2b/home"
-          className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg transition-colors font-medium"
-          style={{
-            color: isActive("/b2b/home") ? RED : "#374151",
-            backgroundColor: isActive("/b2b/home") ? "#f9e9ea" : "transparent",
-          }}
-        >
-          <LayoutDashboard size={14} /> Home
-        </Link>
-      )}
+      
       {items.map((item) =>
         item.children ? (
           <div

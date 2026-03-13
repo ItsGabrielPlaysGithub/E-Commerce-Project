@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../styles/globals.css";
 import ApolloClientProvider from "@/components/providers/ApolloProvider";
 import { AuthProvider } from "@/features/auth/hooks/useAuth";
+import { CartProvider } from "@/features/cart/hooks/useCart";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +32,9 @@ export default function RootLayout({
       >
         <ApolloClientProvider>
           <AuthProvider>
-            {children}
+            <CartProvider>
+              {children}
+            </CartProvider>
           </AuthProvider>
         </ApolloClientProvider>
       </body>

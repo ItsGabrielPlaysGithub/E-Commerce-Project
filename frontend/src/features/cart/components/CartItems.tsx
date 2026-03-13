@@ -1,4 +1,6 @@
-import { Link } from "react-router";
+"use client";
+
+import Link from "next/link";
 import { Minus, Plus, Trash2, AlertTriangle, Info } from "lucide-react";
 import { CartItem, Company } from "../types";
 import { CART_COLORS, CART_CONFIG } from "../constants/cartConstants";
@@ -64,7 +66,7 @@ export function CartItems({
                   <div className="min-w-0">
                     <div className="text-gray-400 text-xs mb-0.5">{item.product.category}</div>
                     <Link
-                      to={`/products/${item.product.id}`}
+                      href={`/products/${item.product.id}`}
                       className="text-gray-800 text-xs font-medium leading-snug hover:text-red-600 transition-colors line-clamp-2 block"
                     >
                       {item.product.name}
