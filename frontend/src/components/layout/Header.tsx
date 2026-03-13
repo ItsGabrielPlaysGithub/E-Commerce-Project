@@ -3,20 +3,21 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, ShoppingCart, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut } from "lucide-react";
 import { useAuth } from "../../features/auth/hooks/useAuth";
 import { useMutation } from "@apollo/client/react";
 import { LOGOUT_MUTATION } from "@/features/auth/services/mutation";
 import { Logo } from "../ui/Logo";
 import { NavLinks } from "./NavLinks";
 import { ProfileDropdown } from "./ProfileDropdown";
+import type { SessionUser } from "@/lib/session";
 
 // Placeholder for useCart - uncomment when CartContext is available
 // import { useCart } from "../../context/CartContext";
 const useCart = () => ({ itemCount: 0, lastAdded: null });
 
 const nav = [
-  { label: "Home", path: "/b2b/dashboard" },
+  { label: "Home", path: "/b2b/home" },
   { label: "Products",
     children: [
 { label: "All Products", path: "/b2b/products" },
@@ -41,7 +42,11 @@ const nav = [
 
 const RED = "#bf262f";
 
-export function Header() {
+interface HeaderProps {
+  sessionUser: SessionUser;
+}
+
+export function Header({ sessionUser }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [programsOpen, setProgramsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -82,7 +87,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Logo href={isLoggedIn ? "/dashboard" : "/"} RED={RED} />
+          <Logo href={isLoggedIn ? "/b2b/home" : "/"} RED={RED} />
 
           {/* Desktop nav */}
           <NavLinks
@@ -98,7 +103,7 @@ export function Header() {
           <div className="flex items-center gap-2">
             {/* Cart - always visible */}
             <Link
-              href="/cart"
+              href="/b2b/cart"
               className="relative flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
             >
               <ShoppingCart size={15} />
@@ -118,6 +123,8 @@ export function Header() {
               profileOpen={profileOpen}
               setProfileOpen={setProfileOpen}
               company={company}
+              sessionUserId={sessionUser.userId}
+              sessionEmail={sessionUser.emailAddress}
               onLogout={handleLogout}
               RED={RED}
             />
@@ -148,7 +155,7 @@ export function Header() {
                       className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50"
                     >
                       <span>{child.label}</span>
-                      {child.sub && <span className="text-xs text-gray-400">{child.sub}</span>}
+                      {"sub" in child && child.sub && <span className="text-xs text-gray-400">{child.sub}</span>}
                     </Link>
                   ))}
                 </div>

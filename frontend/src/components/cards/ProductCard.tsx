@@ -6,8 +6,8 @@ import {
   getProductReviewCount,
   getRetailPrice,
 } from "../../data/pricing";
-// import { useCart } from "../context/CartContext";
-// import { useAuth } from "../context/AuthContext";
+import { useCart } from "@/features/cart/hooks/useCart";
+import { useAuth } from "@/features/auth";
 
 const RED = "#bf262f";
 const RED_LIGHT = "#f9e9ea";
@@ -18,15 +18,10 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, showPricing = "retail" }: ProductCardProps) {
-  // const { addItem } = useCart();
-  // const { isLoggedIn, company } = useAuth();
+  const { addItem, pricingTier } = useCart();
+  const { isLoggedIn } = useAuth();
 
-  // Fallback values since context is not available
-  const isLoggedIn = false;
-  const company = null;
-  const addItem = () => {};
-
-  const activeTier = company?.accountType ?? showPricing;
+  const activeTier = pricingTier ?? showPricing;
   const displayPrice = getProductPrice(product, activeTier);
   const retailPrice = getRetailPrice(product);
   const reviewCount = getProductReviewCount(product);
@@ -91,11 +86,11 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
             <Link
               href="/b2b/login"
               className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
-              style={{ backgroundColor: RED_LIGHT, color: RED }}
+              style={{ backgroundColor: RED, color: "#ffffff" }}
             >
               <LogIn size={14} className="sm:hidden" />
               <LogIn size={12} className="hidden sm:block" />
-              <span>Order</span>
+              <span>Add to Cart</span>
             </Link>
           ) : (
             <span className="text-xs text-gray-300 font-medium">Sold Out</span>

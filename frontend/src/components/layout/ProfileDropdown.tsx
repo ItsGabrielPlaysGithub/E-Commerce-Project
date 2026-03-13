@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useQuery } from "@apollo/client/react";
 import {
   ChevronDown,
   Users,
@@ -8,17 +9,15 @@ import {
   KeyRound,
   LogOut,
 } from "lucide-react";
-
-interface Company {
-  contactPerson?: string;
-  email?: string;
-  name?: string;
-}
+import { CompanyProfile } from "@/features/auth/hooks/useAuth";
+import { GET_ME, ReadProfileData } from "@/features/auth/services/query";
 
 interface ProfileDropdownProps {
   profileOpen: boolean;
   setProfileOpen: (open: boolean) => void;
-  company: Company | null;
+  company: CompanyProfile | null;
+  sessionUserId: number;
+  sessionEmail: string;
   onLogout: () => void;
   RED: string;
 }
@@ -27,9 +26,32 @@ export function ProfileDropdown({
   profileOpen,
   setProfileOpen,
   company,
+  sessionUserId,
+  sessionEmail,
   onLogout,
   RED,
 }: ProfileDropdownProps) {
+  const companyUserId = company?.userId && company.userId > 0 ? company.userId : undefined;
+  const effectiveUserId = companyUserId ?? sessionUserId;
+
+  const { data } = useQuery<ReadProfileData>(GET_ME, {
+    variables: {
+      userId: effectiveUserId,
+    },
+    skip: !effectiveUserId,
+  });
+  
+  const profile = data?.readProfile;
+
+  // Priority: Query data > Company prop > Defaults
+  const displayName =
+    profile?.fullName?.split(" ")[0] ??
+    company?.fullName?.split(" ")[0] ??
+    sessionEmail.split("@")[0] ??
+    "User";
+  const displayEmail = profile?.emailAddress ?? company?.emailAddress ?? sessionEmail;
+  const displayInitial = profile?.fullName?.charAt(0) ?? company?.fullName?.charAt(0) ?? "U";
+  
   return (
     <div className="relative">
       <button
@@ -40,14 +62,14 @@ export function ProfileDropdown({
           className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
           style={{ backgroundColor: RED }}
         >
-          {company?.contactPerson?.charAt(0) ?? "U"}
+          {displayInitial}
         </div>
         <div className="flex flex-col items-start leading-tight">
           <span className="text-sm font-medium text-gray-800">
-            {company?.contactPerson?.split(" ")[0] ?? "User"}
+            {displayName}
           </span>
           <span className="text-xs text-gray-400 truncate max-w-[120px]">
-            {company?.email ?? company?.name ?? "user@email.com"}
+            {displayEmail}
           </span>
         </div>
         <ChevronDown

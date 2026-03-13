@@ -75,8 +75,21 @@ export const LoginForm = () => {
       }
 
       // Keep local auth context in sync with successful backend login for UI routing.
-      login(loginForm.email, loginForm.password);
-      router.push("/b2b/dashboard");
+      const email = loginForm.email.trim();
+      const guessedName = email.split("@")[0] || "User";
+      login({
+        userId: 0,
+        firstName: guessedName,
+        middleName: "",
+        lastName: "",
+        fullName: guessedName,
+        emailAddress: email,
+        companyName: "",
+        address: "",
+        phoneNumber: "",
+        role: "partner",
+      });
+      router.push("/b2b/home");
     } catch (err: any) {
       if (!mountedRef.current) return;
 

@@ -35,7 +35,7 @@ function getRoleFromRequest(request: NextRequest): UserRole | null {
 
 function redirectByRole(request: NextRequest, role: UserRole): NextResponse {
   if (role === "admin") return NextResponse.redirect(new URL("/admin", request.url))
-  if (role === "partner") return NextResponse.redirect(new URL("/b2b/dashboard", request.url))
+  if (role === "partner") return NextResponse.redirect(new URL("/b2b/home", request.url))
   return NextResponse.redirect(new URL("/consumer", request.url))
 }
 

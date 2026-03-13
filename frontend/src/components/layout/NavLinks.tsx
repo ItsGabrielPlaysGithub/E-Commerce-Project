@@ -32,14 +32,14 @@ export function NavLinks({
     <nav className="hidden lg:flex items-center gap-1">
       {isLoggedIn && (
         <Link
-          href="/dashboard"
+          href="/b2b/home"
           className="flex items-center gap-1.5 px-4 py-2 text-sm rounded-lg transition-colors font-medium"
           style={{
-            color: isActive("/dashboard") ? RED : "#374151",
-            backgroundColor: isActive("/dashboard") ? "#f9e9ea" : "transparent",
+            color: isActive("/b2b/home") ? RED : "#374151",
+            backgroundColor: isActive("/b2b/home") ? "#f9e9ea" : "transparent",
           }}
         >
-          <LayoutDashboard size={14} /> Dashboard
+          <LayoutDashboard size={14} /> Home
         </Link>
       )}
       {items.map((item) =>
