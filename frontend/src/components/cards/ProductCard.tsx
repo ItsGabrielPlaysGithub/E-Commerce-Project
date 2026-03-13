@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Star, ShoppingCart, LogIn } from "lucide-react";
 import { Product } from "../../data/products";
 import {
@@ -8,6 +12,7 @@ import {
 } from "../../data/pricing";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { useAuth } from "@/features/auth";
+import { AddToCartConfirmModal } from "../modals/AddToCartConfirmModal";
 
 const RED = "#bf262f";
 const RED_LIGHT = "#f9e9ea";
@@ -20,12 +25,29 @@ interface ProductCardProps {
 export function ProductCard({ product, showPricing = "retail" }: ProductCardProps) {
   const { addItem, pricingTier } = useCart();
   const { isLoggedIn } = useAuth();
+  const router = useRouter();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const activeTier = pricingTier ?? showPricing;
   const displayPrice = getProductPrice(product, activeTier);
   const retailPrice = getRetailPrice(product);
   const reviewCount = getProductReviewCount(product);
   const inStock = true;
+
+  const handleAddItem = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleAddToCartAndCheckout = () => {
+    addItem(product, 1);
+    setShowConfirmModal(false);
+    router.push("/b2b/cart");
+  };
+
+  const handleAddToCartAndContinue = () => {
+    addItem(product, 1);
+    setShowConfirmModal(false);
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden group hover:shadow-sm hover:border-gray-200 transition-all h-full flex flex-col">
@@ -74,8 +96,8 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
           <div className="w-full sm:w-auto order-1 sm:order-2">
           {isLoggedIn && inStock ? (
             <button
-              onClick={() => addItem(product, 1)}
-              className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-90 transition-opacity text-white whitespace-nowrap"
+              onClick={handleAddItem}
+              className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-80 hover:shadow-md hover:scale-105 transition-all text-white whitespace-nowrap cursor-pointer"
               style={{ backgroundColor: RED }}
             >
               <ShoppingCart size={14} className="sm:hidden" />
@@ -85,7 +107,7 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
           ) : !isLoggedIn ? (
             <Link
               href="/b2b/login"
-              className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-90 transition-opacity whitespace-nowrap"
+              className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-80 hover:shadow-md hover:scale-105 transition-all whitespace-nowrap cursor-pointer"
               style={{ backgroundColor: RED, color: "#ffffff" }}
             >
               <LogIn size={14} className="sm:hidden" />
@@ -98,6 +120,15 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <AddToCartConfirmModal
+        isOpen={showConfirmModal}
+        product={product}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={handleAddToCartAndCheckout}
+        onContinueShopping={handleAddToCartAndContinue}
+      />
     </div>
   );
 }

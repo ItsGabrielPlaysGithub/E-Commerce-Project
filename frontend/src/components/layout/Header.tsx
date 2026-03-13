@@ -10,11 +10,8 @@ import { LOGOUT_MUTATION } from "@/features/auth/services/mutation";
 import { Logo } from "../ui/Logo";
 import { NavLinks } from "./NavLinks";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { useCart } from "@/features/cart/hooks/useCart";
 import type { SessionUser } from "@/lib/session";
-
-// Placeholder for useCart - uncomment when CartContext is available
-// import { useCart } from "../../context/CartContext";
-const useCart = () => ({ itemCount: 0, lastAdded: null });
 
 const nav = [
   { label: "Home", path: "/b2b/home" },
@@ -102,21 +99,23 @@ export function Header({ sessionUser }: HeaderProps) {
           {/* Right actions */}
           <div className="flex items-center gap-2">
             {/* Cart - always visible */}
-            <Link
-              href="/b2b/cart"
-              className="relative flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
-            >
-              <ShoppingCart size={15} />
-              <span className="hidden sm:inline">Cart</span>
+            <div className="relative">
+              <Link
+                href="/b2b/cart"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:border-gray-300 transition-colors"
+              >
+                <ShoppingCart size={15} />
+                <span className="hidden sm:inline">Cart</span>
+              </Link>
               {itemCount > 0 && (
                 <span
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center"
+                  className="absolute -top-2 -right-1 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center"
                   style={{ backgroundColor: RED }}
                 >
                   {itemCount > 9 ? "9+" : itemCount}
                 </span>
               )}
-            </Link>
+            </div>
 
             {/* Profile dropdown */}
             <ProfileDropdown
