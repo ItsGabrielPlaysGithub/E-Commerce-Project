@@ -2,7 +2,6 @@ import { Header } from "@/components/layout/Header";
 import React from "react";
 import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
-import { CartProvider } from "@/features/cart/hooks/useCart";
 
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   const session = await getSession();
@@ -14,9 +13,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
       <Header sessionUser={session} />
-      <CartProvider>
-        {children}
-      </CartProvider>
+      {children}
     </div>
   )
 }

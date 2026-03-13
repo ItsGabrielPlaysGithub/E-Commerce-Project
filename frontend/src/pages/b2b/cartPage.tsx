@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useCartLogic } from "../../features/cart/hooks/useCartLogic";
 import {
   CartEmpty,
@@ -13,7 +11,6 @@ import { CART_COLORS } from "../../features/cart/constants/index";
 
 export function Cart() {
   const {
-    isLoggedIn,
     company,
     items,
     itemCount,
@@ -35,13 +32,7 @@ export function Cart() {
     onRemoveItem,
   } = useCartLogic();
 
-  const router = useRouter();
-  useEffect(() => {
-    if (!isLoggedIn || !company) {
-      router.push("/login");
-    }
-  }, [isLoggedIn, company, router]);
-  if (!isLoggedIn || !company) return null;
+  if (!company) return null;
   if (items.length === 0) return <CartEmpty />;
 
   return (

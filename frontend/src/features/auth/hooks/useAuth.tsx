@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import type { SessionUser } from "@/lib/session";
 
 export interface CompanyProfile {
   userId: number;
@@ -22,6 +23,23 @@ interface AuthContextType {
   logout: () => void;
 }
 
+function createCompanyProfileFromSession(session: SessionUser): CompanyProfile {
+  const guessedName = session.emailAddress.split("@")[0] || "User";
+
+  return {
+    userId: session.userId,
+    firstName: guessedName,
+    middleName: "",
+    lastName: "",
+    fullName: guessedName,
+    emailAddress: session.emailAddress,
+    companyName: "",
+    address: "",
+    phoneNumber: "",
+    role: session.role,
+  };
+}
+
 const AuthContext = createContext<AuthContextType>({
   isLoggedIn: false,
   company: null,
@@ -29,9 +47,30 @@ const AuthContext = createContext<AuthContextType>({
   logout: () => {},
 });
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [company, setCompany] = useState<CompanyProfile | null>(null);
+export function AuthProvider({
+  children,
+  initialSession = null,
+}: {
+  children: ReactNode;
+  initialSession?: SessionUser | null;
+}) {
+  const [isLoggedIn, setIsLoggedIn] = useState(Boolean(initialSession));
+  const [company, setCompany] = useState<CompanyProfile | null>(
+    initialSession ? createCompanyProfileFromSession(initialSession) : null
+  );
+
+  useEffect(() => {
+    if (!initialSession) return;
+
+    setIsLoggedIn(true);
+    setCompany((currentCompany) => {
+      if (currentCompany?.userId === initialSession.userId) {
+        return currentCompany;
+      }
+
+      return createCompanyProfileFromSession(initialSession);
+    });
+  }, [initialSession]);
 
   const login = (userData: CompanyProfile) => {
     setIsLoggedIn(true);
