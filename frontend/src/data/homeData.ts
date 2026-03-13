@@ -9,7 +9,7 @@ export const heroSlides = [
     headline: "Your All-Around Partner for Amazing Business",
     sub: "Premium houseware solutions for retail resellers, wholesalers, and bulk buyers across the Philippines.",
     cta: "Shop Now",
-    ctaPath: "/products",
+    ctaPath: "../../b2b/products",
     secondary: "Make Inquiry",
     secondaryPath: "/inquiry",
     image: "https://images.unsplash.com/photo-1696986324692-f4aa0f2f495d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
