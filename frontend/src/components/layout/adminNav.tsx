@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   LayoutDashboard, Package, ClipboardList, FileText,
   User, ChevronLeft, ChevronRight, Bell,
   LogOut, BarChart3, Layers,
   Menu, X, Settings, ChevronDown,
 } from "lucide-react";
+import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
 
 const NAV_SECTIONS = [
   {
@@ -52,17 +54,25 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
         className="flex items-center gap-3 px-4 py-5 flex-shrink-0"
         style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
       >
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-lg"
-          style={{ backgroundColor: "#bf262f" }}
-        >
-          <Layers size={18} />
-        </div>
         {sidebarOpen && (
-          <div className="min-w-0">
-            <div className="text-white font-semibold text-sm truncate">Omega Houseware</div>
-            <div className="text-xs font-medium" style={{ color: "#bf262f" }}>Admin Portal</div>
+          <Image 
+            src={omegaLogo}
+            alt="Omega Logo"
+            width={100}
+            height={33}
+            className="h-auto w-auto"
+          />
+        )}
+        {!sidebarOpen && (
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-lg"
+            style={{ backgroundColor: "#bf262f" }}
+          >
+            <Layers size={18} />
           </div>
+        )}
+        {sidebarOpen && (
+          <div className="text-xs font-medium" style={{ color: "#bf262f" }}>Admin Portal</div>
         )}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}

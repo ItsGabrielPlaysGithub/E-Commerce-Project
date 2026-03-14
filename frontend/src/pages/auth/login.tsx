@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { LoginForm } from "@/features/auth/components/LoginForm";
 import { LoginLeftPanel } from "@/features/auth/components/LoginLeftPanel";
+import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
 
 export default function Login() {
   return (
@@ -15,9 +17,13 @@ export default function Login() {
         {/* Mobile Logo */}
         <div className="w-full max-w-md">
           <Link href="/" className="inline-block mb-10 lg:hidden">
-            <span className="text-3xl font-bold" style={{ fontFamily: "'Playfair Display', serif", color: "#1a1a1a" }}>
-              omega<span style={{ color: "#bf262f" }}>.</span>
-            </span>
+            <Image 
+              src={omegaLogo}
+              alt="Omega Logo"
+              width={150}
+              height={50}
+              className="h-auto w-auto"
+            />
           </Link>
 
           {/* Login Form Component */}

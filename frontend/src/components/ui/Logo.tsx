@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
 
 interface LogoProps {
   href: string;
@@ -8,15 +10,13 @@ interface LogoProps {
 export function Logo({ href, RED }: LogoProps) {
   return (
     <Link href={href} className="flex-shrink-0 select-none">
-      <span
-        className="text-2xl tracking-tight"
-        style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, color: "#1a1a1a" }}
-      >
-        omega<span style={{ color: RED }}>.</span>
-      </span>
-      <span className="hidden sm:inline text-xs text-gray-300 ml-2 uppercase tracking-widest">
-        B2B Portal
-      </span>
+      <Image 
+        src={omegaLogo}
+        alt="Omega Logo"
+        width={120}
+        height={40}
+        className="h-auto w-auto"
+      />
     </Link>
   );
 }

@@ -1,5 +1,8 @@
 "use client";
 
+import Image from "next/image";
+import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
+
 interface StatCard {
   value: string;
   label: string;
@@ -27,9 +30,13 @@ export const LoginLeftPanel = () => {
 
       {/* Logo Section */}
       <div className="relative">
-        <span className="text-4xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
-          omega<span className="text-white/50">.</span>
-        </span>
+        <Image 
+          src={omegaLogo}
+          alt="Omega Logo"
+          width={180}
+          height={60}
+          className="h-auto w-auto"
+        />
         <div className="text-white/40 text-xs tracking-widest uppercase mt-0.5">B2B Partner Portal</div>
       </div>
 

@@ -84,7 +84,10 @@ export function Header({ sessionUser }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Logo href={isLoggedIn ? "/b2b/home" : "/"} RED={RED} />
+          <div className="flex items-center gap-3">
+            <Logo href={isLoggedIn ? "/b2b/home" : "/"} RED={RED} />
+            <span className="hidden sm:inline text-xs text-gray-400 uppercase tracking-widest font-medium">B2B Portal</span>
+          </div>
 
           {/* Desktop nav */}
           <NavLinks
