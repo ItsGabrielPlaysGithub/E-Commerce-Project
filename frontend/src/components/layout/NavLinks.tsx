@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronDown, LayoutDashboard } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 interface NavItem {
   label: string;

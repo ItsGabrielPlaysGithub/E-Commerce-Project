@@ -4,21 +4,16 @@ import React, { createContext, useContext, useEffect, useMemo, useState, ReactNo
 import { useAuth } from "@/features/auth";
 import { Product, products } from "../../../data/products";
 
-export type AccountType = "wholesale" | "bulk" | "retail";
-
 export interface CartItem {
   product: Product;
   qty: number;
   selectedColor?: string;
   selectedSize?: string;
-  pricingTier: AccountType;
   unitPrice: number;
 }
 
 interface CartContextType {
   items: CartItem[];
-  pricingTier: AccountType;
-  setPricingTier: (t: AccountType) => void;
   addItem: (product: Product, qty: number, opts?: { color?: string; size?: string }) => void;
   updateQty: (productId: string, qty: number) => void;
   removeItem: (productId: string) => void;
@@ -34,19 +29,15 @@ type PersistedCartItem = {
   qty: number;
   selectedColor?: string;
   selectedSize?: string;
-  pricingTier: AccountType;
   unitPrice: number;
 };
 
 type CartCookiePayload = {
   items: PersistedCartItem[];
-  pricingTier: AccountType;
 };
 
 const CartContext = createContext<CartContextType>({
   items: [],
-  pricingTier: "retail",
-  setPricingTier: () => {},
   addItem: () => {},
   updateQty: () => {},
   removeItem: () => {},
@@ -57,9 +48,7 @@ const CartContext = createContext<CartContextType>({
   lastAdded: null,
 });
 
-function getUnitPrice(product: Product, tier: AccountType) {
-  if (tier === "wholesale") return product.wholesalePrice;
-  if (tier === "bulk") return product.bulkPrice;
+function getUnitPrice(product: Product) {
   return product.retailPrice;
 }
 
@@ -69,7 +58,6 @@ function serializeCartItems(items: CartItem[]): PersistedCartItem[] {
     qty: item.qty,
     selectedColor: item.selectedColor,
     selectedSize: item.selectedSize,
-    pricingTier: item.pricingTier,
     unitPrice: item.unitPrice,
   }));
 }
@@ -89,7 +77,6 @@ function hydrateCartItems(serializedItems: PersistedCartItem[]): CartItem[] {
         qty: serializedItem.qty,
         selectedColor: serializedItem.selectedColor,
         selectedSize: serializedItem.selectedSize,
-        pricingTier: serializedItem.pricingTier,
         unitPrice: serializedItem.unitPrice,
       } as CartItem;
     })
@@ -99,7 +86,6 @@ function hydrateCartItems(serializedItems: PersistedCartItem[]): CartItem[] {
 export function CartProvider({ children }: { children: ReactNode }): React.ReactNode {
   const { company } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
-  const [pricingTier, setPricingTier] = useState<AccountType>("retail");
   const [lastAdded, setLastAdded] = useState<Product | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -162,11 +148,9 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
 
         const payload = (await response.json()) as CartCookiePayload;
         setItems(hydrateCartItems(payload.items || []));
-        setPricingTier(payload.pricingTier || "retail");
       } catch (error) {
         console.error("Failed to load cart from cookies:", error);
         setItems([]);
-        setPricingTier("retail");
       } finally {
         setIsHydrated(true);
       }
@@ -189,7 +173,6 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
           },
           body: JSON.stringify({
             items: serializeCartItems(items),
-            pricingTier,
           } as CartCookiePayload),
         });
 
@@ -202,10 +185,10 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     };
 
     void persistCart();
-  }, [isHydrated, items, pricingTier]);
+  }, [isHydrated, items]);
 
   const addItem = (product: Product, qty: number, opts?: { color?: string; size?: string }) => {
-    const unitPrice = getUnitPrice(product, pricingTier);
+    const unitPrice = getUnitPrice(product);
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
       if (existing) {
@@ -214,7 +197,7 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
         );
       }
       return [...prev, {
-        product, qty, pricingTier, unitPrice,
+        product, qty, unitPrice,
         selectedColor: opts?.color,
         selectedSize: opts?.size,
       }];
@@ -249,7 +232,7 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
   const subtotal = items.reduce((s, i) => s + i.qty * i.unitPrice, 0);
 
   return React.createElement(CartContext.Provider, { value: {
-    items, pricingTier, setPricingTier,
+    items,
     addItem, updateQty, removeItem, removeItems, clearCart,
     itemCount, subtotal, lastAdded,
   }}, isHydrated ? children : null);

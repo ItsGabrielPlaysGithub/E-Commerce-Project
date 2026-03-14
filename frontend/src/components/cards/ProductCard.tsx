@@ -23,13 +23,12 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, showPricing = "retail" }: ProductCardProps) {
-  const { addItem, pricingTier } = useCart();
+  const { addItem } = useCart();
   const { isLoggedIn } = useAuth();
   const router = useRouter();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const activeTier = pricingTier ?? showPricing;
-  const displayPrice = getProductPrice(product, activeTier);
+  const displayPrice = getProductPrice(product, "retail");
   const retailPrice = getRetailPrice(product);
   const reviewCount = getProductReviewCount(product);
   const inStock = true;
@@ -89,9 +88,6 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mt-2">
           <div className="order-2 sm:order-1">
             <div className="text-gray-900 font-bold text-sm sm:text-base">₱{displayPrice.toLocaleString()}</div>
-            {activeTier !== "retail" && (
-              <div className="text-gray-300 text-xs line-through">₱{retailPrice.toLocaleString()}</div>
-            )}
           </div>
           <div className="w-full sm:w-auto order-1 sm:order-2">
           {isLoggedIn && inStock ? (

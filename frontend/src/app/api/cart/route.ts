@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
 type UserRole = "partner" | "consumer";
-type PricingTier = "wholesale" | "bulk" | "retail";
 
 type PersistedCartItem = {
   productId: string;
   qty: number;
   selectedColor?: string;
   selectedSize?: string;
-  pricingTier: PricingTier;
   unitPrice: number;
 };
 
 type CartStatePayload = {
   items: PersistedCartItem[];
-  pricingTier: PricingTier;
 };
 
 type CartCookiePayload = {
@@ -25,7 +22,6 @@ const CART_COOKIE_NAME = "cart_state";
 const DEFAULT_OWNER = "guest";
 const DEFAULT_STATE: CartStatePayload = {
   items: [],
-  pricingTier: "retail",
 };
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
@@ -69,10 +65,6 @@ function isUserRole(value: unknown): value is UserRole {
   return value === "partner" || value === "consumer";
 }
 
-function isPricingTier(value: unknown): value is PricingTier {
-  return value === "wholesale" || value === "bulk" || value === "retail";
-}
-
 function sanitizeItems(items: unknown): PersistedCartItem[] {
   if (!Array.isArray(items)) return [];
 
@@ -83,18 +75,15 @@ function sanitizeItems(items: unknown): PersistedCartItem[] {
       const candidate = item as Record<string, unknown>;
       const productId = candidate.productId;
       const qty = candidate.qty;
-      const pricingTier = candidate.pricingTier;
       const unitPrice = candidate.unitPrice;
 
       if (typeof productId !== "string" || productId.length === 0) return null;
       if (typeof qty !== "number" || !Number.isInteger(qty) || qty < 1) return null;
-      if (!isPricingTier(pricingTier)) return null;
       if (typeof unitPrice !== "number" || Number.isNaN(unitPrice) || unitPrice < 0) return null;
 
       return {
         productId,
         qty,
-        pricingTier,
         unitPrice,
         selectedColor: typeof candidate.selectedColor === "string" ? candidate.selectedColor.slice(0, 64) : undefined,
         selectedSize: typeof candidate.selectedSize === "string" ? candidate.selectedSize.slice(0, 64) : undefined,
@@ -111,7 +100,6 @@ function sanitizeCartState(rawState: unknown): CartStatePayload {
   const parsedState = rawState as Record<string, unknown>;
 
   return {
-    pricingTier: isPricingTier(parsedState.pricingTier) ? parsedState.pricingTier : "retail",
     items: sanitizeItems(parsedState.items),
   };
 }
@@ -153,7 +141,7 @@ export async function GET(request: NextRequest) {
   const payload = parseCookieState(rawCookieValue);
   const state = payload.carts[ownerKey] || DEFAULT_STATE;
 
-  return NextResponse.json({ items: state.items, pricingTier: state.pricingTier });
+  return NextResponse.json({ items: state.items });
 }
 
 export async function PUT(request: NextRequest) {
@@ -167,14 +155,12 @@ export async function PUT(request: NextRequest) {
 
   const parsedBody = body as Record<string, unknown>;
   const ownerKey = resolveOwnerKey(request);
-  const pricingTier = isPricingTier(parsedBody.pricingTier) ? parsedBody.pricingTier : "retail";
   const items = sanitizeItems(parsedBody.items);
 
   const rawCookieValue = request.cookies.get(CART_COOKIE_NAME)?.value;
   const payload = parseCookieState(rawCookieValue);
   payload.carts[ownerKey] = {
     items,
-    pricingTier,
   };
 
   const response = NextResponse.json({ success: true });

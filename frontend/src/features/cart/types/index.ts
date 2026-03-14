@@ -38,7 +38,6 @@ export interface Company {
   email?: string;
   accountNumber?: string;
   contactPerson?: string;
-  accountType?: "wholesale" | "bulk" | "retail";
   tier?: string;
   id?: string;
 }

@@ -50,8 +50,6 @@ export function OrderConfirmModal({
   if (!isOpen) return null;
 
   const hasWarnings = moqWarnings.length > 0;
-  const fullRetailTotal = items.reduce((s, i) => s + i.qty * i.product.retailPrice, 0);
-  const savings = fullRetailTotal - subtotal;
   const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
   const grandTotal = subtotal + deliveryFee;
 
@@ -81,36 +79,6 @@ export function OrderConfirmModal({
         </div>
 
         <div className="px-6 py-5 space-y-5">
-          {/* Warnings block */}
-          {hasWarnings && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 mb-1">
-                <AlertTriangle size={14} className="text-amber-500" />
-                <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">
-                  Order Warnings
-                </span>
-              </div>
-              {moqWarnings.map((w) => {
-                const moqRequired =
-                  company.accountType === "wholesale"
-                    ? w.product.minWholesale
-                    : w.product.minBulk;
-                return (
-                  <Warning
-                    key={w.product.id}
-                    icon={AlertTriangle}
-                    color={MOQ_WARNING_COLOR}
-                    bg={MOQ_WARNING_BG}
-                  >
-                    <strong>{w.product.name.split("—")[0].trim()}</strong> — You have {w.qty} units,
-                    but {company.accountType} pricing requires <strong>{moqRequired} minimum</strong>.
-                    Retail price will apply for this item.
-                  </Warning>
-                );
-              })}
-            </div>
-          )}
-
           {/* Order items summary */}
           <div>
             <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">

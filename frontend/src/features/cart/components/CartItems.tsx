@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Minus, Plus, Trash2, AlertTriangle, Info } from "lucide-react";
+import { Minus, Plus, Trash2 } from "lucide-react";
 import { CartItem, Company } from "../types";
-import { CART_CONFIG } from "../constants/cartConstants";
-import { Warning } from "./Warning";
 
 interface CartItemsProps {
   items: CartItem[];
@@ -25,18 +23,8 @@ export function CartItems({
   onRemoveItem,
   onToggleItemSelection,
 }: CartItemsProps) {
-  const { MOQ_WARNING_COLOR } = CART_CONFIG;
-  const hasWarnings = moqWarnings.length > 0;
-
   return (
     <div className="lg:col-span-2 space-y-3">
-      {/* Warnings */}
-      {hasWarnings && (
-        <Warning icon={AlertTriangle} color="#92400e" bg="#fffbeb">
-          <strong>{moqWarnings.length} item{moqWarnings.length > 1 ? "s" : ""} below your MOQ</strong> — these will be charged at retail price unless quantity is adjusted. See details below.
-        </Warning>
-      )}
-
       {/* Items list */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         {/* Column headers */}
@@ -49,20 +37,11 @@ export function CartItems({
 
         {items.map((item) => {
           const isSelected = selectedItemIds.includes(item.product.id);
-          const isBelowMoq =
-            company.accountType === "wholesale"
-              ? item.qty < item.product.minWholesale
-              : company.accountType === "bulk"
-              ? item.qty < item.product.minBulk
-              : false;
-          const moqRequired =
-            company.accountType === "wholesale" ? item.product.minWholesale : item.product.minBulk;
 
           return (
             <div
               key={item.product.id}
               className="border-b border-gray-50 last:border-0"
-              style={{ backgroundColor: isBelowMoq ? "#fffbeb" : "white" }}
             >
               <div className="grid grid-cols-12 gap-3 px-5 py-4 items-center">
                 {/* Product info */}
@@ -93,15 +72,6 @@ export function CartItems({
                     {item.selectedSize && (
                       <div className="text-gray-400 text-xs mt-0.5">Size: {item.selectedSize}</div>
                     )}
-                    {/* MOQ warning inline */}
-                    {isBelowMoq && (
-                      <div className="flex items-center gap-1 mt-1">
-                        <AlertTriangle size={10} className="text-amber-500 flex-shrink-0" />
-                        <span className="text-amber-600 text-xs">
-                          Min. {moqRequired} units for {company.accountType} pricing
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -117,7 +87,10 @@ export function CartItems({
                 <div className="col-span-2 flex items-center justify-center">
                   <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                     <button
-                      onClick={() => onUpdateQty(item.product.id, item.qty - 1)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdateQty(item.product.id, item.qty - 1);
+                      }}
                       className="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
                     >
                       <Minus size={12} />
@@ -126,7 +99,10 @@ export function CartItems({
                       {item.qty}
                     </span>
                     <button
-                      onClick={() => onUpdateQty(item.product.id, item.qty + 1)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdateQty(item.product.id, item.qty + 1);
+                      }}
                       className="w-7 h-7 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-colors"
                     >
                       <Plus size={12} />
@@ -151,32 +127,6 @@ export function CartItems({
           );
         })}
       </div>
-
-      {/* MOQ Fix suggestions */}
-      {moqWarnings.length > 0 && (
-        <div className="bg-amber-50 border border-amber-100 rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Info size={14} className="text-amber-600" />
-            <span className="text-xs font-semibold text-amber-700">Adjust to unlock your pricing tier</span>
-          </div>
-          {moqWarnings.map((w) => {
-            const moqRequired =
-              company.accountType === "wholesale" ? w.product.minWholesale : w.product.minBulk;
-            return (
-              <div key={w.product.id} className="flex items-center justify-between py-2 border-t border-amber-100 first:border-t-0">
-                <span className="text-amber-700 text-xs">{w.product.name.slice(0, 40)}...</span>
-                <button
-                  onClick={() => onUpdateQty(w.product.id, moqRequired)}
-                  className="text-xs font-semibold text-white px-3 py-1 rounded-lg hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: MOQ_WARNING_COLOR }}
-                >
-                  Set to {moqRequired}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 }

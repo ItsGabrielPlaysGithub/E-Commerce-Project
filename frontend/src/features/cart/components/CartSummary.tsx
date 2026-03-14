@@ -25,15 +25,7 @@ export function CartSummary({
   const { RED, RED_LIGHT } = CART_COLORS;
   const { FREE_DELIVERY_THRESHOLD, DELIVERY_FEE } = CART_CONFIG;
 
-  const tierLabel =
-    company.accountType === "wholesale"
-      ? `${company.tier} Wholesale`
-      : company.accountType === "bulk"
-      ? "Bulk Pricing"
-      : "Retail Pricing";
-
   const fullRetailTotal = items.reduce((s, i) => s + i.qty * i.product.retailPrice, 0);
-  const savings = fullRetailTotal - subtotal;
   const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
   const grandTotal = subtotal + deliveryFee;
 
@@ -47,29 +39,12 @@ export function CartSummary({
           Order Summary
         </h3>
 
-        {/* Pricing tier badge */}
-        <div
-          className="flex items-center justify-between py-2 px-3 rounded-lg mb-4 text-xs"
-          style={{ backgroundColor: RED_LIGHT }}
-        >
-          <span className="text-gray-600 font-medium">Pricing tier</span>
-          <span className="font-bold" style={{ color: RED }}>
-            {tierLabel}
-          </span>
-        </div>
-
         {/* Line items */}
         <div className="space-y-2.5 mb-4">
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Selected subtotal ({itemCount} items)</span>
             <span className="text-gray-900 font-medium">₱{subtotal.toLocaleString()}</span>
           </div>
-          {savings > 0 && (
-            <div className="flex justify-between text-sm">
-              <span className="text-green-600">Tier Savings</span>
-              <span className="text-green-600 font-semibold">-₱{savings.toLocaleString()}</span>
-            </div>
-          )}
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Delivery fee</span>
             <span className="text-gray-900 font-medium">
