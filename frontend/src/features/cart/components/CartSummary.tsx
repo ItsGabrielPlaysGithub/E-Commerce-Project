@@ -10,6 +10,7 @@ interface CartSummaryProps {
   company: Company;
   subtotal: number;
   itemCount: number;
+  hasSelectedItems: boolean;
   onProceed: () => void;
 }
 
@@ -18,6 +19,7 @@ export function CartSummary({
   company,
   subtotal,
   itemCount,
+  hasSelectedItems,
   onProceed,
 }: CartSummaryProps) {
   const { RED, RED_LIGHT } = CART_COLORS;
@@ -59,7 +61,7 @@ export function CartSummary({
         {/* Line items */}
         <div className="space-y-2.5 mb-4">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Subtotal ({itemCount} items)</span>
+            <span className="text-gray-500">Selected subtotal ({itemCount} items)</span>
             <span className="text-gray-900 font-medium">₱{subtotal.toLocaleString()}</span>
           </div>
           {savings > 0 && (
@@ -96,11 +98,17 @@ export function CartSummary({
 
         <button
           onClick={onProceed}
+          disabled={!hasSelectedItems}
           className="w-full py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           style={{ backgroundColor: RED }}
         >
-          Proceed to Order <ArrowRight size={15} />
+          {hasSelectedItems ? "Proceed to Order" : "Select Items to Order"} <ArrowRight size={15} />
         </button>
+        {!hasSelectedItems && (
+          <p className="mt-2 text-xs text-gray-400">
+            Choose at least one cart item to continue to checkout.
+          </p>
+        )}
         <Link
           href="/products"
           className="w-full mt-2.5 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 text-gray-600 border border-gray-200 hover:border-gray-300 transition-colors"

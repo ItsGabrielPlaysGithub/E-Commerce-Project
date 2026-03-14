@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { X, AlertTriangle, MapPin, AlertCircle, Package } from "lucide-react";
 import { CartItem, Company, DeliveryDetails } from "../types";
 import { CART_COLORS, CART_CONFIG } from "../constants/cartConstants";
@@ -40,6 +41,11 @@ export function OrderConfirmModal({
 }: OrderConfirmModalProps) {
   const { RED, RED_LIGHT } = CART_COLORS;
   const { FREE_DELIVERY_THRESHOLD, DELIVERY_FEE, MOQ_WARNING_COLOR, MOQ_WARNING_BG } = CART_CONFIG;
+  const [minDeliveryDate] = useState(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split("T")[0];
+  });
 
   if (!isOpen) return null;
 
@@ -109,7 +115,7 @@ export function OrderConfirmModal({
           <div>
             <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               <Package size={12} className="inline mr-1" />
-              Order Items ({itemCount} pcs)
+              Selected Items ({itemCount} pcs)
             </div>
             <div className="bg-gray-50 rounded-xl divide-y divide-gray-100 overflow-hidden">
               {items.map((item) => (
@@ -227,7 +233,7 @@ export function OrderConfirmModal({
                 type="date"
                 value={delivery.deliveryDate}
                 onChange={(e) => onDeliveryChange("deliveryDate", e.target.value)}
-                min={new Date(Date.now() + 86400000).toISOString().split("T")[0]}
+                min={minDeliveryDate}
                 className="w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none"
                 style={{ borderColor: errors.deliveryDate ? "#ef4444" : "#e5e7eb" }}
               />

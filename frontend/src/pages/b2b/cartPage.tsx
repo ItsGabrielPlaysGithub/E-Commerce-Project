@@ -13,8 +13,11 @@ export function Cart() {
   const {
     company,
     items,
+    selectedItems,
+    selectedItemIds,
     itemCount,
-    subtotal,
+    selectedItemCount,
+    selectedSubtotal,
     tier,
     showModal,
     setShowModal,
@@ -25,11 +28,13 @@ export function Cart() {
     errors,
     setErrors,
     placing,
-    moqWarnings,
+    selectedMoqWarnings,
+    hasSelectedItems,
     handlePlaceOrder,
     handleCloseModal,
     onUpdateQty,
     onRemoveItem,
+    onToggleItemSelection,
   } = useCartLogic();
 
   if (!company) return null;
@@ -76,28 +81,31 @@ export function Cart() {
         <CartItems
           items={items}
           company={company}
-          moqWarnings={moqWarnings}
+          moqWarnings={selectedMoqWarnings}
+          selectedItemIds={selectedItemIds}
           onUpdateQty={onUpdateQty}
           onRemoveItem={onRemoveItem}
+          onToggleItemSelection={onToggleItemSelection}
         />
 
         <CartSummary
-          items={items}
+          items={selectedItems}
           company={company}
-          subtotal={subtotal}
-          itemCount={itemCount}
-          onProceed={() => setShowModal(true)}
+          subtotal={selectedSubtotal}
+          itemCount={selectedItemCount}
+          hasSelectedItems={hasSelectedItems}
+          onProceed={() => hasSelectedItems && setShowModal(true)}
         />
       </div>
 
       <OrderConfirmModal
         isOpen={showModal}
         onClose={handleCloseModal}
-        items={items}
+        items={selectedItems}
         company={company}
-        subtotal={subtotal}
-        itemCount={itemCount}
-        moqWarnings={moqWarnings}
+        subtotal={selectedSubtotal}
+        itemCount={selectedItemCount}
+        moqWarnings={selectedMoqWarnings}
         delivery={delivery}
         errors={errors}
         confirmed={confirmed}

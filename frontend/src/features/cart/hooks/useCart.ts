@@ -1,7 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { Product } from "../../../data/products";
+import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { useAuth } from "@/features/auth";
+import { Product, products } from "../../../data/products";
 
 export type AccountType = "wholesale" | "bulk" | "retail";
 
@@ -21,11 +22,26 @@ interface CartContextType {
   addItem: (product: Product, qty: number, opts?: { color?: string; size?: string }) => void;
   updateQty: (productId: string, qty: number) => void;
   removeItem: (productId: string) => void;
+  removeItems: (productIds: string[]) => void;
   clearCart: () => void;
   itemCount: number;
   subtotal: number;
   lastAdded: Product | null;
 }
+
+type PersistedCartItem = {
+  productId: string;
+  qty: number;
+  selectedColor?: string;
+  selectedSize?: string;
+  pricingTier: AccountType;
+  unitPrice: number;
+};
+
+type CartCookiePayload = {
+  items: PersistedCartItem[];
+  pricingTier: AccountType;
+};
 
 const CartContext = createContext<CartContextType>({
   items: [],
@@ -34,6 +50,7 @@ const CartContext = createContext<CartContextType>({
   addItem: () => {},
   updateQty: () => {},
   removeItem: () => {},
+  removeItems: () => {},
   clearCart: () => {},
   itemCount: 0,
   subtotal: 0,
@@ -46,44 +63,146 @@ function getUnitPrice(product: Product, tier: AccountType) {
   return product.retailPrice;
 }
 
+function serializeCartItems(items: CartItem[]): PersistedCartItem[] {
+  return items.map((item) => ({
+    productId: item.product.id,
+    qty: item.qty,
+    selectedColor: item.selectedColor,
+    selectedSize: item.selectedSize,
+    pricingTier: item.pricingTier,
+    unitPrice: item.unitPrice,
+  }));
+}
+
+function hydrateCartItems(serializedItems: PersistedCartItem[]): CartItem[] {
+  const productMap = new Map(products.map((product) => [product.id, product]));
+
+  return serializedItems
+    .map((serializedItem) => {
+      const product = productMap.get(serializedItem.productId);
+      if (!product) {
+        return null;
+      }
+
+      return {
+        product,
+        qty: serializedItem.qty,
+        selectedColor: serializedItem.selectedColor,
+        selectedSize: serializedItem.selectedSize,
+        pricingTier: serializedItem.pricingTier,
+        unitPrice: serializedItem.unitPrice,
+      } as CartItem;
+    })
+    .filter((item): item is CartItem => item !== null);
+}
+
 export function CartProvider({ children }: { children: ReactNode }): React.ReactNode {
+  const { company } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [pricingTier, setPricingTier] = useState<AccountType>("retail");
   const [lastAdded, setLastAdded] = useState<Product | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Load from localStorage on mount
+  const cartOwnerKey = useMemo(() => {
+    if (company?.userId) {
+      return `user:${company.userId}`;
+    }
+
+    if (company?.emailAddress) {
+      return `email:${company.emailAddress.toLowerCase()}`;
+    }
+
+    return "guest";
+  }, [company?.emailAddress, company?.userId]);
+
   useEffect(() => {
+    const clearLegacyStorage = (storage: Storage) => {
+      const keysToRemove: string[] = [];
+
+      for (let i = 0; i < storage.length; i += 1) {
+        const key = storage.key(i);
+        if (!key) continue;
+
+        const isLegacyCartKey =
+          key === "cart_items" ||
+          key === "cart_tier" ||
+          key.startsWith("cart:") ||
+          key.startsWith("session-cart:") ||
+          key.startsWith("cart_");
+
+        if (isLegacyCartKey) {
+          keysToRemove.push(key);
+        }
+      }
+
+      keysToRemove.forEach((key) => storage.removeItem(key));
+    };
+
     try {
-      const savedItems = localStorage.getItem("cart_items");
-      const savedTier = localStorage.getItem("cart_tier") as AccountType;
-      
-      if (savedItems) {
-        setItems(JSON.parse(savedItems));
-      }
-      if (savedTier) {
-        setPricingTier(savedTier);
-      }
-    } catch (error) {
-      console.error("Failed to load cart from localStorage:", error);
-    } finally {
-      setIsHydrated(true);
+      clearLegacyStorage(localStorage);
+      clearLegacyStorage(sessionStorage);
+    } catch {
+      // Ignore storage cleanup issues; app can proceed with cookie-backed cart.
     }
   }, []);
 
-  // Save items to localStorage whenever they change
   useEffect(() => {
-    if (isHydrated) {
-      localStorage.setItem("cart_items", JSON.stringify(items));
-    }
-  }, [items, isHydrated]);
+    setIsHydrated(false);
 
-  // Save pricing tier to localStorage whenever it changes
+    const loadCart = async () => {
+      try {
+        const response = await fetch("/api/cart", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to load cart cookie data");
+        }
+
+        const payload = (await response.json()) as CartCookiePayload;
+        setItems(hydrateCartItems(payload.items || []));
+        setPricingTier(payload.pricingTier || "retail");
+      } catch (error) {
+        console.error("Failed to load cart from cookies:", error);
+        setItems([]);
+        setPricingTier("retail");
+      } finally {
+        setIsHydrated(true);
+      }
+    };
+
+    void loadCart();
+  }, [cartOwnerKey]);
+
   useEffect(() => {
-    if (isHydrated) {
-      localStorage.setItem("cart_tier", pricingTier);
+    if (!isHydrated) {
+      return;
     }
-  }, [pricingTier, isHydrated]);
+
+    const persistCart = async () => {
+      try {
+        const response = await fetch("/api/cart", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            items: serializeCartItems(items),
+            pricingTier,
+          } as CartCookiePayload),
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to persist cart cookie data");
+        }
+      } catch (error) {
+        console.error("Failed to persist cart to cookies:", error);
+      }
+    };
+
+    void persistCart();
+  }, [isHydrated, items, pricingTier]);
 
   const addItem = (product: Product, qty: number, opts?: { color?: string; size?: string }) => {
     const unitPrice = getUnitPrice(product, pricingTier);
@@ -115,6 +234,15 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     setItems((prev) => prev.filter((i) => i.product.id !== productId));
   };
 
+  const removeItems = (productIds: string[]) => {
+    if (productIds.length === 0) {
+      return;
+    }
+
+    const productIdSet = new Set(productIds);
+    setItems((prev) => prev.filter((item) => !productIdSet.has(item.product.id)));
+  };
+
   const clearCart = () => setItems([]);
 
   const itemCount = items.reduce((s, i) => s + i.qty, 0);
@@ -122,7 +250,7 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
 
   return React.createElement(CartContext.Provider, { value: {
     items, pricingTier, setPricingTier,
-    addItem, updateQty, removeItem, clearCart,
+    addItem, updateQty, removeItem, removeItems, clearCart,
     itemCount, subtotal, lastAdded,
   }}, isHydrated ? children : null);
 }

@@ -3,26 +3,29 @@
 import Link from "next/link";
 import { Minus, Plus, Trash2, AlertTriangle, Info } from "lucide-react";
 import { CartItem, Company } from "../types";
-import { CART_COLORS, CART_CONFIG } from "../constants/cartConstants";
+import { CART_CONFIG } from "../constants/cartConstants";
 import { Warning } from "./Warning";
 
 interface CartItemsProps {
   items: CartItem[];
   company: Company;
   moqWarnings: CartItem[];
+  selectedItemIds: string[];
   onUpdateQty: (productId: string, qty: number) => void;
   onRemoveItem: (productId: string) => void;
+  onToggleItemSelection: (productId: string) => void;
 }
 
 export function CartItems({
   items,
   company,
   moqWarnings,
+  selectedItemIds,
   onUpdateQty,
   onRemoveItem,
+  onToggleItemSelection,
 }: CartItemsProps) {
-  const { RED } = CART_COLORS;
-  const { MOQ_WARNING_COLOR, MOQ_WARNING_BG } = CART_CONFIG;
+  const { MOQ_WARNING_COLOR } = CART_CONFIG;
   const hasWarnings = moqWarnings.length > 0;
 
   return (
@@ -45,7 +48,13 @@ export function CartItems({
         </div>
 
         {items.map((item) => {
-          const isBelowMoq = moqWarnings.some((w) => w.product.id === item.product.id);
+          const isSelected = selectedItemIds.includes(item.product.id);
+          const isBelowMoq =
+            company.accountType === "wholesale"
+              ? item.qty < item.product.minWholesale
+              : company.accountType === "bulk"
+              ? item.qty < item.product.minBulk
+              : false;
           const moqRequired =
             company.accountType === "wholesale" ? item.product.minWholesale : item.product.minBulk;
 
@@ -58,6 +67,13 @@ export function CartItems({
               <div className="grid grid-cols-12 gap-3 px-5 py-4 items-center">
                 {/* Product info */}
                 <div className="col-span-6 flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => onToggleItemSelection(item.product.id)}
+                    aria-label={`Select ${item.product.name} for checkout`}
+                    className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                  />
                   <img
                     src={item.product.image}
                     alt={item.product.name}
