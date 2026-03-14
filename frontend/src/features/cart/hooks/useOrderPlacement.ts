@@ -46,7 +46,6 @@ export const useOrderPlacement = (
           subtotal: selectedSubtotal,
           deliveryFee: selectedSubtotal >= 3000 ? 0 : 350,
           grandTotal: selectedSubtotal + (selectedSubtotal >= 3000 ? 0 : 350),
-          companyId: String(currentCompany?.userId) || "",
         });
         
         removeItems(selectedItems.map((item) => item.product.id));

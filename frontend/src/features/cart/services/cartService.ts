@@ -10,7 +10,7 @@ interface PlaceOrderPayload {
   subtotal: number;
   deliveryFee: number;
   grandTotal: number;
-  companyId: string;
+  companyId?: string;
 }
 
 interface PlaceOrderResponse {
@@ -33,14 +33,16 @@ export async function placeOrder(payload: PlaceOrderPayload): Promise<PlaceOrder
       body: JSON.stringify(payload),
     });
 
+    const data = await response.json() as any;
+
     if (!response.ok) {
-      throw new Error(`Failed to place order: ${response.statusText}`);
+      const errorMsg = data?.error || data?.message || response.statusText;
+      throw new Error(errorMsg || "Failed to place order");
     }
 
-    const data = (await response.json()) as PlaceOrderResponse;
-    return data;
+    return data as PlaceOrderResponse;
   } catch (error) {
-    console.error("Error calling placeOrder :", error);
+    console.error("Error calling placeOrder:", error);
     throw error;
   }
 }
