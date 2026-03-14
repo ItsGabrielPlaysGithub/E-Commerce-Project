@@ -36,7 +36,7 @@ export const useOrderPlacement = (
 
       setPlacing(true);
       try {
-        await placeOrder({
+        const response = await placeOrder({
           items: selectedItems.map((item: CartItem) => ({
             productId: item.product.id,
             quantity: item.qty,
@@ -48,8 +48,9 @@ export const useOrderPlacement = (
           grandTotal: selectedSubtotal + (selectedSubtotal >= 3000 ? 0 : 350),
           companyId: String(currentCompany?.userId) || "",
         });
+        
         removeItems(selectedItems.map((item) => item.product.id));
-        router.push("/order-success");
+        router.push(`/b2b/order-success?orderNumber=${response.orderNumber}`);
       } catch (error) {
         console.error("Error placing order:", error);
         setErrors({ notes: "Failed to place order. Please try again." });

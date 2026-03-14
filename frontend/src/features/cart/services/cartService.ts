@@ -13,21 +13,36 @@ interface PlaceOrderPayload {
   companyId: string;
 }
 
+interface PlaceOrderResponse {
+  success: boolean;
+  orderNumber: string;
+  message: string;
+}
+
 /**
- * Placeholder for placing an order via API
- * Replace with your actual API endpoint
+ * Place an order via backend API
+ * The backend generates the order number and persists the order
  */
-export async function placeOrder(payload: PlaceOrderPayload) {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        orderId: `ORD-${Date.now()}`,
-        message: "Order placed successfully",
-      });
-    }, 1500);
-  });
+export async function placeOrder(payload: PlaceOrderPayload): Promise<PlaceOrderResponse> {
+  try {
+    const response = await fetch("/api/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to place order: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as PlaceOrderResponse;
+    return data;
+  } catch (error) {
+    console.error("Error calling placeOrder :", error);
+    throw error;
+  }
 }
 
 /**

@@ -1,0 +1,22 @@
+"use client";
+
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { OrderSuccess } from "@/features/cart/components/OrderSuccess";
+
+function OrderSuccessContent() {
+  const searchParams = useSearchParams();
+  const orderNumber =
+    searchParams?.get("orderNumber") ||
+    `OMG-2025-${String(Math.floor(Math.random() * 900 + 100)).padStart(6, "0")}`;
+
+  return <OrderSuccess orderNumber={orderNumber} />;
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderSuccessContent />
+    </Suspense>
+  );
+}

@@ -115,12 +115,6 @@ export function OrderConfirmModal({
               <span>Subtotal</span>
               <span>₱{subtotal.toLocaleString()}</span>
             </div>
-            {savings > 0 && (
-              <div className="flex justify-between text-green-600">
-                <span>Tier discount</span>
-                <span>-₱{savings.toLocaleString()}</span>
-              </div>
-            )}
             <div className="flex justify-between text-gray-500">
               <span>Delivery</span>
               <span>{deliveryFee === 0 ? "FREE" : `₱${deliveryFee}`}</span>
