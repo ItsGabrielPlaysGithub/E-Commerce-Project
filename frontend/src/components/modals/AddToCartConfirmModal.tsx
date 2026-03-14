@@ -32,7 +32,7 @@ export function AddToCartConfirmModal({
       <div className="relative bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
         {/* Close button */}
         <button
-          onClick={onClose}
+          onClick={() => { onConfirm(); onClose(); }}
           className="absolute top-4 right-4 p-1 rounded-lg hover:bg-gray-100 transition-colors z-10"
         >
           <X size={20} className="text-gray-600" />
