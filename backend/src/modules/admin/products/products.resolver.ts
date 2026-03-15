@@ -13,6 +13,11 @@ export class ProductsResolver {
         return await this.productsService.readProducts();
     }
 
+    @Query(() => ProductsTbl, { name: 'getProductById' })
+    async readProductById(@Args('productId', { type: () => Int }) productId: number) {
+        return await this.productsService.readProductById(productId);
+    }
+
     @Mutation(() => ProductsTbl, { name: 'createProduct' })
     async createProduct(@Args('input') input: CreateProductDto) {
         return await this.productsService.createProduct(input);
