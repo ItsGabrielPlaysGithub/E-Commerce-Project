@@ -15,7 +15,7 @@ export function PageHeader({ activeCategory, filteredCount }: PageHeaderProps) {
           <div className="flex items-center gap-2 text-xs text-gray-400 mb-1">
             <Link href="/b2b/home" className="hover:text-red-600">Home</Link>
             <ChevronDown size={10} className="-rotate-90" />
-            <span className="text-gray-600">Catalog</span>
+            <span className="text-gray-600">Products</span>
             {activeCategory !== "All" && (
               <>
                 <ChevronDown size={10} className="-rotate-90" />
