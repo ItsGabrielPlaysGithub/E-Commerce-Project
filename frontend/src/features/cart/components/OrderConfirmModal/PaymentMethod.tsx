@@ -46,8 +46,8 @@ export function PaymentMethod({ selectedMethod, onMethodChange }: PaymentMethodP
         <div className="space-y-2">
           <label className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all hover:bg-gray-50"
             style={{
-              borderColor: selectedMethod === "manual" ? "#bf262f" : "#e5e7eb",
-              backgroundColor: selectedMethod === "manual" ? "#f9e9ea" : "#fafafa",
+              borderColor: selectedMethod === "manual" ? "#10b981" : "#e5e7eb",
+              backgroundColor: selectedMethod === "manual" ? "#ecfdf5" : "#fafafa",
             }}
           >
             <input
@@ -56,7 +56,7 @@ export function PaymentMethod({ selectedMethod, onMethodChange }: PaymentMethodP
               value="manual"
               checked={selectedMethod === "manual"}
               onChange={(e) => onMethodChange(e.target.value as "e-payment" | "manual")}
-              className="accent-red-600"
+              className="accent-green-600"
             />
             <Banknote size={16} className="text-gray-600" />
             <div className="flex-1">
@@ -67,11 +67,11 @@ export function PaymentMethod({ selectedMethod, onMethodChange }: PaymentMethodP
               <button
                 type="button"
                 onClick={() => setShowInstructions(!showInstructions)}
-                className="ml-auto p-1 hover:bg-gray-200 rounded-lg transition-colors"
+                className="ml-auto p-1 hover:bg-green-100 rounded-lg transition-colors"
               >
                 <ChevronDown
                   size={16}
-                  className="text-gray-600 transition-transform"
+                  className="text-green-600 transition-transform"
                   style={{ transform: showInstructions ? "rotate(180deg)" : "rotate(0deg)" }}
                 />
               </button>
