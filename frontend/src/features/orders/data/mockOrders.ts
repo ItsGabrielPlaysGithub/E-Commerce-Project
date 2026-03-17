@@ -2,6 +2,22 @@ import type { Order } from "../types/order";
 
 export const mockOrders: Order[] = [
   {
+    id: "OHW-2026-00425",
+    sapSo: "SO-8000001289",
+    date: "Mar 16, 2026",
+    customer: "GrandVista Hotels",
+    items: [
+      { sku: "OHW-PM-002", name: "Premium Stainless Steel Cookware", qty: 15, unitPrice: 2499, total: 37485 },
+    ],
+    subtotal: 37485,
+    vat: 4498,
+    total: 41983,
+    status: "Open",
+    paymentStatus: "Pending",
+    deliveryMethod: "—",
+    notes: "Awaiting payment proof or PO",
+  },
+  {
     id: "OHW-2026-00412",
     sapSo: "SO-8000001234",
     date: "Mar 05, 2026",

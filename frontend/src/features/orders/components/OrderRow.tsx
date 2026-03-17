@@ -1,4 +1,4 @@
-import { Download, RotateCcw, Eye, ChevronDown, ChevronUp } from "lucide-react";
+import { Upload, RotateCcw, Eye, ChevronDown, ChevronUp } from "lucide-react";
 import type { Order } from "../types/order";
 import { STATUS_CONFIG, PAY_CONFIG } from "../constants/orderConfig";
 import { OrderDetails } from "./OrderDetails";
@@ -91,13 +91,14 @@ export function OrderRow({
                 <RotateCcw size={13} />
               </button>
             )}
-            <button
-              className="p-2 rounded-lg border transition-colors hover:bg-gray-50 text-gray-500"
-              style={{ borderColor: "#e2e8f0" }}
-              title="Download"
-            >
-              <Download size={13} />
-            </button>
+            {order.status === "Open" && order.paymentStatus === "Pending" && (
+              <button
+                className="p-2 rounded-lg border transition-colors hover:bg-blue-50 hover:text-blue-600 hover:border-blue-500 text-gray-500 border-gray-500"
+                title="Upload Payment Proof"
+              >
+                <Upload size={13} />
+              </button>
+            )}
             <button
               onClick={() => onExpand(isExpanded ? null : order.id)}
               className="flex items-center gap-1 px-3 py-2 rounded-lg border text-xs font-medium transition-colors hover:bg-gray-50"

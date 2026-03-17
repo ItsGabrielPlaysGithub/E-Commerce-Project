@@ -68,7 +68,7 @@ export function OrdersFilter({
             className="pl-8 pr-3 py-2 rounded-lg border text-xs focus:outline-none transition-all"
             style={{ borderColor: "#e2e8f0", width: "200px", fontSize: "0.78rem" }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = "#bf262f";
+              e.currentTarget.style.borderColor = "#bab9b9";
             }}
             onBlur={(e) => {
               e.currentTarget.style.borderColor = "#e2e8f0";
