@@ -16,6 +16,7 @@ export function Logo({ href, RED }: LogoProps) {
         width={120}
         height={40}
         className="h-auto w-auto"
+        loading="eager"
       />
     </Link>
   );

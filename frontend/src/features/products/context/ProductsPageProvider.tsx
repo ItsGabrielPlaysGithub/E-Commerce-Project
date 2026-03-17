@@ -78,13 +78,13 @@ export function ProductsPageProvider({
   };
 
   const setSearchValue = (value: string) => {
-    const nextParams = new URLSearchParams(params?.toString());
+    const params = new URLSearchParams();
     if (value) {
-      nextParams.set("q", value);
-    } else {
-      nextParams.delete("q");
+      params.set("q", value);
     }
-    router.push(`?${nextParams.toString()}`);
+    const queryString = params.toString();
+    const urlPath = `/b2b/products/${initialCategory}`;
+    router.push(queryString ? `${urlPath}?${queryString}` : urlPath);
   };
 
   const setPriceTypeValue = (type: ProductPriceType) => {
@@ -161,7 +161,7 @@ export function ProductsPageProvider({
       loading,
       error: error?.message || null,
     }),
-    [activeCategory, filteredProducts, priceType, search, sort, viewMode, loading, error],
+    [displayCategory, filteredProducts, priceType, search, sort, viewMode, loading, error],
   );
 
   return (

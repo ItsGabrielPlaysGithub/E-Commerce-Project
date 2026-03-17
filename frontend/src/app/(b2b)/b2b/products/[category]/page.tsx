@@ -1,11 +1,15 @@
+"use client";
+
+import { use } from "react";
 import { Products } from "@/pages/b2b/productsPage";
 
 interface ProductsPageProps {
-  params: {
+  params: Promise<{
     category: string;
-  };
+  }>;
 }
 
 export default function Page({ params }: ProductsPageProps) {
-  return <Products initialCategory={decodeURIComponent(params.category)} />;
+  const { category } = use(params);
+  return <Products initialCategory={decodeURIComponent(category)} />;
 }

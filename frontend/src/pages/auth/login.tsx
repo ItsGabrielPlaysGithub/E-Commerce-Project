@@ -23,6 +23,7 @@ export default function Login() {
               width={150}
               height={50}
               className="h-auto w-auto"
+              loading="eager"
             />
           </Link>
 

@@ -61,6 +61,7 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
             width={100}
             height={33}
             className="h-auto w-auto"
+            loading="eager"
           />
         )}
         {!sidebarOpen && (
