@@ -68,7 +68,7 @@ export function Cart() {
             </p>
           </div>
           <a
-            href="/products"
+            href="../app/b2b/products"
             style={{ color: CART_COLORS.RED }}
             className="text-sm font-semibold flex items-center gap-1.5 hover:opacity-80 transition-opacity"
           >
