@@ -1,7 +1,7 @@
 import { Grid, List } from "lucide-react";
-import { SearchBar } from "../../../../components/ui/SearchBar";
-import { DropdownFilter } from "../../../../components/ui/DropdownFilter";
-import { CATEGORIES, SORT_OPTIONS, RED } from "../../../../data/constants";
+import { SearchBar } from "../../../components/ui/SearchBar";
+import { DropdownFilter } from "../../../components/ui/DropdownFilter";
+import { CATEGORIES, SORT_OPTIONS, RED } from "../../../data/constants";
 
 interface FilterBarProps {
   activeCategory: string;

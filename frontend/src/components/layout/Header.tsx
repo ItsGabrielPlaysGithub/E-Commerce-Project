@@ -15,26 +15,20 @@ import type { SessionUser } from "@/lib/session";
 
 const nav = [
   { label: "Home", path: "/b2b/home" },
-  { label: "Products",
-    children: [
-  { label: "All Products", path: "/b2b/products?category=All" },
-  { label: "Bakeware", path: "/b2b/products?category=Bakeware" },
-  { label: "Cookware", path: "/b2b/products?category=Cookware" },
-  { label: "Dinnerware", path: "/b2b/products?category=Dinnerware" },
-  { label: "Glassware", path: "/b2b/products?category=Glassware" },
-  { label: "Hydration", path: "/b2b/products?category=Hydration" },
-  { label: "Vacuum Flask", path: "/b2b/products?category=Vacuum%20Flask" },
-    ],
-  },  
   {
-    label: "Programs",
+    label: "Products",
     children: [
-      { label: "Retail", path: "/b2b/retail", sub: "No MOQ" },
-      { label: "Wholesale", path: "/b2b/wholesale", sub: "From 12 units" },
-      { label: "Bulk Order", path: "/b2b/bulk-order", sub: "100+ units" },
+      { label: "All Products", path: "/b2b/products?category=All" },
+      { label: "Bakeware", path: "/b2b/products?category=Bakeware" },
+      { label: "Cookware", path: "/b2b/products?category=Cookware" },
+      { label: "Dinnerware", path: "/b2b/products?category=Dinnerware" },
+      { label: "Glassware", path: "/b2b/products?category=Glassware" },
+      { label: "Hydration", path: "/b2b/products?category=Hydration" },
+      { label: "Vacuum Flask", path: "/b2b/products?category=Vacuum%20Flask" },
     ],
   },
   { label: "Inquiry", path: "/b2b/inquiry" },
+  { label: "Orders", path: "/b2b/my-orders" },
 ];
 
 const RED = "#bf262f";
@@ -45,7 +39,6 @@ interface HeaderProps {
 
 export function Header({ sessionUser }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [programsOpen, setProgramsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const pathname = usePathname();
@@ -86,7 +79,9 @@ export function Header({ sessionUser }: HeaderProps) {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Logo href={isLoggedIn ? "/b2b/home" : "/"} RED={RED} />
-            <span className="hidden sm:inline text-xs text-gray-400 uppercase tracking-widest font-medium">B2B Portal</span>
+            <span className="hidden sm:inline text-xs text-gray-400 uppercase tracking-widest font-medium">
+              B2B Portal
+            </span>
           </div>
 
           {/* Desktop nav */}
@@ -148,7 +143,9 @@ export function Header({ sessionUser }: HeaderProps) {
             {nav.map((item) =>
               item.children ? (
                 <div key={item.label}>
-                  <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">{item.label}</div>
+                  <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    {item.label}
+                  </div>
                   {item.children.map((child) => (
                     <Link
                       key={child.path}
@@ -157,7 +154,6 @@ export function Header({ sessionUser }: HeaderProps) {
                       className="flex items-center justify-between px-4 py-2.5 text-sm text-gray-700 rounded-lg hover:bg-gray-50"
                     >
                       <span>{child.label}</span>
-                      {"sub" in child && child.sub && <span className="text-xs text-gray-400">{child.sub}</span>}
                     </Link>
                   ))}
                 </div>
@@ -170,7 +166,7 @@ export function Header({ sessionUser }: HeaderProps) {
                 >
                   {item.label}
                 </Link>
-              )
+              ),
             )}
             <div className="border-t border-gray-100 mt-2 pt-3 flex flex-col gap-2">
               <Link
@@ -178,7 +174,8 @@ export function Header({ sessionUser }: HeaderProps) {
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 text-sm font-semibold text-gray-700"
               >
-                <ShoppingCart size={15} /> Cart {itemCount > 0 && `(${itemCount})`}
+                <ShoppingCart size={15} /> Cart{" "}
+                {itemCount > 0 && `(${itemCount})`}
               </Link>
               <button
                 onClick={async () => {

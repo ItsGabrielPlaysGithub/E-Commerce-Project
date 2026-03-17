@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { Download, Package, AlertTriangle, Zap, TrendingUp, Plus, Search, Filter } from "lucide-react";
 import { ProductsTable } from "@/components/admin/ProductsTable";
-import { AddProductModal, type ProductFormData } from "@/features/admin/products/components/AddProductModal";
-import { useProducts } from "@/features/admin/products/hooks/use-products";
+import { AddProductModal, type ProductFormData } from "@/features/products/components/AddProductModal";
+import { useProducts } from "@/features/products/hooks/use-products";
 
 interface Product {
   id: string;

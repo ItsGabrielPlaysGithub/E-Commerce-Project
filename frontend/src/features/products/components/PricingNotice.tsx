@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { RED, RED_LIGHT } from "../../../../data/constants";
+import { RED, RED_LIGHT } from "../../../data/constants";
 
 interface PricingNoticeProps {
   priceType: "retail" | "wholesale" | "bulk";

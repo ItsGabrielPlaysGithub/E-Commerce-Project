@@ -9,11 +9,11 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useProducts } from "../hooks/use-products";
-import type { Product } from "../../../../data/products";
+import type { Product } from "../../../data/products";
 import {
   getProductPrice,
   type ProductPriceType,
-} from "../../../../data/pricing";
+} from "../../../data/pricing";
 
 type ViewMode = "grid" | "list";
 type SortMode = "featured" | "price-asc" | "price-desc" | "rating";
