@@ -36,9 +36,9 @@ export function OrdersList({
       />
 
       {/* Orders list */}
-      <div className="bg-white rounded-xl p-5 overflow-y-auto h-full flex flex-col">
+      <div className="bg-white rounded-xl p-5 flex flex-col">
         {filtered.length === 0 && (
-          <div className="flex-1 flex items-center justify-center py-16 text-gray-400">
+          <div className="flex items-center justify-center py-16 text-gray-400">
             <div className="text-center">
               <Package size={32} className="mx-auto mb-3 opacity-40" />
               <div className="text-sm font-medium">No orders match your filters</div>
@@ -46,7 +46,7 @@ export function OrdersList({
           </div>
         )}
         {filtered.length > 0 && (
-          <div className="flex-1 space-y-3">
+          <div className="space-y-3">
             {filtered.map((order, i) => (
               <OrderRow
                 key={order.id}

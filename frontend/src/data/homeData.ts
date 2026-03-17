@@ -11,7 +11,7 @@ export const heroSlides = [
     cta: "Shop Now",
     ctaPath: "../../b2b/products",
     secondary: "Make Inquiry",
-    secondaryPath: "/inquiry",
+    secondaryPath: "../../b2b/inquiry",
     image: "https://images.unsplash.com/photo-1696986324692-f4aa0f2f495d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
     accent: "Elizabeth Ceramic Casserole — ₱2,499",
     badge: "FREE SHIPPING · Min. Spend ₱1,299",
