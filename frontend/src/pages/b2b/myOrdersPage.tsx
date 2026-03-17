@@ -38,18 +38,17 @@ export function MyOrdersPage() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        <OrdersPageHeader ordersCount={counts.total || mockOrders.length} />
-
+    <div
+      className="bg-gray-50 min-h-screen"
+      style={{ fontFamily: "'Inter', sans-serif" }}
+    >
+      <OrdersPageHeader ordersCount={counts.total || mockOrders.length} />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Summary of Orders */}
-        <div className="sumOfOrders m-[1.5%]">
+        <div className="space-y-6">
           <OrdersSummary items={summaryItems} />
-        </div>
-        
-        {/* ── Orders List + Filter  */}
-        <div className="orderList ml-[1.5%] mr-[1.5%] mb-[1.5%]">
+
+          {/* ── Orders List + Filter  */}
           <OrdersList
             orders={mockOrders}
             activeTab={activeTab}
@@ -63,7 +62,7 @@ export function MyOrdersPage() {
           />
         </div>
       </div>
-      
+
       {/* Bottom Bar - Stays at Bottom */}
       <BottomBar />
     </div>
