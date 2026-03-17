@@ -36,6 +36,14 @@ export class ProductsTbl {
     @Field(() => Int)
     available: number;
 
+    @Column({ default: 0 })
+    @Field(() => Int)
+    inTransit: number;
+
+    @Column({ default: 0 })
+    @Field(() => Int)
+    blocked: number;
+
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     @Field()
     createdAt: Date;

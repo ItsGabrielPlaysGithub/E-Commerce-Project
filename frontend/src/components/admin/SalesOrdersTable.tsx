@@ -4,32 +4,34 @@ import { MoreVertical, Edit2, Eye, FileText, Printer, X, Calendar, CreditCard, A
 import { useState } from "react";
 
 interface SalesOrder {
-  id: string;
+  orderId: string;
   orderNumber: string;
-  customerName: string;
-  customerNo: string;
-  orderType: "Bulk" | "Wholesale" | "Retail";
-  createdDate: string;
-  deliveryStatus: string;
-  netAmount: number;
+  userId: number;
+  productId: number;
+  orderType?: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
   status: string;
-  paymentMethod: "paymongo" | "manual_transfer";
+  deliveryStatus?: string;
+  paymentMethod?: string;
   paymentProofImage?: string;
   paymentProofUploadedAt?: string;
   paymongoTransactionId?: string;
   paymongoAmount?: number;
   paymongoPaymentMethod?: string;
   paymongoTimestamp?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 function StatusBadge({ status }: { status: string }) {
   const statusColors: Record<string, { bg: string; color: string }> = {
-    Open: { bg: "#fffbeb", color: "#d97706" },
-    "In Progress": { bg: "#eff6ff", color: "#2563eb" },
-    Delivered: { bg: "#ecfdf5", color: "#16a34a" },
-    Billed: { bg: "#f3f4f6", color: "#6b7280" },
-    "Partially Shipped": { bg: "#eff6ff", color: "#2563eb" },
-    "Fully Shipped": { bg: "#ecfdf5", color: "#16a34a" },
+    PENDING_APPROVAL: { bg: "#fffbeb", color: "#d97706" },
+    APPROVED: { bg: "#eff6ff", color: "#2563eb" },
+    DELIVERED: { bg: "#ecfdf5", color: "#16a34a" },
+    PAID: { bg: "#f3f4f6", color: "#6b7280" },
+    READY_FOR_BILLING: { bg: "#fef3c7", color: "#ca8a04" },
   };
 
   const style = statusColors[status] || { bg: "#f3f4f6", color: "#6b7280" };
@@ -140,7 +142,7 @@ function ActionsMenu({
   });
 
   // PayMongo payment verification
-  if (order.paymentMethod === "paymongo" && order.status === "Paid") {
+  if (order.paymentMethod === "paymongo" && order.status === "PAID") {
     actions.push({
       label: "View PayMongo Details",
       icon: CreditCard,
@@ -154,7 +156,7 @@ function ActionsMenu({
   }
 
   // Manual payment workflow
-  if (order.paymentMethod === "manual_transfer" && order.status === "Pending Payment") {
+  if (order.paymentMethod === "manual_transfer" && order.status === "READY_FOR_BILLING") {
     actions.push({
       label: "View Payment Proof",
       icon: FileText,
@@ -163,7 +165,7 @@ function ActionsMenu({
   }
 
   // Status-specific actions for paid/delivered orders
-  if (order.status === "Open") {
+  if (order.status === "PENDING_APPROVAL") {
     actions.push({
       label: "Adjust Delivery Date",
       icon: Calendar,
@@ -176,7 +178,7 @@ function ActionsMenu({
     });
   }
 
-  if (order.status === "In Progress") {
+  if (order.status === "APPROVED") {
     actions.push({
       label: "Adjust Delivery Date",
       icon: Calendar,
@@ -184,7 +186,7 @@ function ActionsMenu({
     });
   }
 
-  if (["Delivered", "Billed"].includes(order.status)) {
+  if (["DELIVERED", "PAID"].includes(order.status)) {
     actions.push({
       label: "View Invoice",
       icon: FileText,
@@ -318,7 +320,7 @@ export function SalesOrdersTable({
             {paginatedOrders.length > 0 ? (
               paginatedOrders.map((order) => (
                 <tr
-                  key={order.id}
+                  key={order.orderNumber || order.orderId}
                   className="hover:bg-gray-50/50 transition-colors"
                 >
                   <td className="px-5 py-3.5 font-mono text-xs text-gray-600 whitespace-nowrap">
@@ -326,24 +328,24 @@ export function SalesOrdersTable({
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="font-medium text-gray-800 whitespace-nowrap">
-                      {order.customerName}
+                      Customer #{order.userId}
                     </div>
-                    <div className="text-xs text-gray-400">{order.customerNo}</div>
+                    <div className="text-xs text-gray-400">Product #{order.productId}</div>
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    <OrderTypeBadge type={order.orderType} />
+                    <OrderTypeBadge type={order.orderType || "Retail"} />
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    <PaymentMethodBadge method={order.paymentMethod} />
+                    <PaymentMethodBadge method={order.paymentMethod || ""} />
                   </td>
                   <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
-                    {order.createdDate}
+                    {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-PH') : '-'}
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
-                    <StatusBadge status={order.deliveryStatus} />
+                    <StatusBadge status={order.deliveryStatus || ""} />
                   </td>
                   <td className="px-5 py-3.5 font-semibold text-gray-800 whitespace-nowrap">
-                    ₱{order.netAmount.toLocaleString('en-PH')}
+                    ₱{(order.totalPrice || 0).toLocaleString('en-PH')}
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <StatusBadge status={order.status} />

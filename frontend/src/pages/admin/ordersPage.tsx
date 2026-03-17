@@ -5,121 +5,29 @@ import { Download, Plus, Search, Filter } from "lucide-react";
 import { SalesOrdersTable } from "@/components/admin/SalesOrdersTable";
 import { PaymentProofModal } from "@/components/admin/PaymentProofModal";
 import { PaymongoTransactionModal } from "@/components/admin/PaymongoTransactionModal";
+import { useOrders } from "@/features/admin/sales-order/hooks";
 
 interface SalesOrder {
-  id: string;
+  orderId: string;
   orderNumber: string;
-  customerName: string;
-  customerNo: string;
-  orderType: "Bulk" | "Wholesale" | "Retail";
-  createdDate: string;
-  deliveryStatus: string;
-  netAmount: number;
+  userId: number;
+  productId: number;
+  orderType?: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
   status: string;
-  paymentMethod: "paymongo" | "manual_transfer";
+  deliveryStatus?: string;
+  paymentMethod?: string;
   paymentProofImage?: string;
   paymentProofUploadedAt?: string;
   paymongoTransactionId?: string;
   paymongoAmount?: number;
   paymongoPaymentMethod?: string;
   paymongoTimestamp?: string;
+  createdAt: string;
+  updatedAt: string;
 }
-
-// Mock data
-const ordersData: SalesOrder[] = [
-  {
-    id: "1",
-    orderNumber: "5000000412",
-    customerName: "GrandVista Hotels",
-    customerNo: "C-0001204",
-    orderType: "Bulk" as const,
-    createdDate: "2026-03-05",
-    deliveryStatus: "Partially Shipped",
-    netAmount: 87500,
-    status: "In Progress",
-    paymentMethod: "paymongo",
-    paymongoTransactionId: "TXN-PM-001",
-    paymongoAmount: 87500,
-    paymongoPaymentMethod: "GCash",
-    paymongoTimestamp: "2026-03-05 10:30 AM",
-  },
-  {
-    id: "2",
-    orderNumber: "5000000411",
-    customerName: "CookMart Philippines",
-    customerNo: "C-0000892",
-    orderType: "Wholesale" as const,
-    createdDate: "2026-03-04",
-    deliveryStatus: "Fully Shipped",
-    netAmount: 142300,
-    status: "Delivered",
-    paymentMethod: "manual_transfer",
-    paymentProofImage: "https://via.placeholder.com/400x300?text=Payment+Proof",
-    paymentProofUploadedAt: "2026-03-04 02:15 PM",
-  },
-  {
-    id: "3",
-    orderNumber: "5000000410",
-    customerName: "Nourish Restaurant Group",
-    customerNo: "C-0001105",
-    orderType: "Bulk" as const,
-    createdDate: "2026-03-03",
-    deliveryStatus: "Fully Shipped",
-    netAmount: 213600,
-    status: "Billed",
-    paymentMethod: "paymongo",
-    paymongoTransactionId: "TXN-PM-002",
-    paymongoAmount: 213600,
-    paymongoPaymentMethod: "Card",
-    paymongoTimestamp: "2026-03-03 09:45 AM",
-  },
-  {
-    id: "4",
-    orderNumber: "5000000409",
-    customerName: "The Kitchen Store",
-    customerNo: "C-0000341",
-    orderType: "Wholesale" as const,
-    createdDate: "2026-03-02",
-    deliveryStatus: "Fully Shipped",
-    netAmount: 28776,
-    status: "Billed",
-    paymentMethod: "paymongo",
-    paymongoTransactionId: "TXN-PM-003",
-    paymongoAmount: 28776,
-    paymongoPaymentMethod: "Grab Pay",
-    paymongoTimestamp: "2026-03-02 03:20 PM",
-  },
-  {
-    id: "5",
-    orderNumber: "5000000408",
-    customerName: "SM Lifestyle",
-    customerNo: "C-0000671",
-    orderType: "Bulk" as const,
-    createdDate: "2026-03-01",
-    deliveryStatus: "Not Shipped",
-    netAmount: 319800,
-    status: "Open",
-    paymentMethod: "manual_transfer",
-    paymentProofImage: "https://via.placeholder.com/400x300?text=Payment+Proof",
-    paymentProofUploadedAt: "2026-03-01 11:00 AM",
-  },
-  {
-    id: "6",
-    orderNumber: "5000000407",
-    customerName: "Fiesta Foodservice",
-    customerNo: "C-0000812",
-    orderType: "Bulk" as const,
-    createdDate: "2026-02-28",
-    deliveryStatus: "Fully Shipped",
-    netAmount: 96450,
-    status: "Billed",
-    paymentMethod: "paymongo",
-    paymongoTransactionId: "TXN-PM-004",
-    paymongoAmount: 96450,
-    paymongoPaymentMethod: "Bank Transfer",
-    paymongoTimestamp: "2026-02-28 08:15 AM",
-  },
-];
 
 export default function SalesOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -130,30 +38,82 @@ export default function SalesOrdersPage() {
   const [paymongoTransactionOrder, setPaymongoTransactionOrder] = useState<SalesOrder | null>(null);
   const [paymongoTransactionLoading, setPaymongoTransactionLoading] = useState(false);
 
+  // Fetch orders from GraphQL
+  const { data, loading, error } = useOrders();
+
+  // Transform GraphQL data to match SalesOrder interface
+  const ordersData: SalesOrder[] = (data?.allOrders || []).map((order: any) => ({
+    orderId: order.orderId?.toString() || "",
+    orderNumber: order.orderNumber || "",
+    userId: order.userId || 0,
+    productId: order.productId || 0,
+    orderType: order.orderType || "",
+    quantity: order.quantity || 0,
+    unitPrice: order.unitPrice || 0,
+    totalPrice: order.totalPrice || 0,
+    status: order.status || "PENDING_APPROVAL",
+    deliveryStatus: order.deliveryStatus || "",
+    paymentMethod: order.paymentMethod || "",
+    paymentProofImage: order.paymentProofImage || "",
+    paymentProofUploadedAt: order.paymentProofUploadedAt || "",
+    paymongoTransactionId: order.paymongoTransactionId || "",
+    paymongoAmount: order.paymongoAmount || 0,
+    paymongoPaymentMethod: order.paymongoPaymentMethod || "",
+    paymongoTimestamp: order.paymongoTimestamp || "",
+    createdAt: order.createdAt || "",
+    updatedAt: order.updatedAt || "",
+  }));
+
+  if (loading) {
+    return (
+      <div className="space-y-6 px-8 py-8">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+            <p className="mt-4 text-gray-600">Loading orders...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6 px-8 py-8">
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center text-red-600">
+            <p className="text-lg font-semibold">Error loading orders</p>
+            <p className="mt-2 text-sm">{error.message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Calculate stats
   const totalOrders = ordersData.length;
-  const totalAmount = ordersData.reduce((sum, o) => sum + o.netAmount, 0);
+  const totalAmount = ordersData.reduce((sum, o) => sum + o.totalPrice, 0);
 
   const statusCards = [
     {
-      label: "Open",
-      count: ordersData.filter((o) => o.status === "Open").length,
-      amount: ordersData.filter((o) => o.status === "Open").reduce((s, o) => s + o.netAmount, 0),
+      label: "PENDING_APPROVAL",
+      count: ordersData.filter((o) => o.status === "PENDING_APPROVAL").length,
+      amount: ordersData.filter((o) => o.status === "PENDING_APPROVAL").reduce((s, o) => s + o.totalPrice, 0),
     },
     {
-      label: "In Progress",
-      count: ordersData.filter((o) => o.status === "In Progress").length,
-      amount: ordersData.filter((o) => o.status === "In Progress").reduce((s, o) => s + o.netAmount, 0),
+      label: "APPROVED",
+      count: ordersData.filter((o) => o.status === "APPROVED").length,
+      amount: ordersData.filter((o) => o.status === "APPROVED").reduce((s, o) => s + o.totalPrice, 0),
     },
     {
-      label: "Delivered",
-      count: ordersData.filter((o) => o.status === "Delivered").length,
-      amount: ordersData.filter((o) => o.status === "Delivered").reduce((s, o) => s + o.netAmount, 0),
+      label: "DELIVERED",
+      count: ordersData.filter((o) => o.status === "DELIVERED").length,
+      amount: ordersData.filter((o) => o.status === "DELIVERED").reduce((s, o) => s + o.totalPrice, 0),
     },
     {
-      label: "Billed",
-      count: ordersData.filter((o) => o.status === "Billed").length,
-      amount: ordersData.filter((o) => o.status === "Billed").reduce((s, o) => s + o.netAmount, 0),
+      label: "PAID",
+      count: ordersData.filter((o) => o.status === "PAID").length,
+      amount: ordersData.filter((o) => o.status === "PAID").reduce((s, o) => s + o.totalPrice, 0),
     },
   ];
 
@@ -161,7 +121,7 @@ export default function SalesOrdersPage() {
   const filteredOrders = ordersData.filter((order) => {
     const matchesSearch =
       order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customerName.toLowerCase().includes(searchTerm.toLowerCase());
+      order.userId.toString().includes(searchTerm.toLowerCase());
     const matchesStatus = selectedStatus === "all" || order.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
@@ -253,9 +213,10 @@ export default function SalesOrdersPage() {
             <div
               className="font-bold"
               style={{
-                fontFamily: "'Playfair Display', serif",
                 fontSize: "1.5rem",
-                color: label === "Open" ? "#d97706" : label === "In Progress" ? "#2563eb" : label === "Delivered" ? "#16a34a" : "#6b7280",
+                fontWeight: 700,
+                lineHeight: 1.2,
+                color: label === "PENDING_APPROVAL" ? "#d97706" : label === "APPROVED" ? "#2563eb" : label === "DELIVERED" ? "#16a34a" : "#6b7280",
               }}
             >
               {count}
@@ -302,7 +263,7 @@ export default function SalesOrdersPage() {
                   Status
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {["all", "Open", "In Progress", "Delivered", "Billed"].map((status) => (
+                  {["all", "PENDING_APPROVAL", "APPROVED", "DELIVERED", "PAID"].map((status) => (
                     <button
                       key={status}
                       onClick={() => setSelectedStatus(status)}

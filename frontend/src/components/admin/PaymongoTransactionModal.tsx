@@ -3,10 +3,10 @@
 import { X, AlertCircle, CheckCircle } from "lucide-react";
 
 interface SalesOrder {
-  id: string;
+  orderId: string;
   orderNumber: string;
-  customerName: string;
-  netAmount: number;
+  userId: number;
+  totalPrice: number;
   paymongoTransactionId?: string;
   paymongoAmount?: number;
   paymongoPaymentMethod?: string;
@@ -28,7 +28,7 @@ export function PaymongoTransactionModal({
   onReportDiscrepancy,
   isLoading = false,
 }: PaymongoTransactionModalProps) {
-  const orderAmount = order.netAmount;
+  const orderAmount = order.totalPrice;
   const chargedAmount = order.paymongoAmount || 0;
   const amountMatch = Math.abs(orderAmount - chargedAmount) < 0.01;
   const amountDifference = chargedAmount - orderAmount;
@@ -69,7 +69,7 @@ export function PaymongoTransactionModal({
               PayMongo Transaction Details
             </h3>
             <p style={{ fontSize: "12px", color: "#94a3b8" }}>
-              Order #{order.orderNumber} • {order.customerName}
+              Order #{order.orderNumber} • Customer #{order.userId}
             </p>
           </div>
           <button

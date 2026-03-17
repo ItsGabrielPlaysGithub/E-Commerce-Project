@@ -11,6 +11,7 @@ export const GET_PRODUCTS = gql`
       productPrice
       reorderPoint
       available
+      blocked
       createdAt
       updatedAt
     }
@@ -28,6 +29,8 @@ export const GET_PRODUCT_BY_ID = gql`
       productPrice
       reorderPoint
       available
+      inTransit
+      blocked
       createdAt
       updatedAt
     }

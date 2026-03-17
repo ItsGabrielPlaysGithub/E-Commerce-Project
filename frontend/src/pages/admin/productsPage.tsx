@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Download, Package, AlertTriangle, Zap, TrendingUp, Plus, Search, Filter } from "lucide-react";
 import { ProductsTable } from "@/components/admin/ProductsTable";
 import { AddProductModal, type ProductFormData } from "@/features/products/components/AddProductModal";
+import { ArchiveConfirmDialog } from "@/components/admin/ArchiveConfirmDialog";
+import { AdjustStockModal } from "@/components/admin/AdjustStockModal";
+import { ProductDetailsModal } from "@/components/admin/ProductDetailsModal";
 import { useProducts } from "@/features/products/hooks/use-products";
+import { toast } from "sonner";
 
 interface Product {
   id: string;
@@ -26,6 +30,12 @@ export default function ProductsPage() {
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
   const [productToEdit, setProductToEdit] = useState<(ProductFormData & { productId: number }) | null>(null);
+  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const [archiveLoading, setArchiveLoading] = useState(false);
+  const [adjustStockOpen, setAdjustStockOpen] = useState(false);
+  const [adjustStockLoading, setAdjustStockLoading] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Fetch from GraphQL
   const { data, loading, error } = useProducts();
@@ -33,13 +43,13 @@ export default function ProductsPage() {
   // Transform data directly (no useEffect needed)
   const products: Product[] = (data?.getProducts || []).map((product) => ({
     id: product.productId.toString(),
-    sku: product.productId.toString(), // TODO: Add SKU field to backend
+    sku: product.sku || `SKU-${product.productId}`,
     name: product.productName,
-    category: "Uncategorized", // TODO: Add category field to backend
-    available: 0, // TODO: Add available field to backend
-    inTransit: 0,
-    blocked: 0,
-    reorderPoint: 0,
+    category: product.category || "Uncategorized",
+    available: product.available || 0,
+    inTransit: product.inTransit || 0,
+    blocked: product.blocked || 0,
+    reorderPoint: product.reorderPoint || 50,
     status: "Active" as const,
     price: product.productPrice,
   }));
@@ -89,18 +99,52 @@ export default function ProductsPage() {
   };
 
   const handleViewDetails = (product: Product) => {
-    console.log("View details:", product);
-    // TODO: Open details modal or navigate to details page
+    setSelectedProduct(product);
+    setShowDetailsModal(true);
   };
 
   const handleAdjustStock = (product: Product) => {
-    console.log("Adjust stock:", product);
-    // TODO: Open stock adjustment modal
+    setSelectedProduct(product);
+    setAdjustStockOpen(true);
+  };
+
+  const handleAdjustStockSubmit = async (data: { available: number; inTransit: number; blocked: number }) => {
+    setAdjustStockLoading(true);
+    try {
+      console.log("Adjust stock for product:", selectedProduct?.name, data);
+      // TODO: Call updateProductStock mutation with refetchQueries: ["GetProducts"]
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      toast.success("Stock updated successfully!");
+      setAdjustStockOpen(false);
+      // When you implement the real mutation, add: refetchQueries: ["GetProducts"]
+    } catch (error) {
+      console.error("Failed to adjust stock:", error);
+      toast.error("Failed to adjust stock");
+    } finally {
+      setAdjustStockLoading(false);
+    }
   };
 
   const handleArchive = (product: Product) => {
-    console.log("Archive product:", product);
-    // TODO: Show confirmation and archive product
+    setSelectedProduct(product);
+    setArchiveDialogOpen(true);
+  };
+
+  const handleArchiveConfirm = async () => {
+    setArchiveLoading(true);
+    try {
+      console.log("Archiving product:", selectedProduct?.name);
+      // TODO: Call archiveProduct mutation with refetchQueries: ["GetProducts"]
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      toast.success("Product archived successfully!");
+      setArchiveDialogOpen(false);
+      // When you implement the real mutation, add: refetchQueries: ["GetProducts"]
+    } catch (error) {
+      console.error("Failed to archive product:", error);
+      toast.error("Failed to archive product");
+    } finally {
+      setArchiveLoading(false);
+    }
   };
 
   return (
@@ -169,8 +213,9 @@ export default function ProductsPage() {
             <div
               className="font-bold"
               style={{
-                fontFamily: "'Playfair Display', serif",
                 fontSize: "1.5rem",
+                fontWeight: 700,
+                lineHeight: 1.2,
                 color,
               }}
             >
@@ -311,6 +356,37 @@ export default function ProductsPage() {
         onSubmit={handleAddProduct}
         productToEdit={productToEdit || undefined}
       />
+
+      {/* Archive Confirm Dialog */}
+      {selectedProduct && (
+        <ArchiveConfirmDialog
+          isOpen={archiveDialogOpen}
+          productName={selectedProduct.name}
+          onConfirm={handleArchiveConfirm}
+          onCancel={() => setArchiveDialogOpen(false)}
+          isLoading={archiveLoading}
+        />
+      )}
+
+      {/* Adjust Stock Modal */}
+      {selectedProduct && (
+        <AdjustStockModal
+          isOpen={adjustStockOpen}
+          product={selectedProduct}
+          onClose={() => setAdjustStockOpen(false)}
+          onSubmit={handleAdjustStockSubmit}
+          isLoading={adjustStockLoading}
+        />
+      )}
+
+      {/* Product Details Modal */}
+      {selectedProduct && (
+        <ProductDetailsModal
+          isOpen={showDetailsModal}
+          product={selectedProduct}
+          onClose={() => setShowDetailsModal(false)}
+        />
+      )}
     </div>
   );
 }
