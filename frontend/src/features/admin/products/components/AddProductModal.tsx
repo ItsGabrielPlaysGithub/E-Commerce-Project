@@ -1,12 +1,15 @@
 "use client";
 
 import { X, Package } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCreateProduct } from "../hooks/use-createproduct";
+import { useUpdateProduct } from "../hooks/use-updateproduct";
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (product: ProductFormData) => void;
+  productToEdit?: ProductFormData & { productId: number };
 }
 
 export interface ProductFormData {
@@ -30,7 +33,12 @@ export function AddProductModal({
   isOpen,
   onClose,
   onSubmit,
+  productToEdit,
 }: AddProductModalProps) {
+  const [createProduct] = useCreateProduct();
+  const [updateProduct] = useUpdateProduct();
+  const isEditMode = !!productToEdit;
+
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     sku: "",
@@ -41,6 +49,33 @@ export function AddProductModal({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (isEditMode && productToEdit) {
+      setFormData({
+        name: productToEdit.name,
+        sku: productToEdit.sku,
+        category: productToEdit.category,
+        price: productToEdit.price,
+        reorderPoint: productToEdit.reorderPoint,
+        available: productToEdit.available,
+      });
+    } else {
+      setFormData({
+        name: "",
+        sku: "",
+        category: "",
+        price: 0,
+        reorderPoint: 0,
+        available: 0,
+      });
+    }
+    setErrors({});
+    setError(null);
+  }, [isOpen, isEditMode, productToEdit]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -83,6 +118,7 @@ export function AddProductModal({
     }
   };
 
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const field = (e.target as HTMLInputElement).name;
     // Block minus key on numeric fields
@@ -110,17 +146,80 @@ export function AddProductModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      onSubmit(formData);
-      setFormData({
-        name: "",
-        sku: "",
-        category: "",
-        price: 0,
-        reorderPoint: 0,
-        available: 0,
-      });
-      onClose();
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError(null);
+
+    if (isEditMode && productToEdit) {
+      // Edit mode - use updateProduct (id separate)
+      updateProduct({
+        variables: {
+          id: productToEdit.productId,
+          input: {
+            productName: formData.name,
+            productDescription: "",
+            sku: formData.sku,
+            category: formData.category,
+            productPrice: formData.price,
+            reorderPoint: formData.reorderPoint,
+            available: formData.available,
+          },
+        },
+      })
+        .then(() => {
+          onSubmit(formData);
+          setFormData({
+            name: "",
+            sku: "",
+            category: "",
+            price: 0,
+            reorderPoint: 0,
+            available: 0,
+          });
+          onClose();
+        })
+        .catch((err) => {
+          setError(err);
+          console.error("Update error:", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      // Create mode - use createProduct
+      createProduct({
+        variables: {
+          input: {
+            productName: formData.name,
+            productDescription: "",
+            sku: formData.sku,
+            category: formData.category,
+            productPrice: formData.price,
+            reorderPoint: formData.reorderPoint,
+            available: formData.available,
+          },
+        },
+      })
+        .then(() => {
+          onSubmit(formData);
+          setFormData({
+            name: "",
+            sku: "",
+            category: "",
+            price: 0,
+            reorderPoint: 0,
+            available: 0,
+          });
+          onClose();
+        })
+        .catch((err) => {
+          setError(err);
+          console.error("Create error:", err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   };
 
@@ -149,8 +248,12 @@ export function AddProductModal({
               <Package size={20} style={{ color: "#bf262f" }} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">Add New Product</h2>
-              <p className="text-sm text-gray-500">Fill in the product details below</p>
+              <h2 className="text-lg font-bold text-gray-900">
+                {isEditMode ? "Edit Product" : "Add New Product"}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {isEditMode ? "Update the product details below" : "Fill in the product details below"}
+              </p>
             </div>
           </div>
 
@@ -165,6 +268,12 @@ export function AddProductModal({
 
         {/* Form Content */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Error from mutation */}
+          {error && (
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-sm text-red-700">{error.message}</p>
+            </div>
+          )}
           {/* Product Name */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -329,17 +438,28 @@ export function AddProductModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-xl font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+              disabled={loading}
+              className="flex-1 py-3 rounded-xl font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+              disabled={loading}
+              className="flex-1 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ backgroundColor: "#bf262f" }}
             >
-              <Package size={16} />
-              Add Product
+              {loading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  {isEditMode ? "Updating..." : "Creating..."}
+                </>
+              ) : (
+                <>
+                  <Package size={16} />
+                  {isEditMode ? "Update Product" : "Add Product"}
+                </>
+              )}
             </button>
           </div>
         </form>

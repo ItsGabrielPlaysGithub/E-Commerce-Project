@@ -1,6 +1,6 @@
-import { ProductCard } from "../../../components/cards/ProductCard";
-import type { Product } from "../../../data/products";
-import type { ProductPriceType } from "../../../data/pricing";
+import { ProductCard } from "../../../../components/cards/ProductCard";
+import type { Product } from "../../../../data/products";
+import type { ProductPriceType } from "../../../../data/pricing";
 
 interface ProductsGridProps {
   products: Product[];

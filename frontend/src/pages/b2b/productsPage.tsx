@@ -1,9 +1,9 @@
 "use client";
 
-import { ProductsHeaderSection } from "../../features/products/components/ProductsHeaderSection";
-import { ProductsPageProvider } from "../../features/products/context/ProductsPageProvider";
-import { ProductsResultsSection } from "../../features/products/context/ProductsResultsSection";
-import { ProductsToolbarSection } from "../../features/products/components/ProductsToolbarSection";
+import { ProductsHeaderSection } from "../../features/admin/products/components/ProductsHeaderSection";
+import { ProductsPageProvider } from "../../features/admin/products/context/ProductsPageProvider";
+import { ProductsResultsSection } from "../../features/admin/products/context/ProductsResultsSection";
+import { ProductsToolbarSection } from "../../features/admin/products/components/ProductsToolbarSection";
 
 export function Products() {
   return (

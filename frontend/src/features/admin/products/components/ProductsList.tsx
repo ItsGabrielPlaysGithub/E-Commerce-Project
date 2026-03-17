@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { RED } from "../../../data/constants";
-import type { Product } from "../../../data/products";
+import { RED } from "../../../../data/constants";
+import type { Product } from "../../../../data/products";
 import {
   getProductPrice,
   getRetailPrice,
   type ProductPriceType,
-} from "../../../data/pricing";
+} from "../../../../data/pricing";
 
 interface ProductsListProps {
   products: Product[];

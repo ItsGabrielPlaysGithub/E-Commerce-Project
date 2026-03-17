@@ -26,13 +26,12 @@ export class ProductsService {
         return await this.productsRepo.save(product);
     }
 
-    async updateProduct(updateProductDto: UpdateProductDto){
-        const product = await this.productsRepo.findOne({ where: { productId: updateProductDto.productId } });
+    async updateProduct(productId: number, updateProductDto: UpdateProductDto){
+        const product = await this.productsRepo.findOne({ where: { productId } });
         if (!product) {
             throw new NotFoundException('Product not found');
         }
-        const { productId, ...updates } = updateProductDto;
-        Object.assign(product, updates);
+        Object.assign(product, updateProductDto);
         return await this.productsRepo.save(product);
     }
 

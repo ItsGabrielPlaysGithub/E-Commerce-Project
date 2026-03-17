@@ -3,10 +3,8 @@
 import { useState } from "react";
 import { Download, Package, AlertTriangle, Zap, TrendingUp, Plus, Search, Filter } from "lucide-react";
 import { ProductsTable } from "@/components/admin/ProductsTable";
-import { AddProductModal, type ProductFormData } from "@/components/modals/AddProductModal";
-import { GetProductsQuery } from "@/gql/graphql";
-import { useQuery } from "@apollo/client/react";
-import { GET_PRODUCTS } from "@/features/products/services/query";
+import { AddProductModal, type ProductFormData } from "@/features/admin/products/components/AddProductModal";
+import { useProducts } from "@/features/admin/products/hooks/use-products";
 
 interface Product {
   id: string;
@@ -27,9 +25,10 @@ export default function ProductsPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<(ProductFormData & { productId: number }) | null>(null);
 
   // Fetch from GraphQL
-  const { data, loading, error } = useQuery<GetProductsQuery>(GET_PRODUCTS);
+  const { data, loading, error } = useProducts();
 
   // Transform data directly (no useEffect needed)
   const products: Product[] = (data?.getProducts || []).map((product) => ({
@@ -77,8 +76,16 @@ export default function ProductsPage() {
   };
 
   const handleEdit = (product: Product) => {
-    console.log("Edit product:", product);
-    // TODO: Open edit modal or navigate to edit page
+    setProductToEdit({
+      name: product.name,
+      sku: product.sku,
+      category: product.category,
+      price: product.price,
+      reorderPoint: product.reorderPoint,
+      available: product.available,
+      productId: parseInt(product.id),
+    });
+    setShowAddProductModal(true);
   };
 
   const handleViewDetails = (product: Product) => {
@@ -297,8 +304,12 @@ export default function ProductsPage() {
       {/* Add Product Modal */}
       <AddProductModal
         isOpen={showAddProductModal}
-        onClose={() => setShowAddProductModal(false)}
+        onClose={() => {
+          setShowAddProductModal(false);
+          setProductToEdit(null);
+        }}
         onSubmit={handleAddProduct}
+        productToEdit={productToEdit || undefined}
       />
     </div>
   );

@@ -8,11 +8,12 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { products, type Product } from "../../../data/products";
+import { useProducts } from "../hooks/use-products";
+import type { Product } from "../../../../data/products";
 import {
   getProductPrice,
   type ProductPriceType,
-} from "../../../data/pricing";
+} from "../../../../data/pricing";
 
 type ViewMode = "grid" | "list";
 type SortMode = "featured" | "price-asc" | "price-desc" | "rating";
@@ -29,6 +30,8 @@ interface ProductsPageContextValue {
   setSort: (value: string) => void;
   setViewMode: (mode: ViewMode) => void;
   setPriceType: (type: ProductPriceType) => void;
+  loading: boolean;
+  error: string | null;
 }
 
 const ProductsPageContext = createContext<ProductsPageContextValue | null>(null);
@@ -39,6 +42,9 @@ export function ProductsPageProvider({ children }: { children: ReactNode }) {
   const [sort, setSort] = useState<SortMode>("featured");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [priceType, setPriceType] = useState<ProductPriceType>("retail");
+
+  // Fetch products from GraphQL
+  const { data, loading, error } = useProducts();
 
   const activeCategory = params?.get("category") || "All";
   const search = params?.get("q") || "";
@@ -53,6 +59,14 @@ export function ProductsPageProvider({ children }: { children: ReactNode }) {
     router.push(`?${nextParams.toString()}`);
   };
 
+  const setSortValue = (value: string) => {
+    setSort(value as SortMode);
+  };
+
+  const setViewModeValue = (value: string) => {
+    setViewMode(value as ViewMode);
+  };
+
   const setSearchValue = (value: string) => {
     const nextParams = new URLSearchParams(params?.toString());
     if (value) {
@@ -62,6 +76,32 @@ export function ProductsPageProvider({ children }: { children: ReactNode }) {
     }
     router.push(`?${nextParams.toString()}`);
   };
+
+  const setPriceTypeValue = (type: ProductPriceType) => {
+    setPriceType(type);
+  };
+
+  // Transform GraphQL data to Product format
+  const products: Product[] = useMemo(() => {
+    if (!data?.getProducts) return [];
+    return data.getProducts.map((product) => {
+      const basePrice = product.productPrice || 0;
+      return {
+        id: product.productId.toString(),
+        name: product.productName,
+        price: Math.round(basePrice),
+        retailPrice: Math.round(basePrice),
+        wholesalePrice: Math.round(basePrice * 0.92),
+        bulkPrice: Math.round(basePrice * 0.84),
+        minWholesale: 10,
+        minBulk: 50,
+        image:
+          "https://images.unsplash.com/photo-1696986324692-f4aa0f2f495d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+        category: product.category || "Uncategorized",
+        rating: 4.5,
+      };
+    });
+  }, [data]);
 
   const filteredProducts = useMemo(() => {
     let list = [...products];
@@ -93,7 +133,7 @@ export function ProductsPageProvider({ children }: { children: ReactNode }) {
     }
 
     return list;
-  }, [activeCategory, priceType, search, sort]);
+  }, [activeCategory, priceType, search, sort, products]);
 
   const value = useMemo(
     () => ({
@@ -105,11 +145,13 @@ export function ProductsPageProvider({ children }: { children: ReactNode }) {
       filteredProducts,
       setCategory,
       setSearch: setSearchValue,
-      setSort,
-      setViewMode,
-      setPriceType,
+      setSort: setSortValue,
+      setViewMode: setViewModeValue,
+      setPriceType: setPriceTypeValue,
+      loading,
+      error: error?.message || null,
     }),
-    [activeCategory, filteredProducts, priceType, search, sort, viewMode],
+    [activeCategory, filteredProducts, priceType, search, sort, viewMode, loading, error],
   );
 
   return (

@@ -24,8 +24,11 @@ export class ProductsResolver {
     }
 
     @Mutation(() => ProductsTbl, { name: 'updateProduct' })
-    async updateProduct(@Args('input') input: UpdateProductDto) {
-        return await this.productsService.updateProduct(input);
+    async updateProduct(
+      @Args('id', { type: () => Int }) id: number,
+      @Args('input') input: UpdateProductDto
+    ) {
+        return await this.productsService.updateProduct(id, input);
     }
 
     @Mutation(() => ProductsTbl, { name: 'deleteProduct' })

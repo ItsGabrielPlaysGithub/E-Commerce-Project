@@ -5,7 +5,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 @ObjectType()
 export class ProductsTbl {
     @PrimaryGeneratedColumn()
-    @Field()
+    @Field(() => Int)
     productId: number;
 
     @Column()
@@ -16,9 +16,25 @@ export class ProductsTbl {
     @Field()
     productDescription: string;
 
+    @Column()
+    @Field()
+    sku: string;
+
+    @Column()
+    @Field()
+    category: string;
+
     @Column('decimal', { precision: 10, scale: 2 })
     @Field()
     productPrice: number;
+
+    @Column({ default: 0 })
+    @Field(() => Int)
+    reorderPoint: number;
+
+    @Column({ default: 0 })
+    @Field(() => Int)
+    available: number;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     @Field()
