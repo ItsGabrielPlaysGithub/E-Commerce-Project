@@ -50,7 +50,7 @@ function ActionsMenu({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
-
+  
   const handleMenuOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setButtonPosition({

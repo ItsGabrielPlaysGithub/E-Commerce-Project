@@ -13,6 +13,14 @@ export class ProductsService {
         return await this.productsRepo.find();
     }
 
+    async readProductById(productId: number){
+        const product = await this.productsRepo.findOne({ where: { productId } });
+        if (!product) {
+            throw new NotFoundException('Product not found');
+        }
+        return product;
+    }
+
     async createProduct(createProductDto: CreateProductDto){
         const product = this.productsRepo.create(createProductDto);
         return await this.productsRepo.save(product);

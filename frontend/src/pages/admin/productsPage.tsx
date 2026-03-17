@@ -1,86 +1,61 @@
 'use client';
 
 import { useState } from "react";
-import { Download, Package, AlertTriangle, Zap, TrendingUp, Plus, Search, Filter, X } from "lucide-react";
+import { Download, Package, AlertTriangle, Zap, TrendingUp, Plus, Search, Filter } from "lucide-react";
 import { ProductsTable } from "@/components/admin/ProductsTable";
+import { AddProductModal, type ProductFormData } from "@/components/modals/AddProductModal";
+import { GetProductsQuery } from "@/gql/graphql";
+import { useQuery } from "@apollo/client/react";
+import { GET_PRODUCTS } from "@/features/products/services/query";
 
-// Mock data for products
-const productsData = [
-  {
-    id: "1",
-    sku: "OHW-VF-001",
-    name: "Elite Vacuum Flask 500ml",
-    category: "Hydration",
-    available: 356,
-    inTransit: 50,
-    blocked: 5,
-    reorderPoint: 100,
-    status: "Active",
-    price: 949,
-  },
-  {
-    id: "2",
-    sku: "OHW-CK-001",
-    name: "Elizabeth Ceramic Casserole",
-    category: "Cookware",
-    available: 243,
-    inTransit: 75,
-    blocked: 0,
-    reorderPoint: 100,
-    status: "Active",
-    price: 1799,
-  },
-  {
-    id: "3",
-    sku: "OHW-GW-001",
-    name: "Crystal Wine Glass Set (6pcs)",
-    category: "Glassware",
-    available: 134,
-    inTransit: 24,
-    blocked: 10,
-    reorderPoint: 50,
-    status: "Active",
-    price: 1649,
-  },
-  {
-    id: "4",
-    sku: "OHW-DW-001",
-    name: "Royal Bone China Dinner Set",
-    category: "Dinnerware",
-    available: 62,
-    inTransit: 36,
-    blocked: 2,
-    reorderPoint: 75,
-    status: "Low Stock",
-    price: 2599,
-  },
-  {
-    id: "5",
-    sku: "OHW-BP-001",
-    name: "Marble Baking Pan Set",
-    category: "Bakeware",
-    available: 0,
-    inTransit: 100,
-    blocked: 0,
-    reorderPoint: 50,
-    status: "Out of Stock",
-    price: 1399,
-  },
-];
+interface Product {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  available: number;
+  inTransit: number;
+  blocked: number;
+  reorderPoint: number;
+  status: string;
+  price: number;
+}
 
 export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [showAddProductModal, setShowAddProductModal] = useState(false);
 
-  const totalItems = productsData.length;
-  const totalUnits = productsData.reduce((sum, p) => sum + p.available, 0);
-  const inTransitUnits = productsData.reduce((sum, p) => sum + p.inTransit, 0);
-  const lowStockCount = productsData.filter((p) => p.available <= p.reorderPoint).length;
+  // Fetch from GraphQL
+  const { data, loading, error } = useQuery<GetProductsQuery>(GET_PRODUCTS);
+
+  // Transform data directly (no useEffect needed)
+  const products: Product[] = (data?.getProducts || []).map((product) => ({
+    id: product.productId.toString(),
+    sku: product.productId.toString(), // TODO: Add SKU field to backend
+    name: product.productName,
+    category: "Uncategorized", // TODO: Add category field to backend
+    available: 0, // TODO: Add available field to backend
+    inTransit: 0,
+    blocked: 0,
+    reorderPoint: 0,
+    status: "Active" as const,
+    price: product.productPrice,
+  }));
+
+  if (loading) return <div className="p-8">Loading products...</div>;
+  if (error) return <div className="p-8 text-red-600">Error: {error.message}</div>;
+
+
+  const totalItems = products.length;
+  const totalUnits = products.reduce((sum, p) => sum + p.available, 0);
+  const inTransitUnits = products.reduce((sum, p) => sum + p.inTransit, 0);
+  const lowStockCount = products.filter((p) => p.available <= p.reorderPoint).length;
 
   // Filter products
-  const filteredProducts = productsData.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.sku.toLowerCase().includes(searchTerm.toLowerCase());
@@ -91,26 +66,32 @@ export default function ProductsPage() {
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const categories = ["all", ...new Set(productsData.map((p) => p.category))];
+  const categories = ["all", ...new Set(products.map((p) => p.category))];
   const statuses = ["all", "Active", "Low Stock", "Out of Stock"];
 
   // Action handlers
-  const handleEdit = (product: typeof productsData[0]) => {
+  const handleAddProduct = (formData: ProductFormData) => {
+    console.log("Product added:", formData);
+    // TODO: Call createProduct mutation to add to backend
+    // The GraphQL cache will auto-update
+  };
+
+  const handleEdit = (product: Product) => {
     console.log("Edit product:", product);
     // TODO: Open edit modal or navigate to edit page
   };
 
-  const handleViewDetails = (product: typeof productsData[0]) => {
+  const handleViewDetails = (product: Product) => {
     console.log("View details:", product);
     // TODO: Open details modal or navigate to details page
   };
 
-  const handleAdjustStock = (product: typeof productsData[0]) => {
+  const handleAdjustStock = (product: Product) => {
     console.log("Adjust stock:", product);
     // TODO: Open stock adjustment modal
   };
 
-  const handleArchive = (product: typeof productsData[0]) => {
+  const handleArchive = (product: Product) => {
     console.log("Archive product:", product);
     // TODO: Show confirmation and archive product
   };
@@ -294,6 +275,7 @@ export default function ProductsPage() {
 
         {/* Add Product Button */}
         <button
+          onClick={() => setShowAddProductModal(true)}
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-white text-sm font-semibold transition-all hover:opacity-90 shadow-sm"
           style={{ backgroundColor: "#bf262f" }}
         >
@@ -310,6 +292,13 @@ export default function ProductsPage() {
         onViewDetails={handleViewDetails}
         onAdjustStock={handleAdjustStock}
         onArchive={handleArchive}
+      />
+
+      {/* Add Product Modal */}
+      <AddProductModal
+        isOpen={showAddProductModal}
+        onClose={() => setShowAddProductModal(false)}
+        onSubmit={handleAddProduct}
       />
     </div>
   );

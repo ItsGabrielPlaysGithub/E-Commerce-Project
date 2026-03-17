@@ -1,0 +1,349 @@
+"use client";
+
+import { X, Package } from "lucide-react";
+import { useState } from "react";
+
+interface AddProductModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (product: ProductFormData) => void;
+}
+
+export interface ProductFormData {
+  name: string;
+  sku: string;
+  category: string;
+  price: number;
+  reorderPoint: number;
+  available: number;
+}
+
+const categories = [
+  "Hydration",
+  "Cookware",
+  "Glassware",
+  "Dinnerware",
+  "Bakeware",
+];
+
+export function AddProductModal({
+  isOpen,
+  onClose,
+  onSubmit,
+}: AddProductModalProps) {
+  const [formData, setFormData] = useState<ProductFormData>({
+    name: "",
+    sku: "",
+    category: "",
+    price: 0,
+    reorderPoint: 0,
+    available: 0,
+  });
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    let finalValue: any = value;
+
+    // Handle numeric fields
+    if (name === "price" || name === "reorderPoint" || name === "available") {
+      // Block negative sign input
+      if (value.includes("-")) {
+        return;
+      }
+      const numValue = parseFloat(value);
+      finalValue = value === "" ? 0 : numValue || 0;
+    }
+
+    // Handle text fields - trim and validate
+    if (name === "name") {
+      finalValue = value.slice(0, 100); // Max 100 characters
+    }
+
+    if (name === "sku") {
+      // Allow only alphanumeric and hyphens
+      finalValue = value.replace(/[^a-zA-Z0-9-]/g, "").slice(0, 20);
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: finalValue,
+    }));
+
+    // Clear error for this field
+    if (errors[name]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const field = (e.target as HTMLInputElement).name;
+    // Block minus key on numeric fields
+    if (
+      (field === "price" || field === "reorderPoint" || field === "available") &&
+      e.key === "-"
+    ) {
+      e.preventDefault();
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name.trim()) newErrors.name = "Product name is required";
+    if (!formData.sku.trim()) newErrors.sku = "SKU is required";
+    if (!formData.category) newErrors.category = "Category is required";
+    if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
+    if (formData.reorderPoint < 0) newErrors.reorderPoint = "Reorder point cannot be negative";
+    if (formData.available < 0) newErrors.available = "Available units cannot be negative";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      onSubmit(formData);
+      setFormData({
+        name: "",
+        sku: "",
+        category: "",
+        price: 0,
+        reorderPoint: 0,
+        available: 0,
+      });
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50 transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden">
+        {/* Header */}
+        <div
+          className="px-6 py-4 border-b border-gray-100 flex items-center justify-between"
+          style={{ backgroundColor: "#fdf2f2" }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: "#fff4f4" }}
+            >
+              <Package size={20} style={{ color: "#bf262f" }} />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Add New Product</h2>
+              <p className="text-sm text-gray-500">Fill in the product details below</p>
+            </div>
+          </div>
+
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="p-1 rounded-lg hover:bg-gray-200 transition-colors"
+          >
+            <X size={20} className="text-gray-600" />
+          </button>
+        </div>
+
+        {/* Form Content */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Product Name */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Product Name *
+              </label>
+              <span className="text-xs text-gray-500">
+                {formData.name.trim().length}/100
+              </span>
+            </div>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              maxLength={100}
+              placeholder="e.g., Elite Vacuum Flask 500ml"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
+              style={{
+                borderColor: errors.name ? "#dc2626" : "",
+              }}
+            />
+            {errors.name && (
+              <p className="text-xs text-red-600 mt-1">{errors.name}</p>
+            )}
+          </div>
+
+          {/* SKU and Category Row */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* SKU */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  SKU *
+                </label>
+                <span className="text-xs text-gray-500">
+                  {formData.sku.length}/20
+                </span>
+              </div>
+              <input
+                type="text"
+                name="sku"
+                value={formData.sku}
+                onChange={handleChange}
+                maxLength={20}
+                placeholder="e.g., OHW-VF-001"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
+                style={{
+                  borderColor: errors.sku ? "#dc2626" : "",
+                }}
+              />
+              {errors.sku && (
+                <p className="text-xs text-red-600 mt-1">{errors.sku}</p>
+              )}
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Category *
+              </label>
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all bg-white"
+                style={{
+                  borderColor: errors.category ? "#dc2626" : "",
+                }}
+              >
+                <option value="">Select a category</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+              {errors.category && (
+                <p className="text-xs text-red-600 mt-1">{errors.category}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Price and Reorder Point Row */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Price */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Price (₱) *
+              </label>
+              <input
+                type="number"
+                name="price"
+                value={formData.price || ""}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
+                style={{
+                  borderColor: errors.price ? "#dc2626" : "",
+                }}
+              />
+              {errors.price && (
+                <p className="text-xs text-red-600 mt-1">{errors.price}</p>
+              )}
+            </div>
+
+            {/* Reorder Point */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Reorder Point *
+              </label>
+              <input
+                type="number"
+                name="reorderPoint"
+                value={formData.reorderPoint || ""}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                placeholder="100"
+                min="0"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
+                style={{
+                  borderColor: errors.reorderPoint ? "#dc2626" : "",
+                }}
+              />
+              {errors.reorderPoint && (
+                <p className="text-xs text-red-600 mt-1">{errors.reorderPoint}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Available Units */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Available Units *
+            </label>
+            <input
+              type="number"
+              name="available"
+              value={formData.available || ""}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              placeholder="0"
+              min="0"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
+              style={{
+                borderColor: errors.available ? "#dc2626" : "",
+              }}
+            />
+            {errors.available && (
+              <p className="text-xs text-red-600 mt-1">{errors.available}</p>
+            )}
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-gray-100 pt-6" />
+
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 rounded-xl font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: "#bf262f" }}
+            >
+              <Package size={16} />
+              Add Product
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
