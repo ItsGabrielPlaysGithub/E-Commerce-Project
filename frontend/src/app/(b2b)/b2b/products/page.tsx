@@ -1,5 +1,5 @@
-import { Products } from "@/pages/b2b/productsPage";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <Products />;
+  redirect("/b2b/products/all");
 }

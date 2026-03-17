@@ -36,7 +36,13 @@ interface ProductsPageContextValue {
 
 const ProductsPageContext = createContext<ProductsPageContextValue | null>(null);
 
-export function ProductsPageProvider({ children }: { children: ReactNode }) {
+export function ProductsPageProvider({ 
+  children, 
+  initialCategory = "All" 
+}: { 
+  children: ReactNode;
+  initialCategory?: string;
+}) {
   const router = useRouter();
   const params = useSearchParams();
   const [sort, setSort] = useState<SortMode>("featured");
@@ -46,17 +52,21 @@ export function ProductsPageProvider({ children }: { children: ReactNode }) {
   // Fetch products from GraphQL
   const { data, loading, error } = useProducts();
 
-  const activeCategory = params?.get("category") || "All";
+  const activeCategory = initialCategory || "All";
   const search = params?.get("q") || "";
 
+  // Normalize category from URL format to display format
+  const normalizeCategory = (category: string): string => {
+    if (category.toLowerCase() === "all") return "All";
+    if (category === "vacuum-flask") return "Vacuum Flask";
+    return category.charAt(0).toUpperCase() + category.slice(1);
+  };
+
+  const displayCategory = normalizeCategory(activeCategory);
+
   const setCategory = (category: string) => {
-    const nextParams = new URLSearchParams(params?.toString());
-    if (category === "All") {
-      nextParams.delete("category");
-    } else {
-      nextParams.set("category", category);
-    }
-    router.push(`?${nextParams.toString()}`);
+    const normalizedCategory = category === "All" ? "all" : category.toLowerCase().replace(" ", "-");
+    router.push(`/b2b/products/${normalizedCategory}`);
   };
 
   const setSortValue = (value: string) => {
@@ -106,8 +116,8 @@ export function ProductsPageProvider({ children }: { children: ReactNode }) {
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
-    if (activeCategory !== "All") {
-      list = list.filter((product) => product.category === activeCategory);
+    if (displayCategory !== "All") {
+      list = list.filter((product) => product.category === displayCategory);
     }
 
     if (search) {
@@ -133,11 +143,11 @@ export function ProductsPageProvider({ children }: { children: ReactNode }) {
     }
 
     return list;
-  }, [activeCategory, priceType, search, sort, products]);
+  }, [displayCategory, priceType, search, sort, products]);
 
   const value = useMemo(
     () => ({
-      activeCategory,
+      activeCategory: displayCategory,
       search,
       sort,
       viewMode,
