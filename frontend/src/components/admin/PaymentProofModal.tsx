@@ -3,9 +3,9 @@
 import { X, CheckCircle, XCircle } from "lucide-react";
 
 interface SalesOrder {
-  id: string;
+  orderId: string;
   orderNumber: string;
-  customerName: string;
+  userId: number;
   paymentProofImage?: string;
   paymentProofUploadedAt?: string;
 }
@@ -53,7 +53,7 @@ export function PaymentProofModal({
               Payment Proof Verification
             </h3>
             <p style={{ fontSize: "12px", color: "#94a3b8" }}>
-              Order #{order.orderNumber} • {order.customerName}
+              Order #{order.orderNumber} • Customer #{order.userId}
             </p>
           </div>
           <button

@@ -11,6 +11,10 @@ export class OrdersTbl {
     @Field()
     orderId: number;
 
+    @Column({ unique: true })
+    @Field()
+    orderNumber: string;
+
     @Column()
     @Field()
     productId: number;
@@ -18,6 +22,10 @@ export class OrdersTbl {
     @Column()
     @Field()
     userId: number
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    orderType?: string;
 
     @Column()
     @Field()
@@ -34,6 +42,38 @@ export class OrdersTbl {
     @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING_APPROVAL })
     @Field()
     status: string;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    deliveryStatus?: string;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    paymentMethod?: string;
+
+    @Column({ type: 'text', nullable: true })
+    @Field({ nullable: true })
+    paymentProofImage?: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    @Field({ nullable: true })
+    paymentProofUploadedAt?: Date;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    paymongoTransactionId?: string;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    paymongoAmount?: number;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    paymongoPaymentMethod?: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    @Field({ nullable: true })
+    paymongoTimestamp?: Date;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     @Field()

@@ -277,8 +277,9 @@ export default function SalesOrdersPage() {
             <div
               className="font-bold"
               style={{
-                fontFamily: "'Playfair Display', serif",
                 fontSize: "1.5rem",
+                fontWeight: 700,
+                lineHeight: 1.2,
                 color: label === "Open" ? "#d97706" : label === "In Progress" ? "#2563eb" : label === "Delivered" ? "#16a34a" : "#6b7280",
               }}
             >

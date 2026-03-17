@@ -4,6 +4,7 @@ import { X, Package } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCreateProduct } from "../hooks/use-createproduct";
 import { useUpdateProduct } from "../hooks/use-updateproduct";
+import { toast } from "sonner";
 
 interface AddProductModalProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ export function AddProductModal({
   const [createProduct] = useCreateProduct();
   const [updateProduct] = useUpdateProduct();
   const isEditMode = !!productToEdit;
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
@@ -53,6 +55,12 @@ export function AddProductModal({
   const [error, setError] = useState<Error | null>(null);
 
   // Pre-fill form when editing
+  useEffect(() => {
+    if (isOpen) {
+      setIsAnimating(true);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (isEditMode && productToEdit) {
       setFormData({
@@ -166,9 +174,11 @@ export function AddProductModal({
             available: formData.available,
           },
         },
+        refetchQueries: ["GetProducts"],
       })
         .then(() => {
           onSubmit(formData);
+          toast.success("Product updated successfully!");
           setFormData({
             name: "",
             sku: "",
@@ -181,7 +191,7 @@ export function AddProductModal({
         })
         .catch((err) => {
           setError(err);
-          console.error("Update error:", err);
+          toast.error("Failed to update product.");
         })
         .finally(() => {
           setLoading(false);
@@ -200,9 +210,11 @@ export function AddProductModal({
             available: formData.available,
           },
         },
+        refetchQueries: ["GetProducts"],
       })
         .then(() => {
           onSubmit(formData);
+          toast.success("Product created successfully!");
           setFormData({
             name: "",
             sku: "",
@@ -215,7 +227,7 @@ export function AddProductModal({
         })
         .catch((err) => {
           setError(err);
-          console.error("Create error:", err);
+          toast.error("Failed to create product.");
         })
         .finally(() => {
           setLoading(false);
@@ -223,18 +235,68 @@ export function AddProductModal({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen && !isAnimating) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <>
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 transition-opacity"
+        className="fixed inset-0 z-50"
+        style={{
+          background: "rgba(0,0,0,0.5)",
+          animation: isOpen
+            ? "fadeIn 0.2s ease-out"
+            : "fadeOut 0.2s ease-out forwards",
+        }}
         onClick={onClose}
+        onAnimationEnd={() => {
+          if (!isOpen) setIsAnimating(false);
+        }}
       />
 
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div
+          className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden pointer-events-auto"
+          style={{
+            animation: isOpen
+              ? "slideUp 0.3s ease-out"
+              : "slideDown 0.2s ease-out forwards",
+          }}
+          onAnimationEnd={() => {
+            if (!isOpen) setIsAnimating(false);
+          }}
+        >
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+              from { opacity: 1; }
+              to { opacity: 0; }
+            }
+            @keyframes slideUp {
+              from {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @keyframes slideDown {
+              from {
+                opacity: 1;
+                transform: translateY(0);
+              }
+              to {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+            }
+          `}</style>
         {/* Header */}
         <div
           className="px-6 py-4 border-b border-gray-100 flex items-center justify-between"
@@ -463,7 +525,8 @@ export function AddProductModal({
             </button>
           </div>
         </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

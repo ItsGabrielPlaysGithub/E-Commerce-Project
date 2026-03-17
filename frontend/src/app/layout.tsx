@@ -5,6 +5,7 @@ import ApolloClientProvider from "@/components/providers/ApolloProvider";
 import { AuthProvider } from "@/features/auth/hooks/useAuth";
 import { CartProvider } from "@/features/cart/hooks/useCart";
 import { getSession } from "@/lib/session";
+import { Toaster } from 'sonner';
 
 const inter = Inter({
   variable: "--font-sans",
@@ -26,6 +27,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
+        <Toaster 
+          theme="light"
+          position="top-right"
+          richColors
+        />
         <ApolloClientProvider>
           <AuthProvider initialSession={session}>
             <CartProvider>

@@ -1,2 +1,0 @@
-export { GET_ALL_ORDERS, GET_ORDER_DETAILS, GET_CLIENT_ORDERS } from "./query";
-export { CREATE_ORDER, UPDATE_ORDER, TRANSITION_ORDER_STATUS } from "./mutation";
