@@ -11,6 +11,8 @@ export const CREATE_PRODUCT = gql`
         productPrice
         reorderPoint
         available
+        blocked
+        inTransit
         createdAt
         updatedAt
     }
@@ -28,6 +30,8 @@ export const UPDATE_PRODUCT = gql`
         productPrice
         reorderPoint
         available
+        blocked
+        inTransit
         createdAt
         updatedAt
     }

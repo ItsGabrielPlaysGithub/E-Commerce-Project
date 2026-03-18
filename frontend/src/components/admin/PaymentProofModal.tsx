@@ -1,6 +1,8 @@
 'use client';
 
 import { X, CheckCircle, XCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { formatDateWithTime } from "@/utils/dateFormatter";
 
 interface SalesOrder {
   orderId: string;
@@ -11,6 +13,7 @@ interface SalesOrder {
 }
 
 interface PaymentProofModalProps {
+  isOpen: boolean;
   order: SalesOrder;
   onClose: () => void;
   onApprove: (order: SalesOrder) => void;
@@ -19,24 +22,85 @@ interface PaymentProofModalProps {
 }
 
 export function PaymentProofModal({
+  isOpen,
   order,
   onClose,
   onApprove,
   onReject,
   isLoading = false,
 }: PaymentProofModalProps) {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsAnimating(true);
+    }
+  }, [isOpen]);
+
+  if (!isOpen && !isAnimating) return null;
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.5)" }}
-    >
+    <>
+      {/* Backdrop */}
       <div
-        className="rounded-2xl overflow-hidden w-full max-w-2xl"
+        className="fixed inset-0 z-50"
         style={{
-          background: "white",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+          background: "rgba(0,0,0,0.5)",
+          animation: isOpen
+            ? "fadeIn 0.2s ease-out"
+            : "fadeOut 0.2s ease-out forwards",
         }}
-      >
+        onClick={onClose}
+        onAnimationEnd={() => {
+          if (!isOpen) setIsAnimating(false);
+        }}
+      />
+
+      {/* Dialog */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div
+          className="rounded-2xl overflow-hidden w-full max-w-2xl pointer-events-auto"
+          style={{
+            background: "white",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+            animation: isOpen
+              ? "slideUp 0.3s ease-out"
+              : "slideDown 0.2s ease-out forwards",
+          }}
+          onAnimationEnd={() => {
+            if (!isOpen) setIsAnimating(false);
+          }}
+        >
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+              from { opacity: 1; }
+              to { opacity: 0; }
+            }
+            @keyframes slideUp {
+              from {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @keyframes slideDown {
+              from {
+                opacity: 1;
+                transform: translateY(0);
+              }
+              to {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+            }
+          `}</style>
         {/* Header */}
         <div
           className="px-6 py-4 flex items-center justify-between"
@@ -109,7 +173,7 @@ export function PaymentProofModal({
                     marginTop: "8px",
                   }}
                 >
-                  Uploaded: {new Date(order.paymentProofUploadedAt).toLocaleString()}
+                  Uploaded: {formatDateWithTime(order.paymentProofUploadedAt)}
                 </p>
               )}
             </div>
@@ -190,16 +254,16 @@ export function PaymentProofModal({
 
           <button
             onClick={() => onApprove(order)}
-            disabled={isLoading}
+            disabled={isLoading || !order.paymentProofImage}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all"
             style={{
-              background: "#dcfce7",
-              border: "1px solid #bbf7d0",
-              color: "#16a34a",
+              background: order.paymentProofImage ? "#dcfce7" : "#f1f5f9",
+              border: order.paymentProofImage ? "1px solid #bbf7d0" : "1px solid #e2e8f0",
+              color: order.paymentProofImage ? "#16a34a" : "#94a3b8",
               fontSize: "13px",
               fontWeight: 600,
-              opacity: isLoading ? 0.6 : 1,
-              cursor: isLoading ? "not-allowed" : "pointer",
+              opacity: isLoading || !order.paymentProofImage ? 0.6 : 1,
+              cursor: isLoading || !order.paymentProofImage ? "not-allowed" : "pointer",
             }}
           >
             <CheckCircle size={14} />
@@ -223,7 +287,8 @@ export function PaymentProofModal({
             Close
           </button>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

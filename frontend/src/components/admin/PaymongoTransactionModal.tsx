@@ -1,6 +1,8 @@
 'use client';
 
 import { X, AlertCircle, CheckCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { formatDateWithTime } from "@/utils/dateFormatter";
 
 interface SalesOrder {
   orderId: string;
@@ -14,6 +16,7 @@ interface SalesOrder {
 }
 
 interface PaymongoTransactionModalProps {
+  isOpen: boolean;
   order: SalesOrder;
   onClose: () => void;
   onMarkAsReady: (order: SalesOrder) => void;
@@ -22,12 +25,22 @@ interface PaymongoTransactionModalProps {
 }
 
 export function PaymongoTransactionModal({
+  isOpen,
   order,
   onClose,
   onMarkAsReady,
   onReportDiscrepancy,
   isLoading = false,
 }: PaymongoTransactionModalProps) {
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsAnimating(true);
+    }
+  }, [isOpen]);
+
+  if (!isOpen && !isAnimating) return null;
   const orderAmount = order.totalPrice;
   const chargedAmount = order.paymongoAmount || 0;
   const amountMatch = Math.abs(orderAmount - chargedAmount) < 0.01;
@@ -42,17 +55,67 @@ export function PaymongoTransactionModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,0.5)" }}
-    >
+    <>
+      {/* Backdrop */}
       <div
-        className="rounded-2xl overflow-hidden w-full max-w-lg"
+        className="fixed inset-0 z-50"
         style={{
-          background: "white",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+          background: "rgba(0,0,0,0.5)",
+          animation: isOpen
+            ? "fadeIn 0.2s ease-out"
+            : "fadeOut 0.2s ease-out forwards",
         }}
-      >
+        onClick={onClose}
+        onAnimationEnd={() => {
+          if (!isOpen) setIsAnimating(false);
+        }}
+      />
+
+      {/* Dialog */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div
+          className="rounded-2xl overflow-hidden w-full max-w-lg pointer-events-auto"
+          style={{
+            background: "white",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+            animation: isOpen
+              ? "slideUp 0.3s ease-out"
+              : "slideDown 0.2s ease-out forwards",
+          }}
+          onAnimationEnd={() => {
+            if (!isOpen) setIsAnimating(false);
+          }}
+        >
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes fadeOut {
+              from { opacity: 1; }
+              to { opacity: 0; }
+            }
+            @keyframes slideUp {
+              from {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            @keyframes slideDown {
+              from {
+                opacity: 1;
+                transform: translateY(0);
+              }
+              to {
+                opacity: 0;
+                transform: translateY(20px);
+              }
+            }
+          `}</style>
         {/* Header */}
         <div
           className="px-6 py-4 flex items-center justify-between"
@@ -172,7 +235,7 @@ export function PaymongoTransactionModal({
                 <p style={{ fontSize: "12px", color: "#64748b" }}>Timestamp</p>
                 <p style={{ fontSize: "12px", fontWeight: 600, color: "#0f172a" }}>
                   {order.paymongoTimestamp
-                    ? new Date(order.paymongoTimestamp).toLocaleString()
+                    ? formatDateWithTime(order.paymongoTimestamp)
                     : "N/A"}
                 </p>
               </div>
@@ -239,7 +302,8 @@ export function PaymongoTransactionModal({
             Close
           </button>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

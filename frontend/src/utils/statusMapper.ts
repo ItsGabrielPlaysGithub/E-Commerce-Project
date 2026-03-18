@@ -1,0 +1,63 @@
+// Map database status values to display labels
+const statusLabels: Record<string, string> = {
+  PENDING_APPROVAL: "Pending Approval",
+  APPROVED: "Approved",
+  DELIVERED: "Delivered",
+  PAID: "Paid",
+  READY_FOR_BILLING: "Ready For Billing",
+  READY_FOR_DELIVERY: "Ready For Delivery",
+  REJECTED: "Rejected",
+  DISCREPANCY_REPORTED: "Discrepancy Reported",
+};
+
+export function getStatusLabel(status: string): string {
+  return statusLabels[status] || status;
+}
+
+// Get status color for badge display
+export function getStatusColor(status: string): { bg: string; border: string; text: string } {
+  const colors: Record<string, { bg: string; border: string; text: string }> = {
+    PENDING_APPROVAL: {
+      bg: "#fef3c7",
+      border: "#fde68a",
+      text: "#d97706",
+    },
+    APPROVED: {
+      bg: "#dbeafe",
+      border: "#bfdbfe",
+      text: "#2563eb",
+    },
+    DELIVERED: {
+      bg: "#dcfce7",
+      border: "#bbf7d0",
+      text: "#16a34a",
+    },
+    PAID: {
+      bg: "#f3f4f6",
+      border: "#e5e7eb",
+      text: "#6b7280",
+    },
+    READY_FOR_BILLING: {
+      bg: "#fef08a",
+      border: "#fde047",
+      text: "#ca8a04",
+    },
+    READY_FOR_DELIVERY: {
+      bg: "#fbf8f3",
+      border: "#f5f3ff",
+      text: "#78350f",
+    },
+    REJECTED: {
+      bg: "#fee2e2",
+      border: "#fecaca",
+      text: "#dc2626",
+    },
+    DISCREPANCY_REPORTED: {
+      bg: "#f3e8ff",
+      border: "#e9d5ff",
+      text: "#7c3aed",
+    },
+  };
+
+  return colors[status] || colors.PENDING_APPROVAL;
+}

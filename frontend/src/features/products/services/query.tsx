@@ -12,6 +12,7 @@ export const GET_PRODUCTS = gql`
       reorderPoint
       available
       blocked
+      inTransit
       createdAt
       updatedAt
     }

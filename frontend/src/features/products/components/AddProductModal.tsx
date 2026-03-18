@@ -174,7 +174,6 @@ export function AddProductModal({
             available: formData.available,
           },
         },
-        refetchQueries: ["GetProducts"],
       })
         .then(() => {
           onSubmit(formData);
@@ -210,7 +209,6 @@ export function AddProductModal({
             available: formData.available,
           },
         },
-        refetchQueries: ["GetProducts"],
       })
         .then(() => {
           onSubmit(formData);

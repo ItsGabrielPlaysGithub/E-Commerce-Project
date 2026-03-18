@@ -34,11 +34,22 @@ export const TRANSITION_ADMIN_ORDER_STATUS = gql`
   mutation TransitionAdminOrderStatus($input: TransitionOrderStatusDto!) {
     transitionOrderStatus(input: $input) {
       orderId
+      orderNumber
       userId
       productId
+      orderType
       quantity
-      status
+      unitPrice
       totalPrice
+      status
+      deliveryStatus
+      paymentMethod
+      paymentProofImage
+      paymentProofUploadedAt
+      paymongoTransactionId
+      paymongoAmount
+      paymongoPaymentMethod
+      paymongoTimestamp
       createdAt
       updatedAt
     }

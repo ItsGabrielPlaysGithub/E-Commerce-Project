@@ -1,7 +1,9 @@
 'use client';
 
 import { MoreVertical, Edit2, Eye, FileText, Printer, X, Calendar, CreditCard, AlertTriangle, CheckCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { getStatusLabel } from "@/utils/statusMapper";
+import { formatDateLong } from "@/utils/dateFormatter";
 
 interface SalesOrder {
   orderId: string;
@@ -45,7 +47,7 @@ function StatusBadge({ status }: { status: string }) {
       }}
     >
       <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: style.color }} />
-      {status}
+      {getStatusLabel(status)}
     </span>
   );
 }
@@ -121,129 +123,154 @@ function ActionsMenu({
   onPrint?: (order: SalesOrder) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState({ top: 0, left: 0 });
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleMenuOpen = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setButtonPosition({
-      top: rect.bottom + 8,
-      left: rect.left - 220,
-    });
+  // Determine if verification action should be shown
+  const needsVerification = order.status === "PENDING_APPROVAL";
+  const hasManualPaymentVerification = order.paymentMethod === "manual_transfer" && needsVerification;
+  const hasPaymongoVerification = order.paymentMethod === "paymongo" && needsVerification;
+
+  const handleAction = (callback?: (order: SalesOrder) => void) => {
+    callback?.(order);
+    setIsOpen(false);
+  };
+
+  const handleToggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  const actions = [];
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 8,
+        left: rect.left - 200,
+      });
+    }
+  }, [isOpen]);
 
-  // Always available
-  actions.push({
-    label: "View Details",
-    icon: Eye,
-    onClick: () => { onViewDetails?.(order); setIsOpen(false); },
-  });
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!isOpen) return;
 
-  // PayMongo payment verification
-  if (order.paymentMethod === "paymongo" && order.status === "PAID") {
-    actions.push({
-      label: "View PayMongo Details",
-      icon: CreditCard,
-      onClick: () => { onViewPaymongoDetails?.(order); setIsOpen(false); },
-    });
-    actions.push({
-      label: "Mark as Ready for Delivery",
-      icon: CheckCircle,
-      onClick: () => { onMarkAsReadyForDelivery?.(order); setIsOpen(false); },
-    });
-  }
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        buttonRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
 
-  // Manual payment workflow
-  if (order.paymentMethod === "manual_transfer" && order.status === "READY_FOR_BILLING") {
-    actions.push({
-      label: "View Payment Proof",
-      icon: FileText,
-      onClick: () => { onViewPaymentProof?.(order); setIsOpen(false); },
-    });
-  }
-
-  // Status-specific actions for paid/delivered orders
-  if (order.status === "PENDING_APPROVAL") {
-    actions.push({
-      label: "Adjust Delivery Date",
-      icon: Calendar,
-      onClick: () => { onAdjustDelivery?.(order); setIsOpen(false); },
-    });
-    actions.push({
-      label: "Cancel Order",
-      icon: X,
-      onClick: () => { onCancelOrder?.(order); setIsOpen(false); },
-    });
-  }
-
-  if (order.status === "APPROVED") {
-    actions.push({
-      label: "Adjust Delivery Date",
-      icon: Calendar,
-      onClick: () => { onAdjustDelivery?.(order); setIsOpen(false); },
-    });
-  }
-
-  if (["DELIVERED", "PAID"].includes(order.status)) {
-    actions.push({
-      label: "View Invoice",
-      icon: FileText,
-      onClick: () => { onViewInvoice?.(order); setIsOpen(false); },
-    });
-  }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
 
   return (
-    <div className="flex items-center gap-1">
-      {/* Print Button */}
-      <button
-        onClick={() => onPrint?.(order)}
-        className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
-        title="Print order"
-      >
-        <Printer size={16} />
-      </button>
+    <div className="flex items-center gap-2 relative">
+      {/* Verification Quick Action - Shows as prominent icon when needed */}
+      {hasManualPaymentVerification && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onViewPaymentProof?.(order);
+          }}
+          className="p-1.5 rounded-lg transition-all flex items-center justify-center cursor-pointer hover:opacity-80"
+          style={{
+            backgroundColor: "#fdf2f2",
+            border: "1px solid #bf262f",
+            color: "#bf262f",
+          }}
+          title="Verify Payment Proof"
+        >
+          <FileText size={16} />
+        </button>
+      )}
+
+      {hasPaymongoVerification && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (onViewPaymongoDetails) {
+              onViewPaymongoDetails(order);
+            } else {
+            }
+          }}
+          className="p-1.5 rounded-lg transition-all flex items-center justify-center cursor-pointer hover:opacity-80"
+          style={{
+            backgroundColor: "#fdf2f2",
+            border: "1px solid #bf262f",
+            color: "#bf262f",
+          }}
+          title="Verify Transaction"
+        >
+          <CreditCard size={16} />
+        </button>
+      )}
 
       {/* More Actions Dropdown */}
-      <div>
-        <button
-          onClick={handleMenuOpen}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
-          title="More options"
+      <button
+        ref={buttonRef}
+        onClick={handleToggleMenu}
+        className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+        title="More actions"
+      >
+        <MoreVertical size={16} />
+      </button>
+
+      {/* Dropdown Menu - Fixed positioning to escape table overflow */}
+      {isOpen && (
+        <div
+          ref={menuRef}
+          className="fixed w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden"
+          style={{
+            top: `${menuPosition.top}px`,
+            left: `${menuPosition.left}px`,
+          }}
         >
-          <MoreVertical size={16} />
-        </button>
+          {/* View Details - Always shown */}
+          <button
+            onClick={() => handleAction(onViewDetails)}
+            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+          >
+            <Eye size={14} />
+            View Details
+          </button>
 
-        {isOpen && (
-          <>
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setIsOpen(false)}
-            />
+          {/* Other Actions */}
+          <button
+            onClick={() => handleAction(onViewInvoice)}
+            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+          >
+            <FileText size={14} />
+            View Invoice
+          </button>
 
-            <div
-              className="fixed w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden"
-              style={{
-                top: buttonPosition.top,
-                left: buttonPosition.left,
-                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              {actions.map((action) => (
-                <button
-                  key={action.label}
-                  onClick={action.onClick}
-                  className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-left transition-colors hover:bg-gray-50 text-gray-700"
-                >
-                  <action.icon size={14} />
-                  {action.label}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
+          <button
+            onClick={() => handleAction(onPrint)}
+            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+          >
+            <Printer size={14} />
+            Print
+          </button>
+
+          <button
+            onClick={() => handleAction(onCancelOrder)}
+            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+          >
+            <X size={14} />
+            Cancel Order
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -339,7 +366,7 @@ export function SalesOrdersTable({
                     <PaymentMethodBadge method={order.paymentMethod || ""} />
                   </td>
                   <td className="px-5 py-3.5 text-gray-600 whitespace-nowrap">
-                    {order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-PH') : '-'}
+                    {order.createdAt ? formatDateLong(order.createdAt) : '-'}
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <StatusBadge status={order.deliveryStatus || ""} />

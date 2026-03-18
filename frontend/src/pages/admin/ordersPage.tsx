@@ -5,7 +5,11 @@ import { Download, Plus, Search, Filter } from "lucide-react";
 import { SalesOrdersTable } from "@/components/admin/SalesOrdersTable";
 import { PaymentProofModal } from "@/components/admin/PaymentProofModal";
 import { PaymongoTransactionModal } from "@/components/admin/PaymongoTransactionModal";
+import { OrderDetailsModal } from "@/components/admin/OrderDetailsModal";
 import { useOrders } from "@/features/admin/sales-order/hooks";
+import { useTransitionOrderStatus } from "@/features/admin/sales-order/hooks/use-transitionorderstatus";
+import { getStatusLabel, getStatusColor } from "@/utils/statusMapper";
+import { toast } from "sonner";
 
 interface SalesOrder {
   orderId: string;
@@ -33,6 +37,7 @@ export default function SalesOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<SalesOrder | null>(null);
   const [paymentProofOrder, setPaymentProofOrder] = useState<SalesOrder | null>(null);
   const [paymentProofLoading, setPaymentProofLoading] = useState(false);
   const [paymongoTransactionOrder, setPaymongoTransactionOrder] = useState<SalesOrder | null>(null);
@@ -40,6 +45,7 @@ export default function SalesOrdersPage() {
 
   // Fetch orders from GraphQL
   const { data, loading, error } = useOrders();
+  const [transitionOrderStatus] = useTransitionOrderStatus();
 
   // Transform GraphQL data to match SalesOrder interface
   const ordersData: SalesOrder[] = (data?.allOrders || []).map((order: any) => ({
@@ -128,7 +134,7 @@ export default function SalesOrdersPage() {
 
   // Handle actions
   const handleViewDetails = (order: SalesOrder) => {
-    console.log("View details:", order);
+    setSelectedOrder(order);
   };
 
   const handleViewPaymentProof = (order: SalesOrder) => {
@@ -137,18 +143,44 @@ export default function SalesOrdersPage() {
 
   const handleApprovePayment = async (order: SalesOrder) => {
     setPaymentProofLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Payment approved for order:", order.orderNumber);
-    setPaymentProofLoading(false);
-    setPaymentProofOrder(null);
+    try {
+      await transitionOrderStatus({
+        variables: {
+          input: {
+            orderId: parseInt(order.orderId),
+            nextStatus: "APPROVED",
+          },
+        },
+      });
+      toast.success("Payment approved successfully!");
+      setPaymentProofOrder(null);
+    } catch (error) {
+      console.error("Failed to approve payment:", error);
+      toast.error("Failed to approve payment");
+    } finally {
+      setPaymentProofLoading(false);
+    }
   };
 
   const handleRejectPayment = async (order: SalesOrder) => {
     setPaymentProofLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Payment rejected for order:", order.orderNumber);
-    setPaymentProofLoading(false);
-    setPaymentProofOrder(null);
+    try {
+      await transitionOrderStatus({
+        variables: {
+          input: {
+            orderId: parseInt(order.orderId),
+            nextStatus: "REJECTED",
+          },
+        },
+      });
+      toast.success("Payment rejected");
+      setPaymentProofOrder(null);
+    } catch (error) {
+      console.error("Failed to reject payment:", error);
+      toast.error("Failed to reject payment");
+    } finally {
+      setPaymentProofLoading(false);
+    }
   };
 
   const handleViewPaymongoDetails = (order: SalesOrder) => {
@@ -157,18 +189,44 @@ export default function SalesOrdersPage() {
 
   const handleMarkAsReadyForDelivery = async (order: SalesOrder) => {
     setPaymongoTransactionLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Order marked as ready for delivery:", order.orderNumber);
-    setPaymongoTransactionLoading(false);
-    setPaymongoTransactionOrder(null);
+    try {
+      await transitionOrderStatus({
+        variables: {
+          input: {
+            orderId: parseInt(order.orderId),
+            nextStatus: "READY_FOR_DELIVERY",
+          },
+        },
+      });
+      toast.success("Order marked as ready for delivery");
+      setPaymongoTransactionOrder(null);
+    } catch (error) {
+      console.error("Failed to mark order as ready:", error);
+      toast.error("Failed to mark order as ready for delivery");
+    } finally {
+      setPaymongoTransactionLoading(false);
+    }
   };
 
   const handleReportDiscrepancy = async (order: SalesOrder) => {
     setPaymongoTransactionLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Discrepancy reported - flagged for manual review:", order.orderNumber);
-    setPaymongoTransactionLoading(false);
-    setPaymongoTransactionOrder(null);
+    try {
+      await transitionOrderStatus({
+        variables: {
+          input: {
+            orderId: parseInt(order.orderId),
+            nextStatus: "DISCREPANCY_REPORTED",
+          },
+        },
+      });
+      toast.success("Discrepancy reported - order flagged for manual review");
+      setPaymongoTransactionOrder(null);
+    } catch (error) {
+      console.error("Failed to report discrepancy:", error);
+      toast.error("Failed to report discrepancy");
+    } finally {
+      setPaymongoTransactionLoading(false);
+    }
   };
 
   const handleViewInvoice = (order: SalesOrder) => {
@@ -209,14 +267,14 @@ export default function SalesOrdersPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {statusCards.map(({ label, count, amount }) => (
           <div key={label} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-            <div className="text-xs text-gray-400 mb-1">{label}</div>
+            <div className="text-xs text-gray-400 mb-1">{getStatusLabel(label)}</div>
             <div
               className="font-bold"
               style={{
                 fontSize: "1.5rem",
                 fontWeight: 700,
                 lineHeight: 1.2,
-                color: label === "PENDING_APPROVAL" ? "#d97706" : label === "APPROVED" ? "#2563eb" : label === "DELIVERED" ? "#16a34a" : "#6b7280",
+                color: getStatusColor(label).text,
               }}
             >
               {count}
@@ -279,7 +337,7 @@ export default function SalesOrdersPage() {
                             : "1px solid #e5e7eb",
                       }}
                     >
-                      {status === "all" ? "All Status" : status}
+                      {status === "all" ? "All Status" : getStatusLabel(status)}
                     </button>
                   ))}
                 </div>
@@ -328,6 +386,7 @@ export default function SalesOrdersPage() {
       {/* Payment Proof Modal */}
       {paymentProofOrder && (
         <PaymentProofModal
+          isOpen={!!paymentProofOrder}
           order={paymentProofOrder}
           onClose={() => setPaymentProofOrder(null)}
           onApprove={() => handleApprovePayment(paymentProofOrder)}
@@ -339,11 +398,21 @@ export default function SalesOrdersPage() {
       {/* PayMongo Transaction Modal */}
       {paymongoTransactionOrder && (
         <PaymongoTransactionModal
+          isOpen={!!paymongoTransactionOrder}
           order={paymongoTransactionOrder}
           onClose={() => setPaymongoTransactionOrder(null)}
           onMarkAsReady={() => handleMarkAsReadyForDelivery(paymongoTransactionOrder)}
           onReportDiscrepancy={() => handleReportDiscrepancy(paymongoTransactionOrder)}
           isLoading={paymongoTransactionLoading}
+        />
+      )}
+
+      {/* Order Details Modal */}
+      {selectedOrder && (
+        <OrderDetailsModal
+          isOpen={!!selectedOrder}
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
         />
       )}
     </div>
