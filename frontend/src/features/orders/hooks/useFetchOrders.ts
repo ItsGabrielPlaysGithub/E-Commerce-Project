@@ -142,6 +142,11 @@ export function useFetchOrders(customerId?: number, isAdmin = false) {
     };
 
     fetchOrders();
+
+    // Set up polling to refetch orders every 30 seconds
+    const pollInterval = setInterval(fetchOrders, 30000);
+
+    return () => clearInterval(pollInterval);
   }, [customerId, company?.userId, isAdmin]);
 
   const refetchOrders = async () => {
