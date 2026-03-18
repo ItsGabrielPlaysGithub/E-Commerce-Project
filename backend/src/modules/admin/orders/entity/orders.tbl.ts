@@ -39,6 +39,14 @@ export class OrdersTbl {
     @Field()
     totalPrice: number;
 
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    deliveryFee?: number;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    grandTotal?: number;
+
     @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING_APPROVAL })
     @Field()
     status: string;

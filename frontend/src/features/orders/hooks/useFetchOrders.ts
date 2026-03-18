@@ -17,11 +17,61 @@ function mapBackendOrderToOrder(backendOrder: any): Order {
     items: [],
     subtotal: 0,
     vat: 0,
-    total: backendOrder.totalPrice || 0,
+    // Use grandTotal if available (from first item in group with delivery fee), otherwise use totalPrice
+    total: backendOrder.grandTotal || backendOrder.totalPrice || 0,
     status: mapOrderStatus(backendOrder.status),
     paymentStatus: "Pending",
     deliveryMethod: backendOrder.deliveryStatus || "Standard",
   };
+}
+
+/**
+ * Group orders by orderNumber and calculate totals
+ */
+function groupAndMapOrders(backendOrders: any[]): Order[] {
+  const groupedByOrderNumber = new Map<string, any[]>();
+
+  // Group all orders by orderNumber
+  for (const order of backendOrders) {
+    const orderNumber = order.orderNumber || order.orderId.toString();
+    if (!groupedByOrderNumber.has(orderNumber)) {
+      groupedByOrderNumber.set(orderNumber, []);
+    }
+    groupedByOrderNumber.get(orderNumber)!.push(order);
+  }
+
+  // Transform each group into a single Order object
+  const mappedOrders: Order[] = [];
+  for (const [orderNumber, orders] of groupedByOrderNumber) {
+    const firstOrder = orders[0];
+    
+    // Use grandTotal from first item (which has delivery fee included), otherwise sum individual totals
+    const total = firstOrder.grandTotal || orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+    
+    const mappedOrder: Order = {
+      id: firstOrder.orderId?.toString() || orderNumber,
+      sapSo: orderNumber,
+      date: firstOrder.createdAt || new Date().toLocaleDateString(),
+      customer: "",
+      items: orders.map(o => ({
+        sku: o.productId?.toString() || "",
+        name: "", // Backend doesn't return product name
+        qty: o.quantity || 1,
+        unitPrice: o.unitPrice || 0,
+        total: o.totalPrice || 0,
+      })),
+      subtotal: orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0),
+      vat: 0,
+      total: total,
+      status: mapOrderStatus(firstOrder.status),
+      paymentStatus: "Pending",
+      deliveryMethod: firstOrder.deliveryStatus || "Standard",
+    };
+    
+    mappedOrders.push(mappedOrder);
+  }
+
+  return mappedOrders;
 }
 
 /**
@@ -71,8 +121,8 @@ export function useFetchOrders(customerId?: number, isAdmin = false) {
           return;
         }
 
-        // Map backend orders to frontend Order interface
-        const mappedOrders = fetchedOrders.map(mapBackendOrderToOrder);
+        // Map and group backend orders by orderNumber
+        const mappedOrders = groupAndMapOrders(fetchedOrders);
         setOrders(mappedOrders);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch orders");
@@ -98,8 +148,8 @@ export function useFetchOrders(customerId?: number, isAdmin = false) {
         fetchedOrders = await fetchCustomerOrders(company.userId);
       }
 
-      // Map backend orders to frontend Order interface
-      const mappedOrders = fetchedOrders.map(mapBackendOrderToOrder);
+      // Map and group backend orders by orderNumber
+      const mappedOrders = groupAndMapOrders(fetchedOrders);
       setOrders(mappedOrders);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to refetch orders");

@@ -78,7 +78,7 @@ export function OrderRow({
               ₱{order.total.toLocaleString()}
             </div>
             <div className="text-gray-400" style={{ fontSize: "0.65rem" }}>
-              incl. VAT
+              incl. delivery
             </div>
           </div>
           <div className="flex items-center gap-1.5">

@@ -170,7 +170,10 @@ export class OrdersService {
 
         // Create orders for each item
         const createdOrders: OrdersTbl[] = [];
-        for (const item of placeOrderDto.items) {
+        for (let index = 0; index < placeOrderDto.items.length; index++) {
+            const item = placeOrderDto.items[index];
+            const isFirstItem = index === 0;
+            
             const order = this.ordersRepository.create({
                 productId: item.productId,
                 quantity: item.quantity,
@@ -180,7 +183,9 @@ export class OrdersService {
                 userId: placeOrderDto.userId,
                 status: OrderStatus.PENDING_APPROVAL,
                 deliveryStatus: 'Pending',
-                // Store delivery info in order notes or create a separate field if needed
+                // Store delivery fee and grand total only on the first item
+                deliveryFee: isFirstItem ? placeOrderDto.deliveryFee : undefined,
+                grandTotal: isFirstItem ? placeOrderDto.grandTotal : undefined,
             });
             createdOrders.push(await this.ordersRepository.save(order));
         }
