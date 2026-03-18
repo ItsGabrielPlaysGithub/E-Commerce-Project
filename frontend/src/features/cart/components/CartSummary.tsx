@@ -26,7 +26,8 @@ export function CartSummary({
   const { FREE_DELIVERY_THRESHOLD, DELIVERY_FEE } = CART_CONFIG;
 
   const fullRetailTotal = items.reduce((s, i) => s + i.qty * i.product.retailPrice, 0);
-  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
+  // Show 0 delivery fee if no items are selected, otherwise calculate based on subtotal
+  const deliveryFee = itemCount === 0 ? 0 : (subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE);
   const grandTotal = subtotal + deliveryFee;
 
   return (

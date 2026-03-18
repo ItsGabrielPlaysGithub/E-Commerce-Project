@@ -85,6 +85,17 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                 </tr>
                 <tr>
                   <td colSpan={3} />
+                  <td className="text-xs text-gray-500 text-right">Delivery Fee</td>
+                  <td className="text-xs font-medium text-gray-700 text-right">
+                    {(order as any).deliveryFee === 0 || (order as any).deliveryFee === undefined ? (
+                      <span className="text-green-600 font-semibold">FREE</span>
+                    ) : (
+                      <span>₱{((order as any).deliveryFee || 0).toLocaleString()}</span>
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan={3} />
                   <td className="text-xs text-gray-500 text-right">VAT (12%)</td>
                   <td className="text-xs font-medium text-gray-700 text-right">
                     ₱{order.vat.toLocaleString()}

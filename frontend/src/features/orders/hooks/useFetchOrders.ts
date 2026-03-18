@@ -45,10 +45,18 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
   for (const [orderNumber, orders] of groupedByOrderNumber) {
     const firstOrder = orders[0];
     
-    // Use grandTotal from first item (which has delivery fee included), otherwise sum individual totals
-    const total = firstOrder.grandTotal || orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+    // Calculate subtotal (sum of all items)
+    const subtotal = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
     
-    const mappedOrder: Order = {
+    // Determine delivery fee (1500 threshold)
+    const deliveryFee = firstOrder.deliveryFee !== undefined && firstOrder.deliveryFee !== null 
+      ? firstOrder.deliveryFee 
+      : (subtotal >= 1500 ? 0 : 350);
+    
+    // Use grandTotal from first item if available, otherwise calculate from subtotal + delivery fee
+    const total = firstOrder.grandTotal || (subtotal + deliveryFee);
+    
+    const mappedOrder = {
       id: firstOrder.orderId?.toString() || orderNumber,
       sapSo: orderNumber,
       date: firstOrder.createdAt || new Date().toLocaleDateString(),
@@ -60,13 +68,14 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
         unitPrice: o.unitPrice || 0,
         total: o.totalPrice || 0,
       })),
-      subtotal: orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0),
+      subtotal: subtotal,
       vat: 0,
       total: total,
       status: mapOrderStatus(firstOrder.status),
       paymentStatus: "Pending",
       deliveryMethod: firstOrder.deliveryStatus || "Standard",
-    };
+      deliveryFee: deliveryFee, // Store delivery fee for display
+    } as any;
     
     mappedOrders.push(mappedOrder);
   }

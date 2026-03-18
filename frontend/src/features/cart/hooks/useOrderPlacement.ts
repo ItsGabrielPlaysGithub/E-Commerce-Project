@@ -51,8 +51,8 @@ export const useOrderPlacement = (
           })),
           delivery,
           subtotal: parseFloat(String(selectedSubtotal)),
-          deliveryFee: parseFloat(String(selectedSubtotal >= 3000 ? 0 : 350)),
-          grandTotal: parseFloat(String(selectedSubtotal + (selectedSubtotal >= 3000 ? 0 : 350))),
+          deliveryFee: parseFloat(String(selectedSubtotal >= 1500 ? 0 : 350)),
+          grandTotal: parseFloat(String(selectedSubtotal + (selectedSubtotal >= 1500 ? 0 : 350))),
           userId: currentCompany?.userId || 0,
           companyId: currentCompany?.userId?.toString(),
         };

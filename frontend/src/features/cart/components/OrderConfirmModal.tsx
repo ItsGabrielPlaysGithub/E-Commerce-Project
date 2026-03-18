@@ -66,12 +66,12 @@ export function OrderConfirmModal({
       style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
     >
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
         style={{ fontFamily: "'Inter', sans-serif" }}
       >
         <ModalHeader onClose={onClose} />
 
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
           <ItemsSummary items={items} itemCount={itemCount} />
           <CostBreakdown
             subtotal={subtotal}
