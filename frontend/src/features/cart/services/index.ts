@@ -1,1 +1,2 @@
-export { placeOrder, validateDeliveryDetails } from "./cartService";
+export { validateDeliveryDetails } from "./cartService";
+export { usePlaceOrder } from "../hooks/use-placeorder";

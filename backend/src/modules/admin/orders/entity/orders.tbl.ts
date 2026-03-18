@@ -11,7 +11,7 @@ export class OrdersTbl {
     @Field()
     orderId: number;
 
-    @Column({ unique: true, nullable: true })
+    @Column({ nullable: true })
     @Field({ nullable: true })
     orderNumber?: string;
 

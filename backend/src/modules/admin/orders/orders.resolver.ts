@@ -4,6 +4,8 @@ import { OrdersTbl } from './entity/orders.tbl';
 import { CreateOrderDto } from './dto/create.order';
 import { UpdateOrderDto } from './dto/update.order';
 import { TransitionOrderStatusDto } from './dto/transition.order-status';
+import { PlaceOrderDto } from './dto/place-order';
+import { PlaceOrderResponse } from './entity/place-order-response';
 
 @Resolver()
 export class OrdersResolver {
@@ -42,5 +44,10 @@ export class OrdersResolver {
     @Mutation(() => OrdersTbl, { name: 'transitionOrderStatus' })
     async transitionOrderStatus(@Args('input') input: TransitionOrderStatusDto) {
         return await this.ordersService.transitionOrderStatus(input);
+    }
+
+    @Mutation(() => PlaceOrderResponse, { name: 'placeOrder' })
+    async placeOrder(@Args('input') placeOrderDto: PlaceOrderDto) {
+        return await this.ordersService.placeOrder(placeOrderDto);
     }
 }

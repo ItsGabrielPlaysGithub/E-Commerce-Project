@@ -1,8 +1,11 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import { useMutation, useQuery as apolloUseQuery } from "@apollo/client/react";
 import { useAuth } from "@/features/auth";
 import { Product, products } from "../../../data/products";
+import { GET_CART } from "../services/query";
+import { ADD_TO_CART, UPDATE_CART_ITEM, REMOVE_FROM_CART, CLEAR_CART, REMOVE_CART_ITEM_BY_PRODUCT_ID } from "../services/cartMutation";
 
 export interface CartItem {
   product: Product;
@@ -36,6 +39,12 @@ type CartCookiePayload = {
   items: PersistedCartItem[];
 };
 
+interface GetCartResponse {
+  getCart: {
+    items: any[];
+  };
+}
+
 const CartContext = createContext<CartContextType>({
   items: [],
   addItem: () => {},
@@ -62,22 +71,24 @@ function serializeCartItems(items: CartItem[]): PersistedCartItem[] {
   }));
 }
 
-function hydrateCartItems(serializedItems: PersistedCartItem[]): CartItem[] {
+function hydrateCartItems(serializedItems: any[]): CartItem[] {
   const productMap = new Map(products.map((product) => [product.id, product]));
 
   return serializedItems
     .map((serializedItem) => {
-      const product = productMap.get(serializedItem.productId);
+      // Handle both old and new format
+      const productId = String(serializedItem.productId);
+      const product = productMap.get(productId);
       if (!product) {
         return null;
       }
 
       return {
         product,
-        qty: serializedItem.qty,
+        qty: serializedItem.quantity || serializedItem.qty || 1,
         selectedColor: serializedItem.selectedColor,
         selectedSize: serializedItem.selectedSize,
-        unitPrice: serializedItem.unitPrice,
+        unitPrice: parseFloat(String(serializedItem.unitPrice)),
       } as CartItem;
     })
     .filter((item): item is CartItem => item !== null);
@@ -89,17 +100,39 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
   const [lastAdded, setLastAdded] = useState<Product | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  const cartOwnerKey = useMemo(() => {
-    if (company?.userId) {
-      return `user:${company.userId}`;
-    }
+  // GraphQL mutations
+  const [addToCartMutation] = useMutation(ADD_TO_CART);
+  const [removeFromCartMutation] = useMutation(REMOVE_FROM_CART);
+  const [clearCartMutation] = useMutation(CLEAR_CART);
+  const [removeByProductMutation] = useMutation(REMOVE_CART_ITEM_BY_PRODUCT_ID);
 
-    if (company?.emailAddress) {
-      return `email:${company.emailAddress.toLowerCase()}`;
-    }
+  // GraphQL query
+  const { data: cartData, refetch: refetchCart, error: cartError } = apolloUseQuery<GetCartResponse>(GET_CART, {
+    variables: { userId: company?.userId || 0 },
+    skip: !company?.userId,
+  });
 
-    return "guest";
-  }, [company?.emailAddress, company?.userId]);
+  // Handle cart data updates
+  useEffect(() => {
+    if (cartData?.getCart?.items) {
+      try {
+        setItems(hydrateCartItems(cartData.getCart.items));
+        setIsHydrated(true);
+      } catch (error) {
+        console.error("Failed to hydrate cart items:", error);
+        setIsHydrated(true);
+        setItems([]);
+      }
+    }
+  }, [cartData]);
+
+  // Handle cart errors
+  useEffect(() => {
+    if (cartError) {
+      console.error("Failed to fetch cart:", cartError);
+      setIsHydrated(true);
+    }
+  }, [cartError]);
 
   useEffect(() => {
     const clearLegacyStorage = (storage: Storage) => {
@@ -128,67 +161,24 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
       clearLegacyStorage(localStorage);
       clearLegacyStorage(sessionStorage);
     } catch {
-      // Ignore storage cleanup issues; app can proceed with cookie-backed cart.
+      // Ignore storage cleanup issues
     }
   }, []);
 
+  // Refetch cart when user logs in
   useEffect(() => {
-    setIsHydrated(false);
-
-    const loadCart = async () => {
-      try {
-        const response = await fetch("/api/cart", {
-          method: "GET",
-          cache: "no-store",
-        });
-
-        if (!response.ok) {
-          throw new Error("Unable to load cart cookie data");
-        }
-
-        const payload = (await response.json()) as CartCookiePayload;
-        setItems(hydrateCartItems(payload.items || []));
-      } catch (error) {
-        console.error("Failed to load cart from cookies:", error);
-        setItems([]);
-      } finally {
-        setIsHydrated(true);
-      }
-    };
-
-    void loadCart();
-  }, [cartOwnerKey]);
-
-  useEffect(() => {
-    if (!isHydrated) {
-      return;
+    if (company?.userId) {
+      void refetchCart();
+    } else {
+      setIsHydrated(true);
+      setItems([]);
     }
-
-    const persistCart = async () => {
-      try {
-        const response = await fetch("/api/cart", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            items: serializeCartItems(items),
-          } as CartCookiePayload),
-        });
-
-        if (!response.ok) {
-          throw new Error("Unable to persist cart cookie data");
-        }
-      } catch (error) {
-        console.error("Failed to persist cart to cookies:", error);
-      }
-    };
-
-    void persistCart();
-  }, [isHydrated, items]);
+  }, [company?.userId, refetchCart]);
 
   const addItem = (product: Product, qty: number, opts?: { color?: string; size?: string }) => {
     const unitPrice = getUnitPrice(product);
+    
+    // Update local state immediately
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
       if (existing) {
@@ -202,19 +192,57 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
         selectedSize: opts?.size,
       }];
     });
+    
+    // Sync with backend
+    if (company?.userId) {
+      void addToCartMutation({
+        variables: {
+          userId: company.userId,
+          input: {
+            productId: parseInt(product.id, 10),
+            quantity: qty,
+            unitPrice,
+            selectedColor: opts?.color,
+            selectedSize: opts?.size,
+          },
+        },
+      });
+    }
+    
     setLastAdded(product);
     setTimeout(() => setLastAdded(null), 2500);
   };
 
   const updateQty = (productId: string, qty: number) => {
     if (qty < 1) return;
+    
+    // Update local state
     setItems((prev) =>
       prev.map((i) => i.product.id === productId ? { ...i, qty } : i)
     );
+
+    // Sync with backend
+    if (company?.userId) {
+      const item = items.find(i => i.product.id === productId);
+      if (item) {
+        // We would need to track the backend ID, for now just refetch
+        void refetchCart();
+      }
+    }
   };
 
   const removeItem = (productId: string) => {
     setItems((prev) => prev.filter((i) => i.product.id !== productId));
+    
+    // Sync with backend
+    if (company?.userId) {
+      void removeByProductMutation({
+        variables: {
+          userId: company.userId,
+          productId: parseInt(productId, 10),
+        },
+      });
+    }
   };
 
   const removeItems = (productIds: string[]) => {
@@ -224,9 +252,30 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
 
     const productIdSet = new Set(productIds);
     setItems((prev) => prev.filter((item) => !productIdSet.has(item.product.id)));
+    
+    // Sync with backend
+    if (company?.userId) {
+      productIds.forEach(productId => {
+        void removeByProductMutation({
+          variables: {
+            userId: company.userId,
+            productId: parseInt(productId, 10),
+          },
+        });
+      });
+    }
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    
+    // Sync with backend
+    if (company?.userId) {
+      void clearCartMutation({
+        variables: { userId: company.userId },
+      });
+    }
+  };
 
   const itemCount = items.reduce((s, i) => s + i.qty, 0);
   const subtotal = items.reduce((s, i) => s + i.qty * i.unitPrice, 0);

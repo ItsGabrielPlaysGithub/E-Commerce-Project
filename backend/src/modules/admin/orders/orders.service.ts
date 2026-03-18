@@ -2,16 +2,19 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrdersTbl } from './entity/orders.tbl';
 import { CreateOrderDto } from './dto/create.order';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { UpdateOrderDto } from './dto/update.order';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { OrderStatus } from './entity/order-status.enum';
 import { TransitionOrderStatusDto } from './dto/transition.order-status';
+import { PlaceOrderDto } from './dto/place-order';
+import { PlaceOrderResponse } from './entity/place-order-response';
 import { InvoicesService } from '../invoices/invoices.service';
 import { ProductsTbl } from '../products/entity/products.tbl';
 import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
 import { InvoicesTbl } from '../invoices/entity/invoices.tbl';
 import { MailerService } from '../../general/mailer/mailer.service';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class OrdersService {
@@ -149,6 +152,46 @@ export class OrdersService {
         });
 
         return updatedOrder;
+    }
+
+    async placeOrder(placeOrderDto: PlaceOrderDto): Promise<PlaceOrderResponse> {
+        // Generate order number
+        const orderNumber = `OMG-${randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
+        
+        // Validate all products exist
+        const productIds = placeOrderDto.items.map(item => item.productId);
+        const products = await this.productsRepository.find({
+            where: { productId: In(productIds) }
+        });
+        
+        if (products.length !== productIds.length) {
+            throw new NotFoundException('One or more products not found');
+        }
+
+        // Create orders for each item
+        const createdOrders: OrdersTbl[] = [];
+        for (const item of placeOrderDto.items) {
+            const order = this.ordersRepository.create({
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                totalPrice: item.quantity * item.unitPrice,
+                orderNumber,
+                userId: placeOrderDto.userId,
+                status: OrderStatus.PENDING_APPROVAL,
+                deliveryStatus: 'Pending',
+                // Store delivery info in order notes or create a separate field if needed
+            });
+            createdOrders.push(await this.ordersRepository.save(order));
+        }
+
+        return {
+            success: true,
+            orderNumber,
+            message: `Order placed successfully with ${createdOrders.length} item(s)`,
+            orderId: createdOrders[0]?.orderId,
+            createdAt: new Date(),
+        };
     }
 
     private assertTransitionAllowed(currentStatus: OrderStatus, nextStatus: OrderStatus) {
