@@ -11,9 +11,9 @@ export class OrdersTbl {
     @Field()
     orderId: number;
 
-    @Column({ unique: true })
-    @Field()
-    orderNumber: string;
+    @Column({ unique: true, nullable: true })
+    @Field({ nullable: true })
+    orderNumber?: string;
 
     @Column()
     @Field()

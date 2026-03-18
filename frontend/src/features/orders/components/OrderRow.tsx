@@ -72,7 +72,7 @@ export function OrderRow({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
           <div className="text-right">
             <div className="font-bold text-gray-800 text-sm">
               ₱{order.total.toLocaleString()}

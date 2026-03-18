@@ -14,11 +14,6 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
-    "\n  mutation CreateProduct($input: CreateProductDto!) {\n    createProduct(input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n": typeof types.CreateProductDocument,
-    "\n  mutation UpdateProduct($id: Int!, $input: UpdateProductDto!) {\n    updateProduct(id: $id, input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n": typeof types.UpdateProductDocument,
-    "\n  mutation DeleteProduct($productId: Int!) {\n    deleteProduct(productId: $productId) {\n        productId\n    }\n}\n": typeof types.DeleteProductDocument,
-    "\n  query GetProducts {\n    getProducts {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetProductsDocument,
-    "\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetProductByIdDocument,
     "\n  mutation CreateOrder($input: CreateOrderDto!) {\n    createOrder(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.CreateOrderDocument,
     "\n  mutation UpdateOrder($input: UpdateOrderDto!) {\n    updateOrder(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.UpdateOrderDocument,
     "\n  mutation TransitionOrderStatus($input: TransitionOrderStatusDto!) {\n    transitionOrderStatus(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.TransitionOrderStatusDocument,
@@ -28,13 +23,13 @@ type Documents = {
     "\n  mutation Login($emailAddress: String!, $password: String!) {\n    login(emailAddress: $emailAddress, password: $password) {\n        message\n    }\n  }\n": typeof types.LoginDocument,
     "\n  mutation Logout {\n    logout {\n      message\n    }\n  }\n": typeof types.LogoutDocument,
     "\n  query readProfile($userId: Int!) {\n    readProfile(userId: $userId) {\n      userId\n      fullName\n      emailAddress\n      companyName\n      address\n      phoneNumber\n      role\n    }\n  }\n": typeof types.ReadProfileDocument,
+    "\n  mutation CreateProduct($input: CreateProductDto!) {\n    createProduct(input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n": typeof types.CreateProductDocument,
+    "\n  mutation UpdateProduct($id: Int!, $input: UpdateProductDto!) {\n    updateProduct(id: $id, input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n": typeof types.UpdateProductDocument,
+    "\n  mutation DeleteProduct($productId: Int!) {\n    deleteProduct(productId: $productId) {\n        productId\n    }\n}\n": typeof types.DeleteProductDocument,
+    "\n  query GetProducts {\n    getProducts {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetProductsDocument,
+    "\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetProductByIdDocument,
 };
 const documents: Documents = {
-    "\n  mutation CreateProduct($input: CreateProductDto!) {\n    createProduct(input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n": types.CreateProductDocument,
-    "\n  mutation UpdateProduct($id: Int!, $input: UpdateProductDto!) {\n    updateProduct(id: $id, input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n": types.UpdateProductDocument,
-    "\n  mutation DeleteProduct($productId: Int!) {\n    deleteProduct(productId: $productId) {\n        productId\n    }\n}\n": types.DeleteProductDocument,
-    "\n  query GetProducts {\n    getProducts {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetProductsDocument,
-    "\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetProductByIdDocument,
     "\n  mutation CreateOrder($input: CreateOrderDto!) {\n    createOrder(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateOrderDocument,
     "\n  mutation UpdateOrder($input: UpdateOrderDto!) {\n    updateOrder(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": types.UpdateOrderDocument,
     "\n  mutation TransitionOrderStatus($input: TransitionOrderStatusDto!) {\n    transitionOrderStatus(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": types.TransitionOrderStatusDocument,
@@ -44,6 +39,11 @@ const documents: Documents = {
     "\n  mutation Login($emailAddress: String!, $password: String!) {\n    login(emailAddress: $emailAddress, password: $password) {\n        message\n    }\n  }\n": types.LoginDocument,
     "\n  mutation Logout {\n    logout {\n      message\n    }\n  }\n": types.LogoutDocument,
     "\n  query readProfile($userId: Int!) {\n    readProfile(userId: $userId) {\n      userId\n      fullName\n      emailAddress\n      companyName\n      address\n      phoneNumber\n      role\n    }\n  }\n": types.ReadProfileDocument,
+    "\n  mutation CreateProduct($input: CreateProductDto!) {\n    createProduct(input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n": types.CreateProductDocument,
+    "\n  mutation UpdateProduct($id: Int!, $input: UpdateProductDto!) {\n    updateProduct(id: $id, input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n": types.UpdateProductDocument,
+    "\n  mutation DeleteProduct($productId: Int!) {\n    deleteProduct(productId: $productId) {\n        productId\n    }\n}\n": types.DeleteProductDocument,
+    "\n  query GetProducts {\n    getProducts {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetProductsDocument,
+    "\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetProductByIdDocument,
 };
 
 /**
@@ -60,26 +60,6 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  mutation CreateProduct($input: CreateProductDto!) {\n    createProduct(input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n"): (typeof documents)["\n  mutation CreateProduct($input: CreateProductDto!) {\n    createProduct(input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  mutation UpdateProduct($id: Int!, $input: UpdateProductDto!) {\n    updateProduct(id: $id, input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n"): (typeof documents)["\n  mutation UpdateProduct($id: Int!, $input: UpdateProductDto!) {\n    updateProduct(id: $id, input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  mutation DeleteProduct($productId: Int!) {\n    deleteProduct(productId: $productId) {\n        productId\n    }\n}\n"): (typeof documents)["\n  mutation DeleteProduct($productId: Int!) {\n    deleteProduct(productId: $productId) {\n        productId\n    }\n}\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  query GetProducts {\n    getProducts {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  query GetProducts {\n    getProducts {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -116,6 +96,26 @@ export function graphql(source: "\n  mutation Logout {\n    logout {\n      mess
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query readProfile($userId: Int!) {\n    readProfile(userId: $userId) {\n      userId\n      fullName\n      emailAddress\n      companyName\n      address\n      phoneNumber\n      role\n    }\n  }\n"): (typeof documents)["\n  query readProfile($userId: Int!) {\n    readProfile(userId: $userId) {\n      userId\n      fullName\n      emailAddress\n      companyName\n      address\n      phoneNumber\n      role\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateProduct($input: CreateProductDto!) {\n    createProduct(input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n"): (typeof documents)["\n  mutation CreateProduct($input: CreateProductDto!) {\n    createProduct(input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdateProduct($id: Int!, $input: UpdateProductDto!) {\n    updateProduct(id: $id, input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n"): (typeof documents)["\n  mutation UpdateProduct($id: Int!, $input: UpdateProductDto!) {\n    updateProduct(id: $id, input: $input) {\n        productId\n        productName\n        productDescription\n        sku\n        category\n        productPrice\n        reorderPoint\n        available\n        createdAt\n        updatedAt\n    }\n}\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation DeleteProduct($productId: Int!) {\n    deleteProduct(productId: $productId) {\n        productId\n    }\n}\n"): (typeof documents)["\n  mutation DeleteProduct($productId: Int!) {\n    deleteProduct(productId: $productId) {\n        productId\n    }\n}\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetProducts {\n    getProducts {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  query GetProducts {\n    getProducts {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
