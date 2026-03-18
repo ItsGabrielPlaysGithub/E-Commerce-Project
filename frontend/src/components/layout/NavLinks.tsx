@@ -18,6 +18,7 @@ interface NavLinksProps {
   openDropdown: string | null;
   setOpenDropdown: (label: string | null) => void;
   RED: string;
+  openOrderCount?: number;
 }
 
 export function NavLinks({
@@ -27,6 +28,7 @@ export function NavLinks({
   openDropdown,
   setOpenDropdown,
   RED,
+  openOrderCount = 0,
 }: NavLinksProps) {
   return (
     <nav className="hidden lg:flex items-center gap-1">
@@ -67,17 +69,26 @@ export function NavLinks({
             )}
           </div>
         ) : (
-          <Link
-            key={item.path}
-            href={item.path!}
-            className="px-4 py-2 text-sm rounded-lg transition-colors font-medium"
-            style={{
-              color: isActive(item.path!) ? RED : "#374151",
-              backgroundColor: isActive(item.path!) ? "#f9e9ea" : "transparent",
-            }}
-          >
-            {item.label}
-          </Link>
+          <div key={item.path} className="relative">
+            <Link
+              href={item.path!}
+              className="px-4 py-2 text-sm rounded-lg transition-colors font-medium"
+              style={{
+                color: isActive(item.path!) ? RED : "#374151",
+                backgroundColor: isActive(item.path!) ? "#f9e9ea" : "transparent",
+              }}
+            >
+              {item.label}
+            </Link>
+            {item.label === "Orders" && openOrderCount > 0 && (
+              <span
+                className="absolute -top-2 -right-1 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center"
+                style={{ backgroundColor: RED }}
+              >
+                {openOrderCount > 9 ? "9+" : openOrderCount}
+              </span>
+            )}
+          </div>
         )
       )}
     </nav>

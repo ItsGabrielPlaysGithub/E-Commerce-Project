@@ -11,6 +11,7 @@ import { Logo } from "../ui/Logo";
 import { NavLinks } from "./NavLinks";
 import { ProfileDropdown } from "./ProfileDropdown";
 import { useCart } from "@/features/cart/hooks/useCart";
+import { useFetchOrders } from "@/features/orders/hooks/useFetchOrders";
 import type { SessionUser } from "@/lib/session";
 
 const nav = [
@@ -45,7 +46,11 @@ export function Header({ sessionUser }: HeaderProps) {
   const router = useRouter();
   const { isLoggedIn, company, logout } = useAuth();
   const { itemCount, lastAdded } = useCart();
+  const { orders } = useFetchOrders(company?.userId, false);
   const [runLogout] = useMutation(LOGOUT_MUTATION);
+
+  // Count open orders
+  const openOrderCount = orders.filter((order) => order.status === "Open").length;
 
   const isActive = (path: string) => pathname === path;
 
@@ -92,6 +97,7 @@ export function Header({ sessionUser }: HeaderProps) {
             openDropdown={openDropdown}
             setOpenDropdown={setOpenDropdown}
             RED={RED}
+            openOrderCount={openOrderCount}
           />
 
           {/* Right actions */}
@@ -158,14 +164,23 @@ export function Header({ sessionUser }: HeaderProps) {
                   ))}
                 </div>
               ) : (
-                <Link
-                  key={item.path}
-                  href={item.path!}
-                  onClick={() => setMobileOpen(false)}
-                  className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50"
-                >
-                  {item.label}
-                </Link>
+                <div key={item.path} className="relative">
+                  <Link
+                    href={item.path!}
+                    onClick={() => setMobileOpen(false)}
+                    className="px-3 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    {item.label}
+                  </Link>
+                  {item.label === "Orders" && openOrderCount > 0 && (
+                    <span
+                      className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center"
+                      style={{ backgroundColor: RED }}
+                    >
+                      {openOrderCount > 9 ? "9+" : openOrderCount}
+                    </span>
+                  )}
+                </div>
               ),
             )}
             <div className="border-t border-gray-100 mt-2 pt-3 flex flex-col gap-2">
