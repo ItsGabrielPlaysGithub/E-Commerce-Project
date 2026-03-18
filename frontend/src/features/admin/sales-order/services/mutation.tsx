@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
-export const CREATE_ORDER = gql`
-  mutation CreateOrder($input: CreateOrderDto!) {
+export const CREATE_ADMIN_ORDER = gql`
+  mutation CreateAdminOrder($input: CreateOrderDto!) {
     createOrder(input: $input) {
       orderId
       userId
@@ -15,8 +15,8 @@ export const CREATE_ORDER = gql`
   }
 `;
 
-export const UPDATE_ORDER = gql`
-  mutation UpdateOrder($input: UpdateOrderDto!) {
+export const UPDATE_ADMIN_ORDER = gql`
+  mutation UpdateAdminOrder($input: UpdateOrderDto!) {
     updateOrder(input: $input) {
       orderId
       userId
@@ -30,8 +30,8 @@ export const UPDATE_ORDER = gql`
   }
 `;
 
-export const TRANSITION_ORDER_STATUS = gql`
-  mutation TransitionOrderStatus($input: TransitionOrderStatusDto!) {
+export const TRANSITION_ADMIN_ORDER_STATUS = gql`
+  mutation TransitionAdminOrderStatus($input: TransitionOrderStatusDto!) {
     transitionOrderStatus(input: $input) {
       orderId
       userId

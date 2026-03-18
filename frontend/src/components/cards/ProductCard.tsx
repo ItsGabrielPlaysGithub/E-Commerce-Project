@@ -51,7 +51,7 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
   return (
     <div className="bg-white rounded-xl border border-gray-100 overflow-hidden group hover:shadow-sm hover:border-gray-200 transition-all h-full flex flex-col">
       {/* Image */}
-      <div className="relative overflow-hidden bg-gray-50 aspect-square flex-shrink-0">
+      <div className="relative overflow-hidden bg-gray-50 aspect-square shrink-0">
         <img
           src={product.image}
           alt={product.name}
@@ -65,7 +65,7 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
       </div>
 
       {/* Info */}
-      <div className="p-2 sm:p-3 md:p-3.5 flex flex-col flex-grow gap-2">
+      <div className="p-2 sm:p-3 md:p-3.5 flex flex-col grow gap-2">
         <div className="text-xs text-gray-300 mb-0.5 uppercase tracking-wider truncate">{product.category}</div>
         <Link href={`/b2b/products/${product.id}`}>
           <p className="text-gray-800 text-xs sm:text-sm font-medium mb-1 line-clamp-2 hover:text-red-600 transition-colors leading-snug">

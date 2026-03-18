@@ -66,7 +66,11 @@ export function ProductsPageProvider({
 
   const setCategory = (category: string) => {
     const normalizedCategory = category === "All" ? "all" : category.toLowerCase().replace(" ", "-");
-    router.push(`/b2b/products/${normalizedCategory}`);
+    if (normalizedCategory === "all") {
+      router.push(`/b2b/products/all`);
+    } else {
+      router.push(`/b2b/products/category/${normalizedCategory}`);
+    }
   };
 
   const setSortValue = (value: string) => {
@@ -83,7 +87,12 @@ export function ProductsPageProvider({
       params.set("q", value);
     }
     const queryString = params.toString();
-    const urlPath = `/b2b/products/${initialCategory}`;
+    let urlPath: string;
+    if (initialCategory.toLowerCase() === "all") {
+      urlPath = `/b2b/products/all`;
+    } else {
+      urlPath = `/b2b/products/category/${initialCategory.toLowerCase().replace(" ", "-")}`;
+    }
     router.push(queryString ? `${urlPath}?${queryString}` : urlPath);
   };
 
