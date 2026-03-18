@@ -28,13 +28,6 @@ export function PageHeader({ activeCategory, filteredCount }: PageHeaderProps) {
           </h1>
           <p className="text-gray-400 text-xs mt-0.5">{filteredCount} products</p>
         </div>
-        <Link
-          href="/b2b/inquiry"
-          className="text-xs font-semibold px-4 py-2 rounded-lg self-start sm:self-auto"
-          style={{ backgroundColor: RED_LIGHT, color: RED }}
-        >
-          Request Bulk Quote →
-        </Link>
       </div>
     </div>
   );

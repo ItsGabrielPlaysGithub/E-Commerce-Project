@@ -73,7 +73,7 @@ export function FilterBar({
         {/* Pricing type and View buttons */}
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
           {/* Pricing type */}
-          <div className="flex border border-gray-200 rounded-lg overflow-hidden text-xs">
+          {/* <div className="flex border border-gray-200 rounded-lg overflow-hidden text-xs">
             {(["retail", "wholesale", "bulk"] as const).map((t) => (
               <button
                 key={t}
@@ -84,7 +84,7 @@ export function FilterBar({
                 {t}
               </button>
             ))}
-          </div>
+          </div> */}
           {/* View */}
           <div className="flex border border-gray-200 rounded-lg overflow-hidden">
             {([["grid", Grid], ["list", List]] as const).map(([mode, Icon]) => (
