@@ -7,6 +7,7 @@ import { useFetchOrders } from "../../features/orders/hooks/useFetchOrders";
 import { OrdersPageHeader } from "../../features/orders/components/OrdersPageHeader";
 import { OrdersSummary } from "../../features/orders/components/OrdersSummary";
 import { OrdersList } from "./../../features/orders/components/OrdersList";
+import { QuickReorder } from "../../features/orders/components/QuickReorder";
 import { BottomBar } from "@/components/layout/bottomBar";
 
 export function MyOrdersPage() {
@@ -84,50 +85,60 @@ export function MyOrdersPage() {
     >
       <OrdersPageHeader ordersCount={counts.All || orders.length} />
       <div className="flex-1">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Summary of Orders */}
           <div className="space-y-6">
             <OrdersSummary items={summaryItems} />
 
-            {/* ── Orders List + Filter  */}
-            <OrdersList
-              orders={orders}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              search={search}
-              setSearch={setSearch}
-              expanded={expanded}
-              setExpanded={setExpanded}
-              counts={counts}
-              filtered={paginatedFiltered}
-            />
+            {/* ── Orders List + Filter & Quick Reorder (Side by Side) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Orders List - Takes 2/3 on desktop */}
+              <div className="lg:col-span-2">
+                <OrdersList
+                  orders={orders}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  search={search}
+                  setSearch={setSearch}
+                  expanded={expanded}
+                  setExpanded={setExpanded}
+                  counts={counts}
+                  filtered={paginatedFiltered}
+                />
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
-                <div className="text-xs text-gray-500">
-                  Page {currentPage} of {totalPages} ({filtered.length} total orders)
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    <ChevronLeft size={14} />
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                    className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Next
-                    <ChevronRight size={14} />
-                  </button>
-                </div>
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-200">
+                    <div className="text-xs text-gray-500">
+                      Page {currentPage} of {totalPages} ({filtered.length} total orders)
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                        disabled={currentPage === 1}
+                        className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <ChevronLeft size={14} />
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                        disabled={currentPage === totalPages}
+                        className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Next
+                        <ChevronRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Sidebar - Quick Reorder */}
+              <div className="lg:col-span-1">
+                <QuickReorder items={[]} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
