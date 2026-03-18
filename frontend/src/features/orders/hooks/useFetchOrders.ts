@@ -3,13 +3,47 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/features/auth";
 import { fetchCustomerOrders, fetchAllOrders } from "../services/orderService";
+import type { Order } from "../types/order";
+
+/**
+ * Map backend order response to frontend Order interface
+ */
+function mapBackendOrderToOrder(backendOrder: any): Order {
+  return {
+    id: backendOrder.orderId?.toString() || backendOrder.orderNumber || "",
+    sapSo: backendOrder.orderNumber || "",
+    date: backendOrder.createdAt || new Date().toLocaleDateString(),
+    customer: "", // Backend doesn't return customer name, may need to join with users table
+    items: [],
+    subtotal: 0,
+    vat: 0,
+    total: backendOrder.totalPrice || 0,
+    status: mapOrderStatus(backendOrder.status),
+    paymentStatus: "Pending",
+    deliveryMethod: backendOrder.deliveryStatus || "Standard",
+  };
+}
+
+/**
+ * Map backend status to frontend OrderStatus
+ */
+function mapOrderStatus(status: string): "All" | "Open" | "Processing" | "Shipped" | "Delivered" | "Cancelled" {
+  const statusMap: Record<string, any> = {
+    "PENDING_APPROVAL": "Open",
+    "APPROVED": "Processing",
+    "IN_TRANSIT": "Shipped",
+    "DELIVERED": "Delivered",
+    "CANCELLED": "Cancelled",
+  };
+  return statusMap[status] || "Open";
+}
 
 /**
  * Hook to fetch and manage orders from NestJS backend
  * Automatically retrieves orders for the current authenticated user
  */
 export function useFetchOrders(customerId?: number, isAdmin = false) {
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { company } = useAuth();
@@ -37,7 +71,9 @@ export function useFetchOrders(customerId?: number, isAdmin = false) {
           return;
         }
 
-        setOrders(fetchedOrders);
+        // Map backend orders to frontend Order interface
+        const mappedOrders = fetchedOrders.map(mapBackendOrderToOrder);
+        setOrders(mappedOrders);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch orders");
         setOrders([]);
@@ -62,7 +98,9 @@ export function useFetchOrders(customerId?: number, isAdmin = false) {
         fetchedOrders = await fetchCustomerOrders(company.userId);
       }
 
-      setOrders(fetchedOrders);
+      // Map backend orders to frontend Order interface
+      const mappedOrders = fetchedOrders.map(mapBackendOrderToOrder);
+      setOrders(mappedOrders);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to refetch orders");
     } finally {

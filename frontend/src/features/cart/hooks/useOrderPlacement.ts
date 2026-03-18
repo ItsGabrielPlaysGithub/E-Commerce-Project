@@ -34,6 +34,12 @@ export const useOrderPlacement = (
         return;
       }
 
+      // Check authentication before attempting order
+      if (!currentCompany?.userId) {
+        setErrors({ notes: "Please log in to place an order." });
+        return;
+      }
+
       setPlacing(true);
       try {
         const response = await placeOrder({
@@ -46,13 +52,18 @@ export const useOrderPlacement = (
           subtotal: selectedSubtotal,
           deliveryFee: selectedSubtotal >= 3000 ? 0 : 350,
           grandTotal: selectedSubtotal + (selectedSubtotal >= 3000 ? 0 : 350),
+          companyId: currentCompany?.userId?.toString(),
         });
         
         removeItems(selectedItems.map((item) => item.product.id));
         router.push(`/b2b/order-success?orderNumber=${response.orderNumber}`);
       } catch (error) {
-        console.error("Error placing order:", error);
-        setErrors({ notes: "Failed to place order. Please try again." });
+        const errorMessage = error instanceof Error ? error.message : "Failed to place order";
+        console.error("[useOrderPlacement] Order placement failed:", {
+          error,
+          message: errorMessage,
+        });
+        setErrors({ notes: errorMessage });
       } finally {
         setPlacing(false);
       }

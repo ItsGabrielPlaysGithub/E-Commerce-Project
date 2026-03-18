@@ -33,7 +33,11 @@ export async function callGraphQL<TData>(query: string, variables: unknown): Pro
     if (parsed.errors && parsed.errors.length > 0) {
       const errorMessage = parsed.errors[0]?.message || "Backend validation error";
       if (IS_DEVELOPMENT) {
-        console.error("[GraphQL] Error:", errorMessage);
+        console.error("[GraphQL] Backend error:", {
+          message: errorMessage,
+          allErrors: parsed.errors,
+          response: rawText,
+        });
       }
       throw new Error(errorMessage);
     }

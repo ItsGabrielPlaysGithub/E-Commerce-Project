@@ -48,6 +48,7 @@ export async function POST(request: NextRequest) {
     const orderNumber = `OMG-${randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase()}`;
     const createdOrders = [];
     const productPriceMap = await getAuthoritativePrices();
+    const failedItems: { index: number; error: string }[] = [];
 
     for (let i = 0; i < body.items.length; i++) {
       const item = body.items[i];
@@ -65,7 +66,11 @@ export async function POST(request: NextRequest) {
       }
 
       if (IS_DEVELOPMENT) {
-        console.log(`[API] Creating order ${i + 1}/${body.items.length}`);
+        console.log(`[API] Creating order ${i + 1}/${body.items.length}:`, {
+          productId: parsedProductId,
+          quantity: item.quantity,
+          userId: authenticatedUserId,
+        });
       }
 
       try {
@@ -73,19 +78,40 @@ export async function POST(request: NextRequest) {
           input: {
             productId: parsedProductId,
             userId: authenticatedUserId,
+            orderNumber,
             quantity: item.quantity,
             unitPrice: authoritativeUnitPrice,
             totalPrice: item.quantity * authoritativeUnitPrice,
           },
         });
 
+        if (IS_DEVELOPMENT) {
+          console.log(`[API] Order item ${i + 1} created successfully:`, result);
+        }
+
         createdOrders.push(result);
       } catch (error) {
+        const itemError = error instanceof Error ? error.message : String(error);
         if (IS_DEVELOPMENT) {
-          console.error(`[API] Failed to create order item ${i + 1}:`, error);
+          console.error(`[API] Failed to create order item ${i + 1}:`, {
+            item,
+            error: itemError,
+            stack: error instanceof Error ? error.stack : undefined,
+          });
         }
-        throw new Error("Failed to process order. Please try again.");
+        failedItems.push({ index: i, error: itemError });
       }
+    }
+
+    // If all items failed, throw error
+    if (createdOrders.length === 0) {
+      const errorMessage = failedItems.map((f) => `Item ${f.index + 1}: ${f.error}`).join("; ");
+      throw new Error(errorMessage || "Failed to create any order items.");
+    }
+
+    // If some items failed, log warning but continue (partial success)
+    if (failedItems.length > 0 && IS_DEVELOPMENT) {
+      console.warn(`[API] Partial order failure: ${createdOrders.length}/${body.items.length} items created`, failedItems);
     }
 
     // Success
@@ -93,13 +119,19 @@ export async function POST(request: NextRequest) {
       success: true,
       orderNumber,
       message: "Order placed successfully",
-      itemsCount: body.items.length,
+      itemsCount: createdOrders.length,
+      failedItems: failedItems.length > 0 ? failedItems : undefined,
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Failed to place order";
+    const errorStack = error instanceof Error ? error.stack : "";
 
     if (IS_DEVELOPMENT) {
-      console.error("[API] Order placement error:", errorMessage);
+      console.error("[API] Order placement error:", {
+        message: errorMessage,
+        stack: errorStack,
+        error,
+      });
     }
 
     // Return generic error message to client (don't expose internals)
@@ -109,6 +141,7 @@ export async function POST(request: NextRequest) {
         error: errorMessage.includes("Authentication") || errorMessage.includes("Invalid")
           ? errorMessage
           : "Failed to place order. Please try again.",
+        ...(IS_DEVELOPMENT && { debugError: errorMessage }),
       },
       { status: 500 }
     );

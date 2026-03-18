@@ -36,14 +36,62 @@ export async function placeOrder(payload: PlaceOrderPayload): Promise<PlaceOrder
     const data = await response.json() as any;
 
     if (!response.ok) {
+      // Provide specific error messages based on status code
       const errorMsg = data?.error || data?.message || response.statusText;
-      throw new Error(errorMsg || "Failed to place order");
+      const contextMessage = getErrorContext(response.status, errorMsg);
+      
+      console.error(
+        "[placeOrder] API Error:",
+        {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorMsg,
+          fullData: data,
+          itemsCount: payload.items.length,
+        }
+      );
+      
+      throw new Error(contextMessage || errorMsg || "Failed to place order");
+    }
+
+    // Log partial failures if any
+    if (data?.failedItems && data.failedItems.length > 0) {
+      console.warn("[placeOrder] Partial order failure:", {
+        createdItems: data.itemsCount,
+        totalItems: payload.items.length,
+        failedItems: data.failedItems,
+      });
     }
 
     return data as PlaceOrderResponse;
   } catch (error) {
-    console.error("Error calling placeOrder:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error("[placeOrder] Exception:", {
+      message: errorMessage,
+      stack: error instanceof Error ? error.stack : undefined,
+      itemsCount: payload.items.length,
+    });
     throw error;
+  }
+}
+
+/**
+ * Provide more context-specific error messages
+ */
+function getErrorContext(status: number, errorMsg: string): string {
+  switch (status) {
+    case 401:
+      return "You need to be logged in to place an order.";
+    case 403:
+      return "Invalid request. Please refresh the page and try again.";
+    case 429:
+      return "Too many order attempts. Please wait a moment and try again.";
+    case 400:
+      return errorMsg || "Invalid order data. Please check your items and delivery details.";
+    case 500:
+      return "Server error. Please try again in a moment.";
+    default:
+      return errorMsg;
   }
 }
 

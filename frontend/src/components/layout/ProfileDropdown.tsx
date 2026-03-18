@@ -59,7 +59,7 @@ export function ProfileDropdown({
         className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
       >
         <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+          className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
           style={{ backgroundColor: RED }}
         >
           {displayInitial}
@@ -68,7 +68,7 @@ export function ProfileDropdown({
           <span className="text-sm font-medium text-gray-800">
             {displayName}
           </span>
-          <span className="text-xs text-gray-400 truncate max-w-[120px]">
+          <span className="text-xs text-gray-400 truncate max-w-30">
             {displayEmail}
           </span>
         </div>
