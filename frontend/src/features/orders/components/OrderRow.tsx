@@ -7,7 +7,7 @@ import { STATUS_CONFIG, PAY_CONFIG } from "../constants/orderConfig";
 import { getStatusLabel } from "@/utils/statusMapper";
 import { formatDateWithTime2DigitYear } from "@/utils/dateFormatter";
 import { OrderDetails } from "./OrderDetails";
-import { PaymentProofUploadModal } from "@/components/modals/PaymentProofUploadModal";
+import { PaymentProofUploadModal } from "../../../components/modals/PaymentProofUploadModal";
 
 interface OrderRowProps {
   order: Order;
