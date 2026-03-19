@@ -64,12 +64,6 @@ export class InvoicesService {
       return invoice;
     }
 
-    if (order.status !== OrderStatus.READY_FOR_BILLING) {
-      throw new BadRequestException(
-        `Cannot pay invoice while order status is ${order.status}`,
-      );
-    }
-
     invoice.paymentStatus = 'PAID';
     const savedInvoice = await this.invoicesRepository.save(invoice);
 
@@ -81,9 +75,6 @@ export class InvoicesService {
       paymentDate: new Date(),
     });
     await this.paymentsRepository.save(payment);
-
-    order.status = OrderStatus.PAID;
-    await this.ordersRepository.save(order);
 
     void this.sendPaymentConfirmationEmail(order, savedInvoice).catch((error: unknown) => {
       this.logger.error(

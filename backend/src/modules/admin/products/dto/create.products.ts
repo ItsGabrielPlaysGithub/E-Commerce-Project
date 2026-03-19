@@ -40,4 +40,16 @@ export class CreateProductDto {
   @IsInt()
   @Min(0)
   available: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  inTransit?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  blocked?: number;
 }

@@ -32,12 +32,11 @@ export class OrdersService {
     ) {}
 
     private readonly validTransitions: Record<OrderStatus, OrderStatus[]> = {
-        [OrderStatus.PENDING_APPROVAL]: [OrderStatus.APPROVED, OrderStatus.REJECTED],
-        [OrderStatus.APPROVED]: [OrderStatus.ORDERED_FROM_SUPPLIER],
+        [OrderStatus.PENDING_APPROVAL]: [OrderStatus.ACCEPT, OrderStatus.REJECTED],
+        [OrderStatus.ACCEPT]: [OrderStatus.PACKING],
         [OrderStatus.REJECTED]: [],
-        [OrderStatus.ORDERED_FROM_SUPPLIER]: [OrderStatus.READY_FOR_BILLING],
-        [OrderStatus.READY_FOR_BILLING]: [OrderStatus.PAID],
-        [OrderStatus.PAID]: [OrderStatus.DELIVERED],
+        [OrderStatus.PACKING]: [OrderStatus.IN_TRANSIT],
+        [OrderStatus.IN_TRANSIT]: [OrderStatus.DELIVERED],
         [OrderStatus.DELIVERED]: [],
     };
 
@@ -88,26 +87,17 @@ export class OrdersService {
 
         if (updates.status && updates.status !== order.status) {
             this.assertTransitionAllowed(order.status as OrderStatus, updates.status as OrderStatus);
-
-            if (updates.status === OrderStatus.DELIVERED) {
-                await this.assertInvoicePaidForDelivery(order.orderId);
-            }
         }
 
         Object.assign(order, updates);
 
         const savedOrder = await this.ordersRepository.save(order);
 
-        let invoiceForNotification: InvoicesTbl | null = null;
-        if (savedOrder.status === OrderStatus.READY_FOR_BILLING) {
-            invoiceForNotification = await this.invoicesService.createInvoiceForOrder(savedOrder);
-        }
-
         if (updates.status && previousStatus !== (savedOrder.status as OrderStatus)) {
             void this.sendOrderStatusNotificationEmail(
                 savedOrder,
                 previousStatus,
-                invoiceForNotification,
+                null,
             ).catch((error: unknown) => {
                 this.logger.error(
                     `Order status email dispatch failed for order #${savedOrder.orderId}`,
@@ -128,22 +118,13 @@ export class OrdersService {
         const currentStatus = order.status as OrderStatus;
         this.assertTransitionAllowed(currentStatus, transitionDto.nextStatus);
 
-        if (transitionDto.nextStatus === OrderStatus.DELIVERED) {
-            await this.assertInvoicePaidForDelivery(order.orderId);
-        }
-
         order.status = transitionDto.nextStatus;
         const updatedOrder = await this.ordersRepository.save(order);
-
-        let invoiceForNotification: InvoicesTbl | null = null;
-        if (updatedOrder.status === OrderStatus.READY_FOR_BILLING) {
-            invoiceForNotification = await this.invoicesService.createInvoiceForOrder(updatedOrder);
-        }
 
         void this.sendOrderStatusNotificationEmail(
             updatedOrder,
             currentStatus,
-            invoiceForNotification,
+            null,
         ).catch((error: unknown) => {
             this.logger.error(
                 `Order status email dispatch failed for order #${updatedOrder.orderId}`,
@@ -287,16 +268,14 @@ export class OrdersService {
         switch (status) {
             case OrderStatus.PENDING_APPROVAL:
                 return 'Your request is waiting for admin review.';
-            case OrderStatus.APPROVED:
-                return 'Good news: your order has been approved.';
+            case OrderStatus.ACCEPT:
+                return 'Good news: your order has been approved and ready for packing.';
             case OrderStatus.REJECTED:
                 return 'Your order was not approved. Our team can help with alternatives.';
-            case OrderStatus.ORDERED_FROM_SUPPLIER:
-                return 'Your requested items were ordered from our supplier.';
-            case OrderStatus.READY_FOR_BILLING:
-                return 'Your order is ready for billing. Please review your invoice details.';
-            case OrderStatus.PAID:
-                return 'Payment has been received successfully.';
+            case OrderStatus.PACKING:
+                return 'Your order is being packed and prepared for shipment.';
+            case OrderStatus.IN_TRANSIT:
+                return 'Your order is on its way to you!';
             case OrderStatus.DELIVERED:
                 return 'Your order has been delivered. Thank you for choosing Synchores.';
             default:

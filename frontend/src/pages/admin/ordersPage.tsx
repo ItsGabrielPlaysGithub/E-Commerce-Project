@@ -6,32 +6,12 @@ import { SalesOrdersTable } from "@/components/admin/SalesOrdersTable";
 import { PaymentProofModal } from "@/components/admin/PaymentProofModal";
 import { PaymongoTransactionModal } from "@/components/admin/PaymongoTransactionModal";
 import { OrderDetailsModal } from "@/components/admin/OrderDetailsModal";
+import { UpdateOrderStatusModal } from "@/components/admin/UpdateOrderStatusModal";
 import { useOrders } from "@/features/admin/sales-order/hooks";
 import { useTransitionOrderStatus } from "@/features/admin/sales-order/hooks/use-transitionorderstatus";
 import { getStatusLabel, getStatusColor } from "@/utils/statusMapper";
+import { SalesOrder } from "@/components/admin/types";
 import { toast } from "sonner";
-
-interface SalesOrder {
-  orderId: string;
-  orderNumber: string;
-  userId: number;
-  productId: number;
-  orderType?: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  status: string;
-  deliveryStatus?: string;
-  paymentMethod?: string;
-  paymentProofImage?: string;
-  paymentProofUploadedAt?: string;
-  paymongoTransactionId?: string;
-  paymongoAmount?: number;
-  paymongoPaymentMethod?: string;
-  paymongoTimestamp?: string;
-  createdAt: string;
-  updatedAt: string;
-}
 
 export default function SalesOrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,6 +22,8 @@ export default function SalesOrdersPage() {
   const [paymentProofLoading, setPaymentProofLoading] = useState(false);
   const [paymongoTransactionOrder, setPaymongoTransactionOrder] = useState<SalesOrder | null>(null);
   const [paymongoTransactionLoading, setPaymongoTransactionLoading] = useState(false);
+  const [updateStatusOrder, setUpdateStatusOrder] = useState<SalesOrder | null>(null);
+  const [updateStatusLoading, setUpdateStatusLoading] = useState(false);
 
   // Fetch orders from GraphQL
   const { data, loading, error } = useOrders();
@@ -112,14 +94,14 @@ export default function SalesOrdersPage() {
       amount: ordersData.filter((o) => o.status === "APPROVED").reduce((s, o) => s + o.totalPrice, 0),
     },
     {
+      label: "IN_TRANSIT",
+      count: ordersData.filter((o) => o.status === "IN_TRANSIT").length,
+      amount: ordersData.filter((o) => o.status === "IN_TRANSIT").reduce((s, o) => s + o.totalPrice, 0),
+    },
+    {
       label: "DELIVERED",
       count: ordersData.filter((o) => o.status === "DELIVERED").length,
       amount: ordersData.filter((o) => o.status === "DELIVERED").reduce((s, o) => s + o.totalPrice, 0),
-    },
-    {
-      label: "PAID",
-      count: ordersData.filter((o) => o.status === "PAID").length,
-      amount: ordersData.filter((o) => o.status === "PAID").reduce((s, o) => s + o.totalPrice, 0),
     },
   ];
 
@@ -162,7 +144,7 @@ export default function SalesOrdersPage() {
     }
   };
 
-  const handleRejectPayment = async (order: SalesOrder) => {
+  const handleRejectPayment = async (order: SalesOrder, reason?: string) => {
     setPaymentProofLoading(true);
     try {
       await transitionOrderStatus({
@@ -174,6 +156,7 @@ export default function SalesOrdersPage() {
         },
       });
       toast.success("Payment rejected");
+      console.log("❌ Payment rejected with reason:", reason);
       setPaymentProofOrder(null);
     } catch (error) {
       console.error("Failed to reject payment:", error);
@@ -239,6 +222,33 @@ export default function SalesOrdersPage() {
 
   const handleAdjustDelivery = (order: SalesOrder) => {
     console.log("Adjust delivery:", order);
+  };
+
+  const handleUpdateStatus = (order: SalesOrder) => {
+    setUpdateStatusOrder(order);
+  };
+
+  const handleStatusUpdateSubmit = async (newStatus: string) => {
+    if (!updateStatusOrder) return;
+
+    setUpdateStatusLoading(true);
+    try {
+      await transitionOrderStatus({
+        variables: {
+          input: {
+            orderId: parseInt(updateStatusOrder.orderId),
+            nextStatus: newStatus,
+          },
+        },
+      });
+      toast.success("Order status updated successfully!");
+      setUpdateStatusOrder(null);
+    } catch (error) {
+      console.error("Failed to update order status:", error);
+      toast.error("Failed to update order status");
+    } finally {
+      setUpdateStatusLoading(false);
+    }
   };
 
   const handlePrint = (order: SalesOrder) => {
@@ -380,6 +390,7 @@ export default function SalesOrdersPage() {
         onViewInvoice={handleViewInvoice}
         onCancelOrder={handleCancelOrder}
         onAdjustDelivery={handleAdjustDelivery}
+        onUpdateStatus={handleUpdateStatus}
         onPrint={handlePrint}
       />
 
@@ -390,7 +401,7 @@ export default function SalesOrdersPage() {
           order={paymentProofOrder}
           onClose={() => setPaymentProofOrder(null)}
           onApprove={() => handleApprovePayment(paymentProofOrder)}
-          onReject={() => handleRejectPayment(paymentProofOrder)}
+          onReject={(order, reason) => handleRejectPayment(order, reason)}
           isLoading={paymentProofLoading}
         />
       )}
@@ -413,6 +424,18 @@ export default function SalesOrdersPage() {
           isOpen={!!selectedOrder}
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
+        />
+      )}
+
+      {/* Update Order Status Modal */}
+      {updateStatusOrder && (
+        <UpdateOrderStatusModal
+          isOpen={!!updateStatusOrder}
+          orderNumber={updateStatusOrder.orderNumber}
+          currentStatus={updateStatusOrder.status}
+          onClose={() => setUpdateStatusOrder(null)}
+          onUpdate={handleStatusUpdateSubmit}
+          isLoading={updateStatusLoading}
         />
       )}
     </div>

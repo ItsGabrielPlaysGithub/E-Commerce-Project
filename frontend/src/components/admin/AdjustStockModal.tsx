@@ -2,18 +2,24 @@
 
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useUpdateProduct } from "@/features/products/hooks/use-updateproduct";
+import { toast } from "sonner";
 
 interface AdjustStockModalProps {
   isOpen: boolean;
   product: {
     id: string;
     name: string;
+    sku: string;
+    category: string;
+    price: number;
+    reorderPoint: number;
     available: number;
     inTransit: number;
     blocked: number;
   };
   onClose: () => void;
-  onSubmit: (data: { available: number; inTransit: number; blocked: number }) => void;
+  onSubmit?: (data: { available: number; inTransit: number; blocked: number }) => void;
   isLoading?: boolean;
 }
 
@@ -24,10 +30,12 @@ export function AdjustStockModal({
   onSubmit,
   isLoading = false,
 }: AdjustStockModalProps) {
+  const [updateProduct] = useUpdateProduct();
   const [available, setAvailable] = useState(product.available.toString());
   const [inTransit, setInTransit] = useState(product.inTransit.toString());
   const [blocked, setBlocked] = useState(product.blocked.toString());
   const [isAnimating, setIsAnimating] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Update state when product changes
   useEffect(() => {
@@ -45,25 +53,56 @@ export function AdjustStockModal({
   if (!isOpen && !isAnimating) return null;
 
   const handleSubmit = () => {
-    onSubmit({
+    const data = {
       available: parseInt(available) || 0,
       inTransit: parseInt(inTransit) || 0,
       blocked: parseInt(blocked) || 0,
-    });
-    onClose();
+    };
+
+    setLoading(true);
+
+    const productId = parseInt(product.id);
+
+    updateProduct({
+      variables: {
+        id: productId,
+        input: {
+          productName: product.name,
+          productDescription: "",
+          sku: product.sku,
+          category: product.category,
+          productPrice: product.price,
+          reorderPoint: product.reorderPoint,
+          available: data.available,
+          inTransit: data.inTransit,
+          blocked: data.blocked,
+        },
+      },
+    })
+      .then(() => {
+        onSubmit?.(data);
+        toast.success("Stock levels updated successfully!");
+        onClose();
+      })
+      .catch((err) => {
+        toast.error("Failed to update stock levels.");
+        console.error("❌ Mutation error:", err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50"
+        className="fixed top-0 left-0 w-screen h-screen z-40"
         style={{
           background: "rgba(0,0,0,0.5)",
           animation: isOpen
             ? "fadeIn 0.2s ease-out"
             : "fadeOut 0.2s ease-out forwards",
-          backdropFilter: "blur(0px)",
         }}
         onClick={onClose}
         onAnimationEnd={() => {
@@ -73,7 +112,8 @@ export function AdjustStockModal({
 
       {/* Dialog */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+        className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+        style={{ maxHeight: "100vh", maxWidth: "100vw" }}
       >
         <div
           className="rounded-2xl overflow-hidden w-full max-w-sm pointer-events-auto"
@@ -136,9 +176,9 @@ export function AdjustStockModal({
           </h3>
           <button
             onClick={onClose}
-            disabled={isLoading}
+            disabled={loading}
             className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-            style={{ cursor: isLoading ? "not-allowed" : "pointer" }}
+            style={{ cursor: loading ? "not-allowed" : "pointer" }}
           >
             <X size={18} color="#64748b" />
           </button>
@@ -161,7 +201,7 @@ export function AdjustStockModal({
               type="number"
               value={available}
               onChange={(e) => setAvailable(e.target.value)}
-              disabled={isLoading}
+              disabled={loading}
               className="w-full px-3 py-2.5 rounded-lg border text-sm focus:outline-none transition-all"
               style={{
                 borderColor: "#e2e8f0",
@@ -180,7 +220,7 @@ export function AdjustStockModal({
               type="number"
               value={inTransit}
               onChange={(e) => setInTransit(e.target.value)}
-              disabled={isLoading}
+              disabled={loading}
               className="w-full px-3 py-2.5 rounded-lg border text-sm focus:outline-none transition-all"
               style={{
                 borderColor: "#e2e8f0",
@@ -199,7 +239,7 @@ export function AdjustStockModal({
               type="number"
               value={blocked}
               onChange={(e) => setBlocked(e.target.value)}
-              disabled={isLoading}
+              disabled={loading}
               className="w-full px-3 py-2.5 rounded-lg border text-sm focus:outline-none transition-all"
               style={{
                 borderColor: "#e2e8f0",
@@ -229,29 +269,29 @@ export function AdjustStockModal({
         <div className="px-6 py-4 flex items-center justify-end gap-3" style={{ borderTop: "1px solid #f1f5f9" }}>
           <button
             onClick={onClose}
-            disabled={isLoading}
+            disabled={loading}
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors border"
             style={{
               borderColor: "#e2e8f0",
               color: "#4b5563",
               backgroundColor: "#f8fafc",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              opacity: isLoading ? 0.6 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.6 : 1,
             }}
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isLoading}
+            disabled={loading}
             className="px-4 py-2 rounded-lg text-sm font-medium text-white transition-all"
             style={{
               backgroundColor: "#bf262f",
-              cursor: isLoading ? "not-allowed" : "pointer",
-              opacity: isLoading ? 0.8 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+              opacity: loading ? 0.8 : 1,
             }}
           >
-            {isLoading ? "Updating..." : "Update Stock"}
+            {loading ? "Updating..." : "Update Stock"}
           </button>
         </div>
         </div>

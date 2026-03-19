@@ -1,31 +1,12 @@
 'use client';
 
-import { MoreVertical, Edit2, Eye, FileText, Printer, X, Calendar, CreditCard, AlertTriangle, CheckCircle } from "lucide-react";
+import { MoreVertical, Edit2, Eye, FileText, Printer, X, Calendar, CreditCard, AlertTriangle, CheckCircle, Zap } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { getStatusLabel } from "@/utils/statusMapper";
 import { formatDateLong } from "@/utils/dateFormatter";
-
-interface SalesOrder {
-  orderId: string;
-  orderNumber: string;
-  userId: number;
-  productId: number;
-  orderType?: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  status: string;
-  deliveryStatus?: string;
-  paymentMethod?: string;
-  paymentProofImage?: string;
-  paymentProofUploadedAt?: string;
-  paymongoTransactionId?: string;
-  paymongoAmount?: number;
-  paymongoPaymentMethod?: string;
-  paymongoTimestamp?: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { CancelOrderConfirmDialog } from "./CancelOrderConfirmDialog";
+import { UpdateOrderStatusModal } from "./UpdateOrderStatusModal";
+import { SalesOrder } from "./types";
 
 function StatusBadge({ status }: { status: string }) {
   const statusColors: Record<string, { bg: string; color: string }> = {
@@ -107,6 +88,7 @@ function ActionsMenu({
   onViewInvoice,
   onCancelOrder,
   onAdjustDelivery,
+  onUpdateStatus,
   onPrint,
 }: {
   order: SalesOrder;
@@ -120,10 +102,12 @@ function ActionsMenu({
   onViewInvoice?: (order: SalesOrder) => void;
   onCancelOrder?: (order: SalesOrder) => void;
   onAdjustDelivery?: (order: SalesOrder) => void;
+  onUpdateStatus?: (order: SalesOrder) => void;
   onPrint?: (order: SalesOrder) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -132,43 +116,49 @@ function ActionsMenu({
   const hasManualPaymentVerification = order.paymentMethod === "manual_transfer" && needsVerification;
   const hasPaymongoVerification = order.paymentMethod === "paymongo" && needsVerification;
 
+  // Determine if update status button should show (after payment approved)
+  const canUpdateStatus = order.status === "APPROVED" || order.status === "PACKING" || order.status === "IN_TRANSIT";
+
+  // Determine if cancel is allowed
+  const canCancel = order.status === "PENDING_APPROVAL" || order.status === "APPROVED";
+
+  // Determine if print is allowed (PENDING_APPROVAL and APPROVED for warehouse)
+  const canPrint = order.status === "PENDING_APPROVAL" || order.status === "APPROVED";
+
+  // Count available actions
+  const availableActions = [
+    true, // View Details (always available)
+    canPrint, // Print (only PENDING_APPROVAL)
+    canUpdateStatus, // Update Status (APPROVED, PACKING, IN_TRANSIT)
+    canCancel, // Cancel Order (PENDING_APPROVAL and APPROVED)
+  ].filter(Boolean).length;
+
+  const showAsMenu = availableActions > 2;
+  const showDirectButton = availableActions === 1;
+
   const handleAction = (callback?: (order: SalesOrder) => void) => {
     callback?.(order);
     setIsOpen(false);
   };
 
-  const handleToggleMenu = () => {
+  const handleToggleMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMenuPosition({
+      top: rect.bottom + 8,
+      left: rect.left - 200,
+    });
     setIsOpen(!isOpen);
   };
 
-  useEffect(() => {
-    if (isOpen && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setMenuPosition({
-        top: rect.bottom + 8,
-        left: rect.left - 200,
-      });
-    }
-  }, [isOpen]);
+  const handleCancelClick = () => {
+    setCancelDialogOpen(true);
+    setIsOpen(false);
+  };
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        menuRef.current &&
-        buttonRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
+  const handleConfirmCancel = () => {
+    handleAction(onCancelOrder);
+    setCancelDialogOpen(false);
+  };
 
   return (
     <div className="flex items-center gap-2 relative">
@@ -216,61 +206,139 @@ function ActionsMenu({
         </button>
       )}
 
-      {/* More Actions Dropdown */}
-      <button
-        ref={buttonRef}
-        onClick={handleToggleMenu}
-        className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
-        title="More actions"
-      >
-        <MoreVertical size={16} />
-      </button>
-
-      {/* Dropdown Menu - Fixed positioning to escape table overflow */}
-      {isOpen && (
-        <div
-          ref={menuRef}
-          className="fixed w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden"
-          style={{
-            top: `${menuPosition.top}px`,
-            left: `${menuPosition.left}px`,
-          }}
+      {/* More Actions Dropdown - Only show if multiple actions available */}
+      {showAsMenu && (
+        <button
+          ref={buttonRef}
+          onClick={handleToggleMenu}
+          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+          title="More actions"
         >
-          {/* View Details - Always shown */}
-          <button
-            onClick={() => handleAction(onViewDetails)}
-            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
-          >
-            <Eye size={14} />
-            View Details
-          </button>
-
-          {/* Other Actions */}
-          <button
-            onClick={() => handleAction(onViewInvoice)}
-            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
-          >
-            <FileText size={14} />
-            View Invoice
-          </button>
-
-          <button
-            onClick={() => handleAction(onPrint)}
-            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
-          >
-            <Printer size={14} />
-            Print
-          </button>
-
-          <button
-            onClick={() => handleAction(onCancelOrder)}
-            className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-          >
-            <X size={14} />
-            Cancel Order
-          </button>
-        </div>
+          <MoreVertical size={16} />
+        </button>
       )}
+
+      {/* Direct View Details Button - Show when only 1 action available */}
+      {showDirectButton && (
+        <button
+          onClick={() => onViewDetails?.(order)}
+          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+          title="View Details"
+        >
+          <Eye size={16} />
+        </button>
+      )}
+
+      {/* Direct 2 Action Buttons - Show when 2 actions available */}
+      {availableActions === 2 && (
+        <>
+          <button
+            onClick={() => onViewDetails?.(order)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+            title="View Details"
+          >
+            <Eye size={16} />
+          </button>
+          {canPrint && (
+            <button
+              onClick={() => onPrint?.(order)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+              title="Print"
+            >
+              <Printer size={16} />
+            </button>
+          )}
+          {canUpdateStatus && (
+            <button
+              onClick={() => onUpdateStatus?.(order)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+              title="Update Status"
+            >
+              <Zap size={16} />
+            </button>
+          )}
+          {canCancel && (
+            <button
+              onClick={handleCancelClick}
+              className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-red-600"
+              title="Cancel Order"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </>
+      )}
+
+      {isOpen && showAsMenu && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+
+          {/* Dropdown Menu - Fixed positioning to viewport */}
+          <div
+            ref={menuRef}
+            className="fixed w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50 overflow-hidden"
+            style={{
+              top: `${menuPosition.top}px`,
+              left: `${menuPosition.left}px`,
+              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+            }}
+          >
+            {/* View Details - Always shown */}
+            <button
+              onClick={() => handleAction(onViewDetails)}
+              className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+            >
+              <Eye size={14} />
+              View Details
+            </button>
+
+            {/* Cancel Order - Only for PENDING_APPROVAL */}
+            {canCancel && (
+              <button
+                onClick={handleCancelClick}
+                className="w-full px-4 py-2.5 text-left text-sm font-medium flex items-center gap-2 transition-colors"
+                style={{
+                  color: "#dc2626",
+                  backgroundColor: "transparent",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fef2f2")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              >
+                <X size={14} />
+                Cancel Order
+              </button>
+            )}
+
+            {/* Update Status - After payment approved */}
+            {canUpdateStatus && (
+              <button
+                onClick={() => handleAction(onUpdateStatus)}
+                className="w-full px-4 py-2.5 text-left text-sm font-medium flex items-center gap-2 transition-colors border-t border-gray-100"
+                style={{
+                  color: "#9333ea",
+                  backgroundColor: "transparent",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#faf5ff")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              >
+                <Zap size={14} />
+                Update Status
+              </button>
+            )}
+          </div>
+        </>
+      )}
+
+      <CancelOrderConfirmDialog
+        isOpen={cancelDialogOpen}
+        orderNumber={order.orderNumber}
+        onConfirm={handleConfirmCancel}
+        onCancel={() => setCancelDialogOpen(false)}
+      />
     </div>
   );
 }
@@ -288,6 +356,7 @@ interface SalesOrdersTableProps {
   onViewInvoice?: (order: SalesOrder) => void;
   onCancelOrder?: (order: SalesOrder) => void;
   onAdjustDelivery?: (order: SalesOrder) => void;
+  onUpdateStatus?: (order: SalesOrder) => void;
   onPrint?: (order: SalesOrder) => void;
 }
 
@@ -304,6 +373,7 @@ export function SalesOrdersTable({
   onViewInvoice,
   onCancelOrder,
   onAdjustDelivery,
+  onUpdateStatus,
   onPrint,
 }: SalesOrdersTableProps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -391,6 +461,7 @@ export function SalesOrdersTable({
                         onViewInvoice={onViewInvoice}
                         onCancelOrder={onCancelOrder}
                         onAdjustDelivery={onAdjustDelivery}
+                        onUpdateStatus={onUpdateStatus}
                         onPrint={onPrint}
                       />
                     </div>

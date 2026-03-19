@@ -239,7 +239,7 @@ export function AddProductModal({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50"
+        className="fixed top-0 left-0 w-screen h-screen z-40"
         style={{
           background: "rgba(0,0,0,0.5)",
           animation: isOpen
@@ -253,7 +253,7 @@ export function AddProductModal({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 pointer-events-none" style={{ maxHeight: "100vh", maxWidth: "100vw" }}>
         <div
           className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden pointer-events-auto"
           style={{

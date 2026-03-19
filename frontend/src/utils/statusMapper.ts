@@ -2,11 +2,13 @@
 const statusLabels: Record<string, string> = {
   PENDING_APPROVAL: "Pending Approval",
   APPROVED: "Approved",
+  REJECTED: "Rejected",
+  PACKING: "Packing",
+  IN_TRANSIT: "In Transit",
   DELIVERED: "Delivered",
   PAID: "Paid",
   READY_FOR_BILLING: "Ready For Billing",
   READY_FOR_DELIVERY: "Ready For Delivery",
-  REJECTED: "Rejected",
   DISCREPANCY_REPORTED: "Discrepancy Reported",
 };
 
@@ -27,6 +29,21 @@ export function getStatusColor(status: string): { bg: string; border: string; te
       border: "#bfdbfe",
       text: "#2563eb",
     },
+    REJECTED: {
+      bg: "#fee2e2",
+      border: "#fecaca",
+      text: "#dc2626",
+    },
+    PACKING: {
+      bg: "#faf5ff",
+      border: "#f3e8ff",
+      text: "#9333ea",
+    },
+    IN_TRANSIT: {
+      bg: "#fef3c7",
+      border: "#fde68a",
+      text: "#ca8a04",
+    },
     DELIVERED: {
       bg: "#dcfce7",
       border: "#bbf7d0",
@@ -46,11 +63,6 @@ export function getStatusColor(status: string): { bg: string; border: string; te
       bg: "#fbf8f3",
       border: "#f5f3ff",
       text: "#78350f",
-    },
-    REJECTED: {
-      bg: "#fee2e2",
-      border: "#fecaca",
-      text: "#dc2626",
     },
     DISCREPANCY_REPORTED: {
       bg: "#f3e8ff",

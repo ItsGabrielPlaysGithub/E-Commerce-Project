@@ -109,20 +109,8 @@ export default function ProductsPage() {
   };
 
   const handleAdjustStockSubmit = async (data: { available: number; inTransit: number; blocked: number }) => {
-    setAdjustStockLoading(true);
-    try {
-      console.log("Adjust stock for product:", selectedProduct?.name, data);
-      // TODO: Call updateProductStock mutation with refetchQueries: ["GetProducts"]
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Stock updated successfully!");
-      setAdjustStockOpen(false);
-      // When you implement the real mutation, add: refetchQueries: ["GetProducts"]
-    } catch (error) {
-      console.error("Failed to adjust stock:", error);
-      toast.error("Failed to adjust stock");
-    } finally {
-      setAdjustStockLoading(false);
-    }
+    setAdjustStockLoading(false);
+    setAdjustStockOpen(false);
   };
 
   const handleArchive = (product: Product) => {
