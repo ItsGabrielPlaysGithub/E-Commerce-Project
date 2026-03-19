@@ -1,7 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import { Upload, RotateCcw, Eye, ChevronDown, ChevronUp } from "lucide-react";
 import type { Order } from "../types/order";
 import { STATUS_CONFIG, PAY_CONFIG } from "../constants/orderConfig";
 import { OrderDetails } from "./OrderDetails";
+import { PaymentProofUploadModal } from "@/components/modals/PaymentProofUploadModal";
 
 interface OrderRowProps {
   order: Order;
@@ -18,7 +22,22 @@ export function OrderRow({
   index,
   isLastItem,
 }: OrderRowProps) {
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const StatusIcon = STATUS_CONFIG[order.status]?.icon;
+
+  const handleUploadPaymentProof = async (file: File): Promise<void> => {
+    // TODO: Implement the actual file upload logic here
+    // This should send the file to your backend API
+    console.log("Uploading payment proof for order:", order.id);
+    console.log("File:", file.name, file.size, file.type);
+
+    // Simulate upload delay
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 1500);
+    });
+  };
 
   return (
     <div className="mb-3 rounded-lg border border-slate-200 overflow-hidden">
@@ -93,6 +112,7 @@ export function OrderRow({
             )}
             {order.status === "Open" && order.paymentStatus === "Pending" && (
               <button
+                onClick={() => setIsUploadModalOpen(true)}
                 className="p-2 rounded-lg border transition-colors hover:bg-blue-50 hover:text-blue-600 hover:border-blue-500 text-gray-500 border-gray-500"
                 title="Upload Payment Proof"
               >
@@ -113,6 +133,13 @@ export function OrderRow({
       </div>
 
       {isExpanded && <OrderDetails order={order} />}
+
+      <PaymentProofUploadModal
+        isOpen={isUploadModalOpen}
+        orderId={order.id}
+        onClose={() => setIsUploadModalOpen(false)}
+        onSubmit={handleUploadPaymentProof}
+      />
     </div>
   );
 }
