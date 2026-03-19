@@ -251,6 +251,7 @@ export type OrdersTbl = {
   paymongoTransactionId?: Maybe<Scalars['String']['output']>;
   productId: Scalars['Float']['output'];
   quantity: Scalars['Float']['output'];
+  rejectionReason?: Maybe<Scalars['String']['output']>;
   status: Scalars['String']['output'];
   totalPrice: Scalars['Float']['output'];
   unitPrice: Scalars['Float']['output'];
@@ -340,6 +341,7 @@ export type QueryReadProfileArgs = {
 export type TransitionOrderStatusDto = {
   nextStatus: Scalars['String']['input'];
   orderId: Scalars['Int']['input'];
+  rejectionReason?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateCartItemInput = {
