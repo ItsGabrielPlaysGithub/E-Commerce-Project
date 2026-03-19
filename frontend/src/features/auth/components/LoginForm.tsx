@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ArrowRight, Lock, Mail, AlertCircle } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { LOGIN_MUTATION } from "@/features/auth/services/mutation";
 import { useMutation } from "@apollo/client/react";
+import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
 
 interface LoginFormData {
   email: string;
@@ -117,7 +119,21 @@ export const LoginForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md">
+    <>
+      {/* Logo Section - Top Right Corner (Desktop only) */}
+      <div className="hidden lg:block fixed top-6 right-6 text-right z-50">
+        <Image 
+          src={omegaLogo}
+          alt="Omega Logo"
+          width={180}
+          height={60}
+          className="h-auto w-auto"
+        />
+        <div className="text-gray-400 text-xs tracking-widest uppercase mt-2">B2B Partner Portal</div>
+      </div>
+
+      <div className="w-full max-w-md">
+
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -218,5 +234,6 @@ export const LoginForm = () => {
         </button>
       </form>
     </div>
+    </>
   );
 };
