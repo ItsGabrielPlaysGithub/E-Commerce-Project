@@ -26,9 +26,22 @@ interface LoginMutationVariables {
   password: string;
 }
 
+export interface CompanyProfile {
+  userId: number;
+  firstName: string;
+  middleName: string;
+  lastName: string;
+  fullName: string;
+  emailAddress: string;
+  companyName: string;
+  address: string;
+  phoneNumber: string;
+  role: string;
+}
+
 export const LoginForm = () => {
   const router = useRouter();
-  const { login, isLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const mountedRef = useRef(true);
@@ -76,22 +89,9 @@ export const LoginForm = () => {
         return;
       }
 
-      // Keep local auth context in sync with successful backend login for UI routing.
-      const email = loginForm.email.trim();
-      const guessedName = email.split("@")[0] || "User";
-      login({
-        userId: 0,
-        firstName: guessedName,
-        middleName: "",
-        lastName: "",
-        fullName: guessedName,
-        emailAddress: email,
-        companyName: "",
-        address: "",
-        phoneNumber: "",
-        role: "partner",
-      });
-      router.push("/b2b/home");
+      // Let server session hydration provide the canonical user data after redirect.
+      router.replace("/b2b/home");
+      router.refresh();
     } catch (err: any) {
       if (!mountedRef.current) return;
 
