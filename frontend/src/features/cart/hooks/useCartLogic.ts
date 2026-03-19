@@ -37,8 +37,8 @@ export function useCartLogic() {
   } = useOrderPlacement(selectedItems, selectedSubtotal, delivery, currentCompany, removeItems, setErrors);
 
   const handlePlaceOrder = useCallback(
-    async () => {
-      await _handlePlaceOrder(validateForm);
+    async (paymentMethod: "e-payment" | "manual_transfer") => {
+      await _handlePlaceOrder(paymentMethod, validateForm);
     },
     [_handlePlaceOrder, validateForm]
   );

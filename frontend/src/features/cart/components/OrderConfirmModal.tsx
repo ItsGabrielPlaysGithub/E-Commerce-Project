@@ -25,7 +25,7 @@ interface OrderConfirmModalProps {
   placing: boolean;
   onDeliveryChange: (field: keyof DeliveryDetails, value: string) => void;
   onConfirmedChange: (value: boolean) => void;
-  onPlaceOrder: () => void;
+  onPlaceOrder: (paymentMethod: "e-payment" | "manual_transfer") => void;
 }
 
 export function OrderConfirmModal({
@@ -51,7 +51,7 @@ export function OrderConfirmModal({
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow.toISOString().split("T")[0];
   });
-  const [paymentMethod, setPaymentMethod] = useState<"e-payment" | "manual">(
+  const [paymentMethod, setPaymentMethod] = useState<"e-payment" | "manual_transfer">(
     "e-payment",
   );
 
@@ -101,7 +101,7 @@ export function OrderConfirmModal({
 
         <ModalFooter
           onClose={onClose}
-          onPlaceOrder={onPlaceOrder}
+          onPlaceOrder={() => onPlaceOrder(paymentMethod)}
           placing={placing}
           redColor={RED}
         />

@@ -183,6 +183,7 @@ export class OrdersService {
                 userId: placeOrderDto.userId,
                 status: OrderStatus.PENDING_APPROVAL,
                 deliveryStatus: 'Pending',
+                paymentMethod: placeOrderDto.paymentMethod,
                 // Store delivery fee and grand total only on the first item
                 deliveryFee: isFirstItem ? placeOrderDto.deliveryFee : undefined,
                 grandTotal: isFirstItem ? placeOrderDto.grandTotal : undefined,

@@ -22,7 +22,7 @@ export const useOrderPlacement = (
   const [placeOrderMutation] = usePlaceOrder();
 
   const handlePlaceOrder = useCallback(
-    async (validateForm: () => boolean) => {
+    async (paymentMethod: "e-payment" | "manual_transfer", validateForm: () => boolean) => {
       if (selectedItems.length === 0) {
         setErrors({ notes: "Select at least one item to checkout." });
         return;
@@ -55,6 +55,7 @@ export const useOrderPlacement = (
           grandTotal: parseFloat(String(selectedSubtotal + (selectedSubtotal >= 1500 ? 0 : 350))),
           userId: currentCompany?.userId || 0,
           companyId: currentCompany?.userId?.toString(),
+          paymentMethod,
         };
 
         console.log("[useOrderPlacement] Sending mutation with input:", JSON.stringify(mutationInput, null, 2));
