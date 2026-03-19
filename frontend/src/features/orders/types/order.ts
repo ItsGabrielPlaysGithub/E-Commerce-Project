@@ -1,4 +1,6 @@
-export type OrderStatus = "All" | "Open" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
+export type OrderStatus = "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "ORDERED_FROM_SUPPLIER" | "READY_FOR_BILLING" | "AWAITING_PAYMENT_VERIFICATION" | "PAID" | "DELIVERED";
+
+export type OrderTabStatus = "All" | "Open" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
 
 export interface OrderItem {
   sku: string;
@@ -22,4 +24,5 @@ export interface Order {
   paymentStatus: "Paid" | "Pending" | "Overdue";
   deliveryMethod: string;
   notes?: string;
+  paymentProofImage?: string;
 }

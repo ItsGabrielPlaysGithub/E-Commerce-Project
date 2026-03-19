@@ -50,7 +50,7 @@ export function Header({ sessionUser }: HeaderProps) {
   const [runLogout] = useMutation(LOGOUT_MUTATION);
 
   // Count open orders
-  const openOrderCount = orders.filter((order) => order.status === "Open").length;
+  const openOrderCount = orders.filter((order) => order.status === "PENDING_APPROVAL" || order.status === "READY_FOR_BILLING").length;
 
   const isActive = (path: string) => pathname === path;
 

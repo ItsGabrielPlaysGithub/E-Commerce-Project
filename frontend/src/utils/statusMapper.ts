@@ -1,16 +1,18 @@
 // Map database status values to display labels
 const statusLabels: Record<string, string> = {
-  PENDING_APPROVAL: "Pending Approval",
+  PENDING_APPROVAL: "Upload proof of payment to proceed to processing",
   APPROVED: "Approved",
   REJECTED: "Rejected",
   PACKING: "Packing",
   IN_TRANSIT: "In Transit",
   DELIVERED: "Delivered",
   PAID: "Paid",
-  READY_FOR_BILLING: "Ready For Billing",
-  READY_FOR_DELIVERY: "Ready For Delivery",
+  READY_FOR_BILLING: "Ready for Billing",
+  AWAITING_PAYMENT_VERIFICATION: "Waiting for Payment Verification",
+  READY_FOR_DELIVERY: "Ready for Delivery",
   DISCREPANCY_REPORTED: "Discrepancy Reported",
-};
+  ORDERED_FROM_SUPPLIER: "Ordered from Supplier",
+}
 
 export function getStatusLabel(status: string): string {
   return statusLabels[status] || status;
@@ -58,6 +60,11 @@ export function getStatusColor(status: string): { bg: string; border: string; te
       bg: "#fef08a",
       border: "#fde047",
       text: "#ca8a04",
+    },
+    AWAITING_PAYMENT_VERIFICATION: {
+      bg: "#e0e7ff",
+      border: "#c7d2fe",
+      text: "#4f46e5",
     },
     READY_FOR_DELIVERY: {
       bg: "#fbf8f3",

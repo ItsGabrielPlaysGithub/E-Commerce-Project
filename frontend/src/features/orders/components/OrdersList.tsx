@@ -1,18 +1,19 @@
 import { Package } from "lucide-react";
-import type { Order, OrderStatus } from "../types/order";
+import type { Order, OrderTabStatus } from "../types/order";
 import { OrdersFilter } from "./OrdersFilter";
 import { OrderRow } from "./OrderRow";
 
 interface OrdersListProps {
   orders: Order[];
-  activeTab: OrderStatus;
-  setActiveTab: (tab: OrderStatus) => void;
+  activeTab: OrderTabStatus;
+  setActiveTab: (tab: OrderTabStatus) => void;
   search: string;
   setSearch: (search: string) => void;
   expanded: string | null;
   setExpanded: (id: string | null) => void;
-  counts: Record<OrderStatus, number>;
+  counts: Record<OrderTabStatus, number>;
   filtered: Order[];
+  onUploadSuccess?: () => void;
 }
 
 export function OrdersList({
@@ -24,6 +25,7 @@ export function OrdersList({
   setExpanded,
   counts,
   filtered,
+  onUploadSuccess,
 }: OrdersListProps) {
   return (
     <div className="space-y-5">
@@ -55,6 +57,7 @@ export function OrdersList({
                 onExpand={setExpanded}
                 index={i}
                 isLastItem={i === filtered.length - 1}
+                onUploadSuccess={onUploadSuccess}
               />
             ))}
           </div>

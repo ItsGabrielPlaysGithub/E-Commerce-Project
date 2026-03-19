@@ -34,10 +34,22 @@ async function bootstrap() {
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Apollo-Require-Preflight'],
   });
+  
+  // Add middleware to ensure CORS headers are applied to all responses
+  app.use((req, res, next) => {
+    const origin = req.get('origin');
+    if (!origin || allowedOrigins.includes(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin || '*');
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+    }
+    next();
+  });
   app.use(
     helmet({
       contentSecurityPolicy: isProduction,
       crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
     }),
   );
 

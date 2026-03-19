@@ -131,7 +131,7 @@ export async function updateOrderStatus(
       variables: {
         input: {
           orderId,
-          newStatus,
+          nextStatus: newStatus,
         },
       },
     });

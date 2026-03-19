@@ -83,6 +83,10 @@ export class OrdersTbl {
     @Field({ nullable: true })
     paymongoTimestamp?: Date;
 
+    @Column({ type: 'varchar', length: 200, nullable: true })
+    @Field({ nullable: true })
+    rejectionReason?: string;
+
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     @Field()
     createdAt: Date;

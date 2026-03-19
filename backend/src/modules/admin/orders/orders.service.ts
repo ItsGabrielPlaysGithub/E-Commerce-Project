@@ -32,12 +32,17 @@ export class OrdersService {
     ) {}
 
     private readonly validTransitions: Record<OrderStatus, OrderStatus[]> = {
-        [OrderStatus.PENDING_APPROVAL]: [OrderStatus.ACCEPT, OrderStatus.REJECTED],
-        [OrderStatus.ACCEPT]: [OrderStatus.PACKING],
+        [OrderStatus.PENDING_APPROVAL]: [OrderStatus.ACCEPT, OrderStatus.REJECTED, OrderStatus.AWAITING_PAYMENT_VERIFICATION],
+        [OrderStatus.ACCEPT]: [OrderStatus.ORDERED_FROM_SUPPLIER],
         [OrderStatus.REJECTED]: [],
-        [OrderStatus.PACKING]: [OrderStatus.IN_TRANSIT],
+        [OrderStatus.PACKING]: [OrderStatus.AWAITING_PAYMENT_VERIFICATION],
+        [OrderStatus.AWAITING_PAYMENT_VERIFICATION]: [OrderStatus.IN_TRANSIT, OrderStatus.REJECTED],
         [OrderStatus.IN_TRANSIT]: [OrderStatus.DELIVERED],
         [OrderStatus.DELIVERED]: [],
+        [OrderStatus.ORDERED_FROM_SUPPLIER]: [OrderStatus.READY_FOR_DELIVERY],
+        [OrderStatus.READY_FOR_BILLING]: [OrderStatus.PAID],
+        [OrderStatus.READY_FOR_DELIVERY]: [OrderStatus.PACKING],
+        [OrderStatus.PAID]: [],
     };
 
     // ADMIN SIDE ORDER FUNCTIONS
@@ -119,6 +124,12 @@ export class OrdersService {
         this.assertTransitionAllowed(currentStatus, transitionDto.nextStatus);
 
         order.status = transitionDto.nextStatus;
+        
+        // Store rejection reason if transitioning to REJECTED
+        if (transitionDto.nextStatus === OrderStatus.REJECTED && transitionDto.rejectionReason) {
+            order.rejectionReason = transitionDto.rejectionReason;
+        }
+
         const updatedOrder = await this.ordersRepository.save(order);
 
         void this.sendOrderStatusNotificationEmail(
@@ -351,5 +362,167 @@ export class OrdersService {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * Save payment proof for an order
+     * Updates the order with payment proof file path and timestamp
+     * Transitions order status to AWAITING_PAYMENT_VERIFICATION (only on first upload)
+     */
+    async savePaymentProof(orderId: number, filename: string): Promise<OrdersTbl> {
+        const order = await this.ordersRepository.findOne({
+            where: { orderId },
+            relations: ['user'],
+        });
+
+        if (!order) {
+            throw new NotFoundException(`Order #${orderId} not found`);
+        }
+
+        // Store the file path and upload timestamp
+        order.paymentProofImage = filename;
+        order.paymentProofUploadedAt = new Date();
+
+        // Store previous status for reference
+        const previousStatus = order.status as OrderStatus;
+
+        // Transition to AWAITING_PAYMENT_VERIFICATION if currently PENDING_APPROVAL or READY_FOR_BILLING
+        // If already under review or in a different status, keep the current status
+        if (previousStatus === OrderStatus.READY_FOR_BILLING || previousStatus === OrderStatus.PENDING_APPROVAL) {
+            order.status = OrderStatus.AWAITING_PAYMENT_VERIFICATION;
+        }
+
+        const updatedOrder = await this.ordersRepository.save(order);
+
+        // Create invoice for this order if not already done
+        let invoice: InvoicesTbl | null = null;
+        if (previousStatus === OrderStatus.READY_FOR_BILLING) {
+            try {
+                invoice = await this.invoicesService.createInvoiceForOrder(updatedOrder);
+            } catch (error) {
+                this.logger.warn(
+                    `Invoice creation skipped for order #${orderId}: ${error instanceof Error ? error.message : String(error)}`,
+                );
+            }
+        }
+
+        // Send notification email about payment proof submission
+        void this.sendPaymentProofReceivedEmail(updatedOrder, invoice || undefined).catch((error: unknown) => {
+            this.logger.error(
+                `Payment proof notification email failed for order #${orderId}`,
+                error instanceof Error ? error.stack : String(error),
+            );
+        });
+
+        return updatedOrder;
+    }
+
+    /**
+     * Send email notification when payment proof is received
+     */
+    private async sendPaymentProofReceivedEmail(
+        order: OrdersTbl & { user?: UsersTbl },
+        invoice?: InvoicesTbl,
+    ): Promise<void> {
+        if (!order.user) {
+            this.logger.warn(`No user found for order #${order.orderId}`);
+            return;
+        }
+        const user = order.user;
+
+        const invoiceLine = invoice
+            ? `Invoice ${invoice.invoiceNumber} has been created and is available for download.`
+            : 'Your invoice details will be shared soon.';
+
+        await this.mailerService.sendMail({
+            to: user.emailAddress,
+            subject: `Payment Proof Received - Order #${order.orderId}`,
+            text: [
+                `Hi ${user.firstName},`,
+                '',
+                `We have received your payment proof for Order #${order.orderId}.`,
+                'Our team will verify the payment shortly.',
+                '',
+                `Order Total: ${Number(order.totalPrice).toFixed(2)}`,
+                invoiceLine,
+                '',
+                'Thank you for your business!',
+                'Regards,',
+                'Synchores Team',
+            ]
+                .filter(Boolean)
+                .join('\n'),
+            html: this.buildPaymentProofEmailHtml({
+                firstName: user.firstName,
+                orderId: order.orderId,
+                totalPrice: Number(order.totalPrice),
+                invoiceNumber: invoice?.invoiceNumber,
+                invoiceStatus: invoice?.paymentStatus,
+            }),
+        });
+    }
+
+    /**
+     * Build HTML email template for payment proof received notification
+     */
+    private buildPaymentProofEmailHtml(data: {
+        firstName: string;
+        orderId: number;
+        totalPrice: number;
+        invoiceNumber?: string;
+        invoiceStatus?: string;
+    }): string {
+        return `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: #bf262f; color: white; padding: 20px; text-align: center; border-radius: 5px; }
+      .content { padding: 20px; background: #f9f9f9; margin-top: 20px; border-radius: 5px; }
+      .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+      .highlight { color: #bf262f; font-weight: bold; }
+      .info-box { background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #bf262f; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Payment Proof Received</h1>
+      </div>
+      
+      <div class="content">
+        <p>Hi <strong>${this.escapeHtml(data.firstName)}</strong>,</p>
+        
+        <p>Thank you for submitting your payment proof for <span class="highlight">Order #${data.orderId}</span>.</p>
+        
+        <div class="info-box">
+          <strong>Order Details</strong><br>
+          Order ID: ${data.orderId}<br>
+          Amount: ₱${data.totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 2 })}<br>
+          ${data.invoiceNumber ? `Invoice: ${data.invoiceNumber}<br>` : ''}
+          ${data.invoiceStatus ? `Status: ${data.invoiceStatus}` : ''}
+        </div>
+        
+        <p>Our team will verify your payment shortly. You'll receive a confirmation email once the verification is complete.</p>
+        
+        <p style="color: #666; font-size: 14px;">
+          <strong>What happens next?</strong><br>
+          • We verify your payment proof<br>
+          • Order status updates to "Processing"<br>
+          • Items will be prepared for dispatch<br>
+          • You'll receive tracking information
+        </p>
+      </div>
+      
+      <div class="footer">
+        <p>&copy; 2026 Synchores. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>`;
     }
 }

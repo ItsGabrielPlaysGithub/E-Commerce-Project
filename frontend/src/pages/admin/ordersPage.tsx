@@ -152,11 +152,12 @@ export default function SalesOrdersPage() {
           input: {
             orderId: parseInt(order.orderId),
             nextStatus: "REJECTED",
+            rejectionReason: reason || undefined,
           },
         },
       });
       toast.success("Payment rejected");
-      console.log("❌ Payment rejected with reason:", reason);
+      console.log("✅ Payment rejected with reason:", reason);
       setPaymentProofOrder(null);
     } catch (error) {
       console.error("Failed to reject payment:", error);
