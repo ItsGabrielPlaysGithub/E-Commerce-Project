@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OrdersResolver } from './orders.resolver';
 import { OrdersService } from './orders.service';
+import { PaymentProofController } from './payment-proof.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrdersTbl } from './entity/orders.tbl';
 import { InvoicesModule } from '../invoices/invoices.module';
@@ -12,6 +13,7 @@ import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
     TypeOrmModule.forFeature([OrdersTbl, ProductsTbl, UsersTbl]),
     InvoicesModule,
   ],
-  providers: [OrdersResolver, OrdersService]
+  providers: [OrdersResolver, OrdersService],
+  controllers: [PaymentProofController],
 })
 export class OrdersModule {}

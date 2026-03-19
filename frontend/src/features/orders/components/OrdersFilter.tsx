@@ -1,13 +1,13 @@
 import { Search } from "lucide-react";
-import type { OrderStatus } from "../types/order";
+import type { OrderTabStatus } from "../types/order";
 import { STATUS_TABS } from "../constants/orderConfig";
 
 interface OrdersFilterProps {
-  activeTab: OrderStatus;
-  setActiveTab: (tab: OrderStatus) => void;
+  activeTab: OrderTabStatus;
+  setActiveTab: (tab: OrderTabStatus) => void;
   search: string;
   setSearch: (search: string) => void;
-  counts: Record<OrderStatus, number>;
+  counts: Record<OrderTabStatus, number>;
 }
 
 export function OrdersFilter({

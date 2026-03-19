@@ -78,6 +78,7 @@ export function MyOrdersPage() {
               onNextPage={pagination.nextPage}
               onPrevPage={pagination.prevPage}
               quickReorderItems={quickReorderItems}
+              onUploadSuccess={refetchOrders}
             />
           </div>
         </div>

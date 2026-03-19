@@ -1,5 +1,6 @@
 import { AlertCircle, Download, RotateCcw, ExternalLink } from "lucide-react";
 import type { Order } from "../types/order";
+import { formatDateWithTime2DigitYear } from "@/utils/dateFormatter";
 
 interface OrderDetailsProps {
   order: Order;
@@ -17,7 +18,7 @@ export function OrderDetails({ order }: OrderDetailsProps) {
             </div>
             {[
               { label: "Order ID", val: order.id },
-              { label: "Order Date", val: order.date },
+              { label: "Order Date", val: formatDateWithTime2DigitYear(order.date) },
               { label: "Delivery", val: order.deliveryMethod },
             ].map(({ label, val }) => (
               <div key={label} className="mb-2">
@@ -41,7 +42,14 @@ export function OrderDetails({ order }: OrderDetailsProps) {
             <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
               Line Items
             </div>
-            <table className="w-full">
+            <table className="w-full" style={{ tableLayout: "fixed" }}>
+              <colgroup>
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "40%" }} />
+                <col style={{ width: "12%" }} />
+                <col style={{ width: "18%" }} />
+                <col style={{ width: "18%" }} />
+              </colgroup>
               <thead>
                 <tr>
                   {["SKU", "Product", "Qty", "Unit Price", "Total"].map((h) => (
@@ -115,7 +123,7 @@ export function OrderDetails({ order }: OrderDetailsProps) {
               <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-gray-100 transition-colors">
                 <Download size={12} /> Download PDF
               </button>
-              {order.status === "Delivered" && (
+              {order.status === "DELIVERED" && (
                 <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-red-700 text-white text-xs font-semibold hover:opacity-90 transition-all">
                   <RotateCcw size={12} /> Reorder
                 </button>

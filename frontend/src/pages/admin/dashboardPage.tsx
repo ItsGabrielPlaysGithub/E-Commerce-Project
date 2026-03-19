@@ -263,7 +263,7 @@ export default function Dashboard() {
                         className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                         style={{ backgroundColor: order.statusBg, color: order.statusColor }}
                       >
-                        {order.status === "Delivered" && <CheckCircle size={10} className="mr-1" />}
+                        {order.status === "DELIVERED" && <CheckCircle size={10} className="mr-1" />}
                         {order.status === "Shipped" && <Truck size={10} className="mr-1" />}
                         {order.status === "Processing" && <Clock size={10} className="mr-1" />}
                         {order.status}

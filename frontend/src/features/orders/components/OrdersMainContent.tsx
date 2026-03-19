@@ -3,23 +3,24 @@
 import { OrdersList } from "./OrdersList";
 import { OrdersPaginationControls } from "./OrdersPaginationControls";
 import { QuickReorder } from "./QuickReorder";
-import type { Order, OrderStatus } from "../types/order";
+import type { Order, OrderStatus, OrderTabStatus } from "../types/order";
 
 interface OrdersMainContentProps {
   orders: Order[];
-  activeTab: OrderStatus;
-  setActiveTab: (tab: OrderStatus) => void;
+  activeTab: OrderTabStatus;
+  setActiveTab: (tab: OrderTabStatus) => void;
   search: string;
   setSearch: (search: string) => void;
   expanded: string | null;
   setExpanded: (id: string | null) => void;
-  counts: Record<OrderStatus, number>;
+  counts: Record<OrderTabStatus, number>;
   filteredOrders: Order[];
   currentPage: number;
   totalPages: number;
   onNextPage: () => void;
   onPrevPage: () => void;
   quickReorderItems: Array<{ id: string; name: string; sku: string; price: number; lastQty: number; stock: number }>;
+  onUploadSuccess?: () => void;
 }
 
 export function OrdersMainContent({
@@ -37,6 +38,7 @@ export function OrdersMainContent({
   onNextPage,
   onPrevPage,
   quickReorderItems,
+  onUploadSuccess,
 }: OrdersMainContentProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -52,6 +54,7 @@ export function OrdersMainContent({
           setExpanded={setExpanded}
           counts={counts}
           filtered={filteredOrders}
+          onUploadSuccess={onUploadSuccess}
         />
 
         {/* Pagination Controls */}

@@ -86,15 +86,21 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
 /**
  * Map backend status to frontend OrderStatus
  */
-function mapOrderStatus(status: string): "All" | "Open" | "Processing" | "Shipped" | "Delivered" | "Cancelled" {
+function mapOrderStatus(status: string): "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "ORDERED_FROM_SUPPLIER" | "READY_FOR_BILLING" | "AWAITING_PAYMENT_VERIFICATION" | "PAID" | "DELIVERED" {
   const statusMap: Record<string, any> = {
-    "PENDING_APPROVAL": "Open",
-    "APPROVED": "Processing",
-    "IN_TRANSIT": "Shipped",
-    "DELIVERED": "Delivered",
-    "CANCELLED": "Cancelled",
+    "PENDING_APPROVAL": "PENDING_APPROVAL",
+    "APPROVED": "APPROVED",
+    "REJECTED": "REJECTED",
+    "ORDERED_FROM_SUPPLIER": "ORDERED_FROM_SUPPLIER",
+    "READY_FOR_BILLING": "READY_FOR_BILLING",
+    "AWAITING_PAYMENT_VERIFICATION": "AWAITING_PAYMENT_VERIFICATION",
+    "PAID": "PAID",
+    "DELIVERED": "DELIVERED",
+    // Legacy mappings for backward compatibility
+    "IN_TRANSIT": "DELIVERED",
+    "CANCELLED": "REJECTED",
   };
-  return statusMap[status] || "Open";
+  return statusMap[status] || status;
 }
 
 /**
