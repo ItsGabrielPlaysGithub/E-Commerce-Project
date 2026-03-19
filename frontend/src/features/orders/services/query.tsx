@@ -20,6 +20,7 @@ export const GET_CLIENT_ORDERS = gql`
       deliveryStatus
       createdAt
       updatedAt
+      paymentProofImage
     }
   }
 `;
@@ -41,6 +42,7 @@ export const GET_ORDER_DETAILS = gql`
       deliveryStatus
       createdAt
       updatedAt
+      paymentProofImage
     }
   }
 `;
@@ -62,6 +64,7 @@ export const GET_ALL_ORDERS = gql`
       deliveryStatus
       createdAt
       updatedAt
+      paymentProofImage
     }
   }
 `;

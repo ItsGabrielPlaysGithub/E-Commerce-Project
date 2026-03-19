@@ -75,6 +75,9 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
       paymentStatus: "Pending",
       deliveryMethod: firstOrder.deliveryStatus || "Standard",
       deliveryFee: deliveryFee, // Store delivery fee for display
+      paymentProofImage: firstOrder.paymentProofImage 
+        ? `http://localhost:4000/uploads/payment-proofs/${firstOrder.paymentProofImage}`
+        : undefined,
     } as any;
     
     mappedOrders.push(mappedOrder);

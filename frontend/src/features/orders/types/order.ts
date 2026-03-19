@@ -24,4 +24,5 @@ export interface Order {
   paymentStatus: "Paid" | "Pending" | "Overdue";
   deliveryMethod: string;
   notes?: string;
+  paymentProofImage?: string;
 }

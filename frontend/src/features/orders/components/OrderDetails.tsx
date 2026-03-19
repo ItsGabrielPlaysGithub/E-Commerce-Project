@@ -35,6 +35,28 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                 {order.notes}
               </div>
             )}
+            {order.paymentProofImage && (order.status === "AWAITING_PAYMENT_VERIFICATION" || order.status === "PAID") && (
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
+                  Payment Proof
+                </div>
+                <div className="rounded-lg border border-slate-200 overflow-hidden bg-white">
+                  <img
+                    src={order.paymentProofImage}
+                    alt="Payment Proof"
+                    className="w-full h-auto max-h-64 object-cover rounded"
+                    style={{ minHeight: '200px' }}
+                  />
+                </div>
+                <a
+                  href={order.paymentProofImage}
+                  download
+                  className="flex items-center gap-1.5 mt-2 px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+                >
+                  <ExternalLink size={11} /> Download
+                </a>
+              </div>
+            )}
           </div>
 
           {/* Line items */}

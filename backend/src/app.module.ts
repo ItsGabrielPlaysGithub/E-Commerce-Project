@@ -5,6 +5,8 @@ import { DatabaseConfig } from '../config/db.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { AuthModule } from './modules/general/auth/auth.module';
 import { NotificationsModule } from './modules/general/notifications/notifications.module';
 import { CartModule } from './modules/general/cart/cart.module';
@@ -18,6 +20,10 @@ import { InvoicesModule } from './modules/admin/invoices/invoices.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
     }),
     DatabaseConfig,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
