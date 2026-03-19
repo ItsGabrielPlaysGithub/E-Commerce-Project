@@ -78,4 +78,9 @@ export class PlaceOrderDto {
   @IsOptional()
   @IsString()
   companyId?: string;
+
+  @Field()
+  @IsNotEmpty()  
+  @IsString()
+  paymentMethod: string;
 }
