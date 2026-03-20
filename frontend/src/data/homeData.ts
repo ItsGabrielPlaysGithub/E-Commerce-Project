@@ -31,7 +31,7 @@ export const heroSlides = [
 ];
 
 export const features = [
-  { icon: Truck,      title: "Same Day Delivery",  desc: "Within Metro Manila. Order cutoff at 2PM." },
+  { icon: Truck,      title: "Same Day Delivery",  desc: "Within Metro Manila." },
   { icon: Package,    title: "Bulk Orders",         desc: "Send us a message for a quotation."         },
   { icon: CreditCard, title: "Cash on Delivery",    desc: "Available Nationwide."                     },
   { icon: Headphones, title: "Customer Service",    desc: "inquiry@omegahouseware.com.ph"             },
