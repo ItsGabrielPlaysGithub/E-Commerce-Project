@@ -1,8 +1,7 @@
 "use client";
 
 import { OrdersList } from "./OrdersList";
-import { OrdersPaginationControls } from "./OrdersPaginationControls";
-import { QuickReorder } from "./QuickReorder";
+// import { QuickReorder } from "./QuickReorder";
 import type { Order, OrderStatus, OrderTabStatus } from "../types/order";
 
 interface OrdersMainContentProps {
@@ -19,7 +18,7 @@ interface OrdersMainContentProps {
   totalPages: number;
   onNextPage: () => void;
   onPrevPage: () => void;
-  quickReorderItems: Array<{ id: string; name: string; sku: string; price: number; lastQty: number; stock: number }>;
+  // quickReorderItems: Array<{ id: string; name: string; sku: string; price: number; lastQty: number; stock: number }>;
   onUploadSuccess?: () => void;
 }
 
@@ -37,13 +36,13 @@ export function OrdersMainContent({
   totalPages,
   onNextPage,
   onPrevPage,
-  quickReorderItems,
+  // quickReorderItems,
   onUploadSuccess,
 }: OrdersMainContentProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Main Orders List - Takes 2/3 on desktop */}
-      <div className="lg:col-span-2">
+    <div className="w-full">
+      {/* Main Orders List - Full width */}
+      <div className="w-full">
         <OrdersList
           orders={orders}
           activeTab={activeTab}
@@ -54,23 +53,18 @@ export function OrdersMainContent({
           setExpanded={setExpanded}
           counts={counts}
           filtered={filteredOrders}
-          onUploadSuccess={onUploadSuccess}
-        />
-
-        {/* Pagination Controls */}
-        <OrdersPaginationControls
           currentPage={currentPage}
           totalPages={totalPages}
-          totalItems={filteredOrders.length}
-          onNext={onNextPage}
-          onPrevious={onPrevPage}
+          onNextPage={onNextPage}
+          onPrevPage={onPrevPage}
+          onUploadSuccess={onUploadSuccess}
         />
       </div>
 
       {/* Sidebar - Quick Reorder */}
-      <div className="lg:col-span-1">
+      {/* <div className="lg:col-span-1">
         <QuickReorder items={quickReorderItems} />
-      </div>
+      </div> */}
     </div>
   );
 }

@@ -36,8 +36,8 @@ export function OrderRowActions({
 
   return (
     <>
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="text-right">
+      <div className="flex sm:flex-row sm:items-center sm:gap-3 sm:shrink-0 absolute sm:relative top-3 right-3 sm:top-auto sm:right-auto">
+        <div className="hidden sm:block text-right">
           <div className="font-bold text-gray-800 text-sm">
             ₱{order.total.toLocaleString()}
           </div>
