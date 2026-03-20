@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 import { UploadForm } from "./UploadForm";
 import { SuccessMessage } from "./SuccessMessage";
 
@@ -41,17 +42,22 @@ export function PaymentProofUploadModal({
       "application/pdf",
     ];
     if (!allowedTypes.includes(file.type)) {
-      setError("Invalid file type. Please upload JPEG, PNG, WebP, or PDF.");
+      const errorMsg = "Invalid file type. Please upload JPEG, PNG, WebP, or PDF.";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
     // Validate file size (4MB max)
     if (file.size > 4 * 1024 * 1024) {
-      setError("File size exceeds 4MB limit.");
+      const errorMsg = "File size exceeds 4MB limit.";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
     setSelectedFile(file);
+    toast.success(`File selected: ${file.name}`);
 
     // Create preview for images
     if (file.type.startsWith("image/")) {
@@ -67,27 +73,34 @@ export function PaymentProofUploadModal({
 
   const handleSubmit = async () => {
     if (!selectedFile) {
-      setError("Please select a file.");
+      const errorMsg = "Please select a file.";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
     setIsLoading(true);
     setError(null);
+    toast.loading("Uploading payment proof...");
 
     try {
       await onSubmit(selectedFile);
       setSuccess(true);
+      toast.dismiss();
+      toast.success("Payment proof uploaded successfully!");
 
       // Close modal after 2 seconds of success
       setTimeout(() => {
         resetAndClose();
       }, 2000);
     } catch (err) {
-      setError(
+      const errorMsg =
         err instanceof Error
           ? err.message
-          : "Failed to upload payment proof. Please try again."
-      );
+          : "Failed to upload payment proof. Please try again.";
+      setError(errorMsg);
+      toast.dismiss();
+      toast.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
