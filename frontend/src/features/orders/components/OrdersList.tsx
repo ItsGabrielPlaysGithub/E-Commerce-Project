@@ -1,7 +1,7 @@
 import { Package } from "lucide-react";
 import type { Order, OrderTabStatus } from "../types/order";
 import { OrdersFilter } from "./OrdersFilter";
-import { OrderRow } from "./OrderRow";
+import { OrderRow } from "./Row-Container/OrderRow";
 
 interface OrdersListProps {
   orders: Order[];
