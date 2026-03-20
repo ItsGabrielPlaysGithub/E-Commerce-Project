@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { Order } from "../../types/order";
-import { OrderDetails } from "../OrderDetails";
+import type { Order } from "../types/order";
+import { OrderDetails } from "./OrderDetails";
 import { OrderRowInfo } from "./OrderRowInfo";
 import { OrderRowActions } from "./OrderRowActions";
-import { PaymentProofUploadModal } from "../../../../components/modals/Payment-Proof";
+import { PaymentProofUploadModal } from "../../../components/modals/Payment-Proof";
 
 interface OrderRowProps {
   order: Order;
