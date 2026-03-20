@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useOrders } from "../../features/orders/hooks/useOrders";
 import { useFetchOrders } from "../../features/orders/hooks/useFetchOrders";
 import { useMostOrderedItems } from "../../features/orders/hooks/useMostOrderedItems";
@@ -16,6 +17,9 @@ import { BottomBar } from "@/components/layout/bottomBar";
 const ITEMS_PER_PAGE = 6;
 
 export function MyOrdersPage() {
+  const searchParams = useSearchParams();
+  const expandOrderId = searchParams?.get("expandOrderId");
+
   // Fetch orders from backend
   const { orders, loading, error, refetchOrders } = useFetchOrders();
 
@@ -30,6 +34,17 @@ export function MyOrdersPage() {
 
   // Quick reorder items
   const quickReorderItems = useMostOrderedItems(orders);
+
+  // Auto-expand order if coming from payment upload
+  useEffect(() => {
+    if (expandOrderId && orders.length > 0) {
+      // Find the order by ID (expandOrderId is a string from URL)
+      const orderToExpand = orders.find(order => order.id === expandOrderId);
+      if (orderToExpand) {
+        setExpanded(orderToExpand.id);
+      }
+    }
+  }, [expandOrderId, orders, setExpanded]);
 
   // Handle pagination reset on search/filter change
   useEffect(() => {
@@ -77,7 +92,7 @@ export function MyOrdersPage() {
               totalPages={pagination.totalPages}
               onNextPage={pagination.nextPage}
               onPrevPage={pagination.prevPage}
-              quickReorderItems={quickReorderItems}
+              // quickReorderItems={quickReorderItems}
               onUploadSuccess={refetchOrders}
             />
           </div>
