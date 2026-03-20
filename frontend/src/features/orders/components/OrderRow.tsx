@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import type { Order } from "../types/order";
 import { OrderDetails } from "./OrderDetails";
-import { OrderRowInfo } from "./OrderRowInfo";
-import { OrderRowActions } from "./OrderRowActions";
+import { OrderRowInfo } from "./Row-Container/OrderRowInfo";
+import { OrderRowActions } from "./Row-Container/OrderRowActions";
 import { PaymentProofUploadModal } from "../../../components/modals/Payment-Proof";
+import { useUpdateOrderStatus } from "../hooks/use-update-order-status";
 
 interface OrderRowProps {
   order: Order;
@@ -25,6 +27,7 @@ export function OrderRow({
   onUploadSuccess,
 }: OrderRowProps) {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [transitionOrderStatus] = useUpdateOrderStatus();
 
   const handleUploadPaymentProof = async (file: File): Promise<void> => {
     try {
@@ -47,43 +50,38 @@ export function OrderRow({
         throw new Error(error.message || "Failed to upload payment proof");
       }
 
+      toast.success("Payment proof uploaded successfully!");
       if (onUploadSuccess) onUploadSuccess();
     } catch (error) {
-      console.error("Error uploading payment proof:", error);
-      throw error instanceof Error
-        ? error
-        : new Error("Failed to process payment proof");
+      const errorMsg = error instanceof Error ? error.message : "Failed to process payment proof";
+      toast.error(errorMsg);
+      throw error instanceof Error ? error : new Error(errorMsg);
     }
   };
 
   const handleCancelOrder = async () => {
-    if (!window.confirm("Are you sure you want to cancel this order?")) {
-      return;
-    }
-
     try {
       const orderId =
         typeof order.id === "string" ? parseInt(order.id, 10) : order.id;
 
-      const response = await fetch(
-        `http://localhost:4000/orders/${orderId}/cancel`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      await transitionOrderStatus({
+        variables: {
+          input: {
+            orderId,
+            nextStatus: "REJECTED",
+            rejectionReason: "Order cancelled by B2B customer",
           },
-        }
-      );
+        },
+      });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to cancel order");
+      toast.success("Order cancelled successfully!");
+      if (onUploadSuccess) {
+        onUploadSuccess();
       }
-
-      if (onUploadSuccess) onUploadSuccess();
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : "Error cancelling order";
+      toast.error(errorMsg);
       console.error("Error cancelling order:", error);
-      alert(error instanceof Error ? error.message : "Failed to cancel order");
     }
   };
 

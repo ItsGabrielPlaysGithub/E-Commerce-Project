@@ -2,23 +2,28 @@
 
 import { useRef, useEffect } from "react";
 import { Upload } from "lucide-react";
+import type { Order } from "../../types/order";
 
 interface OrderRowMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  order: Order;
   onCancelOrder: () => void;
   onUploadPayment: () => void;
   onViewDetails: () => void;
   isExpanded: boolean;
+  onShowCancelModal: () => void;
 }
 
 export function OrderRowMenu({
   isOpen,
   onClose,
+  order,
   onCancelOrder,
   onUploadPayment,
   onViewDetails,
   isExpanded,
+  onShowCancelModal,
 }: OrderRowMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +46,10 @@ export function OrderRowMenu({
     <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50" ref={menuRef}>
       <div className="py-1">
         <button
-          onClick={onCancelOrder}
+          onClick={() => {
+            onShowCancelModal();
+            onClose();
+          }}
           className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
         >
           Cancel Order
