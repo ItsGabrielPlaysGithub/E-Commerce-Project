@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import type { Order } from "../types/order";
-import { OrderDetails } from "./OrderDetails";
-import { OrderRowInfo } from "./Row-Container/OrderRowInfo";
-import { OrderRowActions } from "./Row-Container/OrderRowActions";
-import { PaymentProofUploadModal } from "../../../components/modals/Payment-Proof";
-import { useUpdateOrderStatus } from "../hooks/use-update-order-status";
+import type { Order } from "../../types/order";
+import { OrderDetails } from "../OrderDetails";
+import { OrderRowInfo } from "./OrderRowInfo";
+import { OrderRowActions } from "./OrderRowActions";
+import { PaymentProofUploadModal } from "../../../../components/modals/Payment-Proof";
+import { useUpdateOrderStatus } from "../../hooks/use-update-order-status";
 
 interface OrderRowProps {
   order: Order;
@@ -101,45 +101,6 @@ export function OrderRow({
         </div>
 
         {isExpanded && <OrderDetails order={order} />}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="text-right">
-            <div className="font-bold text-gray-800 text-sm">
-              ₱{order.total.toLocaleString()}
-            </div>
-            <div className="text-gray-400" style={{ fontSize: "0.65rem" }}>
-              incl. delivery
-            </div>
-          </div>
-          <div className="flex items-center gap-1.5">
-            {order.status === "DELIVERED" && (
-              <button
-                className="p-2 rounded-lg border transition-colors hover:bg-gray-50 text-gray-500"
-                style={{ borderColor: "#e2e8f0" }}
-                title="Reorder"
-              >
-                <RotateCcw size={13} />
-              </button>
-            )}
-            {(order.status === "PENDING_APPROVAL" || order.status === "READY_FOR_BILLING" || order.status === "AWAITING_PAYMENT_VERIFICATION") && (
-              <button
-                onClick={() => setIsUploadModalOpen(true)}
-                className="p-2 rounded-lg border transition-colors hover:bg-blue-50 hover:text-blue-600 hover:border-blue-500 text-gray-500 border-gray-500"
-                title="Upload Payment Proof"
-              >
-                <Upload size={13} />
-              </button>
-            )}
-            <button
-              onClick={() => onExpand(isExpanded ? null : order.id)}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg border text-xs font-medium transition-colors hover:bg-gray-50"
-              style={{ borderColor: "#e2e8f0", color: "#4b5563" }}
-            >
-              <Eye size={12} />
-              {isExpanded ? "Close" : "Details"}
-              {isExpanded ? <ChevronUp size={11} /> : <ChevronDown size={11} />}
-            </button>
-          </div>
-        </div>
       </div>
 
       <PaymentProofUploadModal

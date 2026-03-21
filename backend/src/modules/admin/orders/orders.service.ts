@@ -33,15 +33,15 @@ export class OrdersService {
 
     private readonly validTransitions: Record<OrderStatus, OrderStatus[]> = {
         [OrderStatus.PENDING_APPROVAL]: [OrderStatus.ACCEPT, OrderStatus.REJECTED, OrderStatus.AWAITING_PAYMENT_VERIFICATION],
-        [OrderStatus.ACCEPT]: [OrderStatus.ORDERED_FROM_SUPPLIER, OrderStatus.PACKING],
+        [OrderStatus.ACCEPT]: [OrderStatus.ORDERED_FROM_SUPPLIER, OrderStatus.PACKING, OrderStatus.REJECTED],
         [OrderStatus.REJECTED]: [],
-        [OrderStatus.PACKING]: [OrderStatus.AWAITING_PAYMENT_VERIFICATION],
+        [OrderStatus.PACKING]: [OrderStatus.AWAITING_PAYMENT_VERIFICATION, OrderStatus.REJECTED],
         [OrderStatus.AWAITING_PAYMENT_VERIFICATION]: [OrderStatus.PACKING, OrderStatus.REJECTED],
-        [OrderStatus.IN_TRANSIT]: [OrderStatus.DELIVERED],
+        [OrderStatus.IN_TRANSIT]: [OrderStatus.DELIVERED, OrderStatus.REJECTED],
         [OrderStatus.DELIVERED]: [],
-        [OrderStatus.ORDERED_FROM_SUPPLIER]: [OrderStatus.READY_FOR_DELIVERY],
-        [OrderStatus.READY_FOR_BILLING]: [OrderStatus.PAID],
-        [OrderStatus.READY_FOR_DELIVERY]: [OrderStatus.PACKING],
+        [OrderStatus.ORDERED_FROM_SUPPLIER]: [OrderStatus.READY_FOR_DELIVERY, OrderStatus.REJECTED],
+        [OrderStatus.READY_FOR_BILLING]: [OrderStatus.PAID, OrderStatus.REJECTED],
+        [OrderStatus.READY_FOR_DELIVERY]: [OrderStatus.PACKING, OrderStatus.REJECTED],
         [OrderStatus.PAID]: [],
     };
 
@@ -193,6 +193,11 @@ export class OrdersService {
     }
 
     private assertTransitionAllowed(currentStatus: OrderStatus, nextStatus: OrderStatus) {
+        // Allow cancellation (REJECTED) from any status
+        if (nextStatus === OrderStatus.REJECTED) {
+            return;
+        }
+
         const allowedNextStatuses = this.validTransitions[currentStatus] ?? [];
 
         if (!allowedNextStatuses.includes(nextStatus)) {

@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useGetProductIdQuery } from "@/features/products/hooks/use-product-id";
-import { ProductDetailContainer } from "@/features/products/products-details";
+// import { ProductDetailContainer } from "@/features/products/products-details";
 import type { Product } from "@/data/products";
 
 /**
@@ -61,5 +61,5 @@ export default function ProductDetailPage() {
     );
   }
 
-  return <ProductDetailContainer product={product} />;
+  // return <ProductDetailContainer product={product} />;
 }

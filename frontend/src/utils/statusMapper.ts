@@ -3,7 +3,7 @@ const statusLabels: Record<string, string> = {
   PENDING_APPROVAL: "Upload payment proof",
   ACCEPT: "Payment Accepted",
   APPROVED: "Approved",
-  REJECTED: "Rejected",
+  REJECTED: "Cancelled",
   PACKING: "Packing",
   IN_TRANSIT: "In Transit",
   DELIVERED: "Delivered",

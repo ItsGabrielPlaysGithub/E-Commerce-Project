@@ -1,7 +1,7 @@
 // Components
 export { MyOrdersPage } from "../../pages/b2b/myOrdersPage";
 export { OrdersList } from "./components/OrdersList";
-export { OrderRow } from "./components/OrderRow";
+export { OrderRow } from "./components/Row-Container/OrderRow";
 export { OrderDetails } from "./components/OrderDetails";
 export { OrdersFilter } from "./components/OrdersFilter";
 export { OrdersSummary } from "./components/OrdersSummary";

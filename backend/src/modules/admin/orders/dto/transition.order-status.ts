@@ -16,7 +16,6 @@ export class TransitionOrderStatusDto {
 
   @Field(() => String, { nullable: true })
   @IsOptional()
-  @MinLength(10)
   @MaxLength(200)
   rejectionReason?: string;
 }

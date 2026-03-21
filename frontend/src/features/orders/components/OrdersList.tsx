@@ -1,7 +1,8 @@
 import { Package } from "lucide-react";
 import type { Order, OrderTabStatus } from "../types/order";
 import { OrdersFilter } from "./OrdersFilter";
-import { OrderRow } from "./OrderRow";
+import { OrderRow } from "./Row-Container/OrderRow";
+import { OrdersPaginationControls } from "./OrdersPaginationControls";
 
 interface OrdersListProps {
   orders: Order[];
@@ -13,6 +14,10 @@ interface OrdersListProps {
   setExpanded: (id: string | null) => void;
   counts: Record<OrderTabStatus, number>;
   filtered: Order[];
+  currentPage: number;
+  totalPages: number;
+  onNextPage: () => void;
+  onPrevPage: () => void;
   onUploadSuccess?: () => void;
 }
 
@@ -25,6 +30,10 @@ export function OrdersList({
   setExpanded,
   counts,
   filtered,
+  currentPage,
+  totalPages,
+  onNextPage,
+  onPrevPage,
   onUploadSuccess,
 }: OrdersListProps) {
   return (
@@ -63,6 +72,15 @@ export function OrdersList({
           </div>
         )}
       </div>
+
+      {/* Pagination Controls */}
+      <OrdersPaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={filtered.length}
+        onNext={onNextPage}
+        onPrevious={onPrevPage}
+      />
     </div>
   );
 }

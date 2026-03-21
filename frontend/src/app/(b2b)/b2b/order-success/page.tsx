@@ -9,8 +9,10 @@ function OrderSuccessContent() {
   const orderNumber =
     searchParams?.get("orderNumber") ||
     `OMG-2025-${String(Math.floor(Math.random() * 900 + 100)).padStart(6, "0")}`;
+  const orderId = searchParams?.get("orderId") || "";
+  const grandTotal = searchParams?.get("grandTotal") || "0";
 
-  return <OrderSuccess orderNumber={orderNumber} />;
+  return <OrderSuccess orderNumber={orderNumber} orderId={orderId} grandTotal={parseFloat(grandTotal)} />;
 }
 
 export default function OrderSuccessPage() {

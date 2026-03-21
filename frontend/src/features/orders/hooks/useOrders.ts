@@ -10,7 +10,13 @@ export function useOrders(orders: Order[]) {
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
-      if (activeTab !== "All") {
+      // For "All" tab, exclude REJECTED (cancelled) orders
+      if (activeTab === "All") {
+        if (o.status === "REJECTED") {
+          return false;
+        }
+        // Continue with search filtering
+      } else {
         // Map activeTab display name to backend status values
         const tabStatusMap: Record<OrderTabStatus, string[]> = {
           "All": [],

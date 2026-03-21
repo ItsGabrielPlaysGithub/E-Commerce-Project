@@ -78,7 +78,10 @@ export const useOrderPlacement = (
 
         const { placeOrder } = responseData;
         removeItems(selectedItems.map((item) => item.product.id));
-        router.push(`/b2b/order-success?orderNumber=${placeOrder.orderNumber}`);
+        const grandTotal = selectedSubtotal + (selectedSubtotal >= 1500 ? 0 : 350);
+        router.push(
+          `/b2b/order-success?orderNumber=${placeOrder.orderNumber}&orderId=${placeOrder.orderId}&grandTotal=${grandTotal}`
+        );
       } catch (error) {
         let errorMessage = "Failed to place order";
 

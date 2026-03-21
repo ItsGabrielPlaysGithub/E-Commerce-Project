@@ -77,7 +77,7 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                   {["SKU", "Product", "Qty", "Unit Price", "Total"].map((h) => (
                     <th
                       key={h}
-                      className="text-left pb-2 text-gray-400 font-semibold text-[0.65rem]"
+                      className="text-right pb-2 text-gray-400 font-semibold text-[0.65rem]"
                     >
                       {h}
                     </th>
@@ -87,13 +87,13 @@ export function OrderDetails({ order }: OrderDetailsProps) {
               <tbody>
                 {order.items.map((item) => (
                   <tr key={item.sku} className="border-t border-slate-100">
-                    <td className="py-2 pr-3 font-mono text-gray-500 text-[0.7rem]">
+                    <td className="py-2 pr-3 font-mono text-gray-500 text-[0.7rem] text-right">
                       {item.sku}
                     </td>
-                    <td className="py-2 pr-3 text-gray-700 text-[0.75rem]">
+                    <td className="py-2 pr-3 text-gray-700 text-[0.75rem]text-right">
                       {item.name}
                     </td>
-                    <td className="py-2 pr-3 text-center text-gray-600 text-[0.75rem]">
+                    <td className="py-2 pr-3 text-right text-gray-600 text-[0.75rem] ">
                       {item.qty}
                     </td>
                     <td className="py-2 pr-3 text-right text-gray-600 text-[0.75rem]">
