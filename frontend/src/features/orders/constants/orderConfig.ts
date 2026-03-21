@@ -14,7 +14,9 @@ export const STATUS_CONFIG: Record<string, { color: string; bg: string; icon: Re
   Shipped: { color: "#3b82f6", bg: "#eff6ff", icon: Truck },
   Delivered: { color: "#10b981", bg: "#ecfdf5", icon: CheckCircle },
   Cancelled: { color: "#ef4444", bg: "#fef2f2", icon: X },
+  Rejected: { color: "#ef4444", bg: "#fef2f2", icon: X },
   
+
   // Backend enum values
   PENDING_APPROVAL: { color: "#6b7280", bg: "#f9fafb", icon: Package },
   READY_FOR_BILLING: { color: "#6b7280", bg: "#f9fafb", icon: Package },
@@ -24,6 +26,7 @@ export const STATUS_CONFIG: Record<string, { color: string; bg: string; icon: Re
   PAID: { color: "#3b82f6", bg: "#eff6ff", icon: Truck },
   DELIVERED: { color: "#10b981", bg: "#ecfdf5", icon: CheckCircle },
   REJECTED: { color: "#ef4444", bg: "#fef2f2", icon: X },
+  CANCELLED: { color: "#ef4444", bg: "#fef2f2", icon: X },
 };
 
 export const PAY_CONFIG: Record<string, { color: string; bg: string }> = {
@@ -32,4 +35,4 @@ export const PAY_CONFIG: Record<string, { color: string; bg: string }> = {
   Overdue: { color: "#dc2626", bg: "#fef2f2" },
 };
 
-export const STATUS_TABS: OrderTabStatus[] = ["All", "Open", "Processing", "Shipped", "Delivered", "Cancelled"];
+export const STATUS_TABS: OrderTabStatus[] = ["All", "Open", "Processing", "Shipped", "Delivered", "Cancelled", "Rejected"];

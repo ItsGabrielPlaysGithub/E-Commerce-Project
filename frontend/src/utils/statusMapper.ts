@@ -2,7 +2,8 @@
 const statusLabels: Record<string, string> = {
   PENDING_APPROVAL: "Upload proof of payment to proceed to processing",
   APPROVED: "Approved",
-  REJECTED: "Cancelled",
+  REJECTED: "Rejected",
+  CANCELLED: "Cancelled",
   PACKING: "Packing",
   IN_TRANSIT: "In Transit",
   DELIVERED: "Delivered",
@@ -32,6 +33,11 @@ export function getStatusColor(status: string): { bg: string; border: string; te
       text: "#2563eb",
     },
     REJECTED: {
+      bg: "#fee2e2",
+      border: "#fecaca",
+      text: "#dc2626",
+    },
+    CANCELLED: {
       bg: "#fee2e2",
       border: "#fecaca",
       text: "#dc2626",

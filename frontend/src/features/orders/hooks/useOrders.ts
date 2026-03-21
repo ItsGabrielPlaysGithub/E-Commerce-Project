@@ -10,9 +10,9 @@ export function useOrders(orders: Order[]) {
 
   const filtered = useMemo(() => {
     return orders.filter((o) => {
-      // For "All" tab, exclude REJECTED (cancelled) orders
+      // For "All" tab, exclude REJECTED and CANCELLED orders
       if (activeTab === "All") {
-        if (o.status === "REJECTED") {
+        if (o.status === "REJECTED" || o.status === "CANCELLED") {
           return false;
         }
         // Continue with search filtering
@@ -24,7 +24,8 @@ export function useOrders(orders: Order[]) {
           "Processing": ["APPROVED", "ORDERED_FROM_SUPPLIER", "AWAITING_PAYMENT_VERIFICATION"],
           "Shipped": ["PAID"],
           "Delivered": ["DELIVERED"],
-          "Cancelled": ["REJECTED"],
+          "Cancelled": ["CANCELLED"],
+          "Rejected": ["REJECTED"],
         };
         
         const allowedStatuses = tabStatusMap[activeTab] || [];
@@ -45,12 +46,13 @@ export function useOrders(orders: Order[]) {
 
   const counts = useMemo(() => {
     return {
-      All: orders.length,
+      All: orders.filter((o) => o.status !== "CANCELLED" && o.status !== "REJECTED").length,
       Open: orders.filter((o) => o.status === "PENDING_APPROVAL" || o.status === "READY_FOR_BILLING").length,
       Processing: orders.filter((o) => o.status === "APPROVED" || o.status === "ORDERED_FROM_SUPPLIER" || o.status === "AWAITING_PAYMENT_VERIFICATION").length,
       Shipped: orders.filter((o) => o.status === "PAID").length,
       Delivered: orders.filter((o) => o.status === "DELIVERED").length,
-      Cancelled: orders.filter((o) => o.status === "REJECTED").length,
+      Cancelled: orders.filter((o) => o.status === "CANCELLED").length,
+      Rejected: orders.filter((o) => o.status === "REJECTED").length,
     } as Record<OrderTabStatus, number>;
   }, [orders]);
 
