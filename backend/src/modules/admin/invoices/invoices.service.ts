@@ -28,6 +28,13 @@ export class InvoicesService {
     return this.invoicesRepository.findOne({ where: { orderId } });
   }
 
+  async getAllInvoices() {
+    return this.invoicesRepository.find({
+      relations: ['order', 'user'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
   async createInvoiceForOrder(order: OrdersTbl) {
     const existingInvoice = await this.getInvoiceByOrderId(order.orderId);
     if (existingInvoice) {

@@ -6,6 +6,11 @@ import { InvoicesTbl } from './entity/invoices.tbl';
 export class InvoicesResolver {
   constructor(private readonly invoicesService: InvoicesService) {}
 
+  @Query(() => [InvoicesTbl], { name: 'allInvoices' })
+  async allInvoices() {
+    return this.invoicesService.getAllInvoices();
+  }
+
   @Query(() => InvoicesTbl, { name: 'invoiceByOrderId', nullable: true })
   async invoiceByOrderId(@Args('orderId', { type: () => Int }) orderId: number) {
     return this.invoicesService.getInvoiceByOrderId(orderId);

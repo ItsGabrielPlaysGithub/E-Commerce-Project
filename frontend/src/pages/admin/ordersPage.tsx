@@ -42,7 +42,9 @@ export default function SalesOrdersPage() {
     status: order.status || "PENDING_APPROVAL",
     deliveryStatus: order.deliveryStatus || "",
     paymentMethod: order.paymentMethod || "",
-    paymentProofImage: order.paymentProofImage || "",
+    paymentProofImage: order.paymentProofImage 
+      ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${order.paymentProofImage}`
+      : "",
     paymentProofUploadedAt: order.paymentProofUploadedAt || "",
     paymongoTransactionId: order.paymongoTransactionId || "",
     paymongoAmount: order.paymongoAmount || 0,
@@ -126,11 +128,14 @@ export default function SalesOrdersPage() {
   const handleApprovePayment = async (order: SalesOrder) => {
     setPaymentProofLoading(true);
     try {
+      // Determine next status based on current status
+      const nextStatus = order.status === "AWAITING_PAYMENT_VERIFICATION" ? "PACKING" : "ACCEPT";
+      
       await transitionOrderStatus({
         variables: {
           input: {
             orderId: parseInt(order.orderId),
-            nextStatus: "APPROVED",
+            nextStatus: nextStatus,
           },
         },
       });
@@ -332,7 +337,7 @@ export default function SalesOrdersPage() {
                   Status
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {["all", "PENDING_APPROVAL", "APPROVED", "DELIVERED", "PAID"].map((status) => (
+                  {["all", "PENDING_APPROVAL", "ACCEPT", "DELIVERED", "PAID"].map((status) => (
                     <button
                       key={status}
                       onClick={() => setSelectedStatus(status)}

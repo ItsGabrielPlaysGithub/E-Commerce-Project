@@ -1,158 +1,71 @@
 'use client';
 
-import { useState } from "react";
 import { Download } from "lucide-react";
-import { InvoicesTable } from "../../components/admin/InvoicesTable";
-
-interface Invoice {
-  id: string;
-  billingDocNo: string;
-  customerName: string;
-  customerNo: string;
-  salesOrderRef: string;
-  billingDate: string;
-  dueDate: string;
-  grossAmount: number;
-  paidAmount: number;
-  balanceDue: number;
-  paymentStatus: "Open" | "Cleared" | "Overdue" | "Partially Paid";
-}
-
-// Mock data
-const invoicesData: Invoice[] = [
-  {
-    id: "1",
-    billingDocNo: "9000001201",
-    customerName: "GrandVista Hotels",
-    customerNo: "C-0001204",
-    salesOrderRef: "5000000412",
-    billingDate: "2026-03-05",
-    dueDate: "2026-04-05",
-    grossAmount: 87500,
-    paidAmount: 0,
-    balanceDue: 87500,
-    paymentStatus: "Open",
-  },
-  {
-    id: "2",
-    billingDocNo: "9000001200",
-    customerName: "CookMart Philippines",
-    customerNo: "C-0000892",
-    salesOrderRef: "5000000411",
-    billingDate: "2026-03-04",
-    dueDate: "2026-04-04",
-    grossAmount: 142300,
-    paidAmount: 142300,
-    balanceDue: 0,
-    paymentStatus: "Cleared",
-  },
-  {
-    id: "3",
-    billingDocNo: "9000001199",
-    customerName: "Nourish Restaurant Group",
-    customerNo: "C-0001105",
-    salesOrderRef: "5000000410",
-    billingDate: "2026-02-20",
-    dueDate: "2026-03-20",
-    grossAmount: 213600,
-    paidAmount: 106800,
-    balanceDue: 106800,
-    paymentStatus: "Partially Paid",
-  },
-  {
-    id: "4",
-    billingDocNo: "9000001198",
-    customerName: "The Kitchen Store",
-    customerNo: "C-0000341",
-    salesOrderRef: "5000000409",
-    billingDate: "2026-02-15",
-    dueDate: "2026-03-15",
-    grossAmount: 28776,
-    paidAmount: 0,
-    balanceDue: 28776,
-    paymentStatus: "Overdue",
-  },
-  {
-    id: "5",
-    billingDocNo: "9000001197",
-    customerName: "SM Lifestyle",
-    customerNo: "C-0000671",
-    salesOrderRef: "5000000408",
-    billingDate: "2026-02-10",
-    dueDate: "2026-03-10",
-    grossAmount: 319800,
-    paidAmount: 319800,
-    balanceDue: 0,
-    paymentStatus: "Cleared",
-  },
-  {
-    id: "6",
-    billingDocNo: "9000001196",
-    customerName: "Fiesta Foodservice",
-    customerNo: "C-0000812",
-    salesOrderRef: "5000000407",
-    billingDate: "2026-02-05",
-    dueDate: "2026-03-05",
-    grossAmount: 96450,
-    paidAmount: 0,
-    balanceDue: 96450,
-    paymentStatus: "Overdue",
-  },
-];
+import {
+  useFetchInvoices,
+  useInvoices,
+  InvoicesList,
+  InvoicesFilter,
+  payInvoiceByOrderId,
+  type Invoice,
+} from "../../features/invoices";
 
 export function InvoicesPage() {
-  const [searchTerm, setSearchTerm] = useState("");
+  // Fetch invoices from backend
+  const { invoices: invoicesData, loading, error } = useFetchInvoices();
+
+  // Manage filtering and search
+  const { search, setSearch, filtered } = useInvoices(invoicesData || []);
 
   // Calculate stats
-  const totalInvoices = invoicesData.length;
-  const totalAmount = invoicesData.reduce((sum, i) => sum + i.grossAmount, 0);
+  const totalInvoices = invoicesData?.length || 0;
+  const totalAmount = invoicesData?.reduce((sum, i) => sum + i.totalAmount, 0) || 0;
 
   const statusCards = [
     {
-      label: "Open",
-      count: invoicesData.filter((i) => i.paymentStatus === "Open").length,
+      label: "UNPAID",
+      count: invoicesData?.filter((i) => i.paymentStatus === "UNPAID").length || 0,
       amount: invoicesData
-        .filter((i) => i.paymentStatus === "Open")
-        .reduce((s, i) => s + i.balanceDue, 0),
+        ?.filter((i) => i.paymentStatus === "UNPAID")
+        .reduce((s, i) => s + i.totalAmount, 0) || 0,
     },
     {
-      label: "Cleared",
-      count: invoicesData.filter((i) => i.paymentStatus === "Cleared").length,
+      label: "PAID",
+      count: invoicesData?.filter((i) => i.paymentStatus === "PAID").length || 0,
       amount: invoicesData
-        .filter((i) => i.paymentStatus === "Cleared")
-        .reduce((s, i) => s + i.grossAmount, 0),
+        ?.filter((i) => i.paymentStatus === "PAID")
+        .reduce((s, i) => s + i.totalAmount, 0) || 0,
     },
     {
-      label: "Overdue",
-      count: invoicesData.filter((i) => i.paymentStatus === "Overdue").length,
+      label: "OVERDUE",
+      count: invoicesData?.filter((i) => i.paymentStatus === "OVERDUE").length || 0,
       amount: invoicesData
-        .filter((i) => i.paymentStatus === "Overdue")
-        .reduce((s, i) => s + i.balanceDue, 0),
+        ?.filter((i) => i.paymentStatus === "OVERDUE")
+        .reduce((s, i) => s + i.totalAmount, 0) || 0,
     },
     {
-      label: "Partially Paid",
-      count: invoicesData.filter((i) => i.paymentStatus === "Partially Paid").length,
+      label: "PARTIALLY_PAID",
+      count: invoicesData?.filter((i) => i.paymentStatus === "PARTIALLY_PAID").length || 0,
       amount: invoicesData
-        .filter((i) => i.paymentStatus === "Partially Paid")
-        .reduce((s, i) => s + i.balanceDue, 0),
+        ?.filter((i) => i.paymentStatus === "PARTIALLY_PAID")
+        .reduce((s, i) => s + i.totalAmount, 0) || 0,
     },
   ];
-
-  // Filter invoices
-  const filteredInvoices = invoicesData.filter((invoice) => {
-    const matchesSearch =
-      invoice.billingDocNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.customerName.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
 
   // Handle actions
   const handleViewDetails = (invoice: Invoice) => {
     console.log("View invoice details:", invoice);
   };
 
-  const handleApprovePayment = (invoice: Invoice) => {
-    console.log("Approve payment for invoice:", invoice.billingDocNo);
+  const handleApprovePayment = async (invoice: Invoice) => {
+    try {
+      const result = await payInvoiceByOrderId(invoice.orderId);
+      if (result) {
+        console.log("Payment approved for invoice:", invoice.invoiceNumber);
+      }
+    } catch (error) {
+      console.error("Error approving payment:", error);
+    }
   };
 
   return (
@@ -184,11 +97,11 @@ export function InvoicesPage() {
                 fontFamily: "'Playfair Display', serif",
                 fontSize: "1.5rem",
                 color:
-                  label === "Open"
+                  label === "UNPAID"
                     ? "#d97706"
-                    : label === "Cleared"
+                    : label === "PAID"
                     ? "#16a34a"
-                    : label === "Overdue"
+                    : label === "OVERDUE"
                     ? "#dc2626"
                     : "#d97706",
               }}
@@ -201,23 +114,31 @@ export function InvoicesPage() {
       </div>
 
       {/* Search Bar */}
-      <div className="flex-1 relative">
-        <input
-          type="text"
-          placeholder="Search by document number or customer..."
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
+      <InvoicesFilter searchTerm={search} onSearchChange={setSearch} />
 
-      {/* Invoices Table */}
-      <InvoicesTable
-        invoices={filteredInvoices}
-        emptyMessage="No invoices found matching your filters"
-        onViewDetails={handleViewDetails}
-        onApprovePayment={handleApprovePayment}
-      />
+      {/* Loading State */}
+      {loading && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
+          <p className="text-gray-500 text-sm">Loading invoices...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 rounded-xl border border-red-200 shadow-sm p-4">
+          <p className="text-red-700 text-sm">Error loading invoices. Please try again.</p>
+        </div>
+      )}
+
+      {/* Invoices List */}
+      {!loading && !error && (
+        <InvoicesList
+          invoices={filtered}
+          emptyMessage="No invoices found matching your filters"
+          onViewDetails={handleViewDetails}
+          onApprovePayment={handleApprovePayment}
+        />
+      )}
     </div>
   );
 }

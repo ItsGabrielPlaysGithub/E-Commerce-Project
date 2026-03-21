@@ -15,7 +15,7 @@ interface UpdateOrderStatusModalProps {
 
 const STATUS_FLOW = {
   PENDING_APPROVAL: ["APPROVED", "REJECTED"],
-  APPROVED: ["PACKING"],
+  ACCEPT: ["PACKING"],
   REJECTED: [],
   PACKING: ["IN_TRANSIT"],
   IN_TRANSIT: ["DELIVERED"],
@@ -24,7 +24,7 @@ const STATUS_FLOW = {
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING_APPROVAL: "Pending Approval",
-  APPROVED: "Approved",
+  ACCEPT: "Payment Accepted",
   REJECTED: "Rejected",
   PACKING: "Packing",
   IN_TRANSIT: "In Transit",
@@ -33,7 +33,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   PENDING_APPROVAL: { bg: "#fffbeb", color: "#d97706" },
-  APPROVED: { bg: "#eff6ff", color: "#2563eb" },
+  ACCEPT: { bg: "#eff6ff", color: "#2563eb" },
   REJECTED: { bg: "#fee2e2", color: "#dc2626" },
   PACKING: { bg: "#faf5ff", color: "#9333ea" },
   IN_TRANSIT: { bg: "#fef3c7", color: "#ca8a04" },

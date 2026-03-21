@@ -11,7 +11,7 @@ import { SalesOrder } from "./types";
 function StatusBadge({ status }: { status: string }) {
   const statusColors: Record<string, { bg: string; color: string }> = {
     PENDING_APPROVAL: { bg: "#fffbeb", color: "#d97706" },
-    APPROVED: { bg: "#eff6ff", color: "#2563eb" },
+    ACCEPT: { bg: "#eff6ff", color: "#2563eb" },
     DELIVERED: { bg: "#ecfdf5", color: "#16a34a" },
     PAID: { bg: "#f3f4f6", color: "#6b7280" },
     READY_FOR_BILLING: { bg: "#fef3c7", color: "#ca8a04" },
@@ -112,29 +112,25 @@ function ActionsMenu({
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Determine if verification action should be shown
-  const needsVerification = order.status === "PENDING_APPROVAL";
+  const needsVerification = order.status === "PENDING_APPROVAL" || order.status === "AWAITING_PAYMENT_VERIFICATION";
   const hasManualPaymentVerification = order.paymentMethod === "manual_transfer" && needsVerification;
   const hasPaymongoVerification = order.paymentMethod === "paymongo" && needsVerification;
 
   // Determine if update status button should show (after payment approved)
-  const canUpdateStatus = order.status === "APPROVED" || order.status === "PACKING" || order.status === "IN_TRANSIT";
+  const canUpdateStatus = order.status === "ACCEPT" || order.status === "PACKING" || order.status === "IN_TRANSIT";
 
   // Determine if cancel is allowed
-  const canCancel = order.status === "PENDING_APPROVAL" || order.status === "APPROVED";
+  const canCancel = order.status === "PENDING_APPROVAL" || order.status === "ACCEPT";
 
-  // Determine if print is allowed (PENDING_APPROVAL and APPROVED for warehouse)
-  const canPrint = order.status === "PENDING_APPROVAL" || order.status === "APPROVED";
+  // Determine if print is allowed (ACCEPT, PACKING, READY_FOR_DELIVERY for warehouse)
+  const canPrint = order.status === "ACCEPT" || order.status === "PACKING" || order.status === "READY_FOR_DELIVERY";
 
-  // Count available actions
-  const availableActions = [
-    true, // View Details (always available)
-    canPrint, // Print (only PENDING_APPROVAL)
-    canUpdateStatus, // Update Status (APPROVED, PACKING, IN_TRANSIT)
-    canCancel, // Cancel Order (PENDING_APPROVAL and APPROVED)
-  ].filter(Boolean).length;
-
-  const showAsMenu = availableActions > 2;
-  const showDirectButton = availableActions === 1;
+  // For ACCEPT, PACKING, READY_FOR_DELIVERY statuses: always show View Details + Update Status as direct buttons
+  const isWarehouseStatus = order.status === "ACCEPT" || order.status === "PACKING" || order.status === "READY_FOR_DELIVERY";
+  
+  // Show menu only if there are other actions besides View Details and Update Status
+  const hasOtherActions = canPrint || canCancel || canUpdateStatus;
+  const showAsMenu = hasOtherActions;
 
   const handleAction = (callback?: (order: SalesOrder) => void) => {
     callback?.(order);
@@ -206,8 +202,30 @@ function ActionsMenu({
         </button>
       )}
 
-      {/* More Actions Dropdown - Only show if multiple actions available */}
-      {showAsMenu && (
+      {/* Direct View Details + Update Status Buttons - Always for warehouse statuses */}
+      {isWarehouseStatus && (
+        <>
+          <button
+            onClick={() => onViewDetails?.(order)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+            title="View Details"
+          >
+            <Eye size={16} />
+          </button>
+          {canUpdateStatus && (
+            <button
+              onClick={() => onUpdateStatus?.(order)}
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+              title="Update Status"
+            >
+              <Zap size={16} />
+            </button>
+          )}
+        </>
+      )}
+
+      {/* More Actions Menu - Only for warehouse status with other actions, or default behavior for other statuses */}
+      {(showAsMenu) && (
         <button
           ref={buttonRef}
           onClick={handleToggleMenu}
@@ -218,8 +236,8 @@ function ActionsMenu({
         </button>
       )}
 
-      {/* Direct View Details Button - Show when only 1 action available */}
-      {showDirectButton && (
+      {/* Direct View Details Button - Show when only 1 action available and NOT warehouse status */}
+      {!isWarehouseStatus && showAsMenu === false && (
         <button
           onClick={() => onViewDetails?.(order)}
           className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
@@ -227,46 +245,6 @@ function ActionsMenu({
         >
           <Eye size={16} />
         </button>
-      )}
-
-      {/* Direct 2 Action Buttons - Show when 2 actions available */}
-      {availableActions === 2 && (
-        <>
-          <button
-            onClick={() => onViewDetails?.(order)}
-            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
-            title="View Details"
-          >
-            <Eye size={16} />
-          </button>
-          {canPrint && (
-            <button
-              onClick={() => onPrint?.(order)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
-              title="Print"
-            >
-              <Printer size={16} />
-            </button>
-          )}
-          {canUpdateStatus && (
-            <button
-              onClick={() => onUpdateStatus?.(order)}
-              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
-              title="Update Status"
-            >
-              <Zap size={16} />
-            </button>
-          )}
-          {canCancel && (
-            <button
-              onClick={handleCancelClick}
-              className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-red-600"
-              title="Cancel Order"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </>
       )}
 
       {isOpen && showAsMenu && (
@@ -287,17 +265,26 @@ function ActionsMenu({
               boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
             }}
           >
-            {/* View Details - Always shown */}
-            <button
-              onClick={() => handleAction(onViewDetails)}
-              className="w-full px-4 py-2.5 text-left text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
-            >
-              <Eye size={14} />
-              View Details
-            </button>
 
-            {/* Cancel Order - Only for PENDING_APPROVAL */}
-            {canCancel && (
+            {/* Print - For warehouse statuses */}
+            {isWarehouseStatus && canPrint && (
+              <button
+                onClick={() => handleAction(onPrint)}
+                className="w-full px-4 py-2.5 text-left text-sm font-medium flex items-center gap-2 transition-colors"
+                style={{
+                  color: "#2563eb",
+                  backgroundColor: "transparent",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#eff6ff")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              >
+                <Printer size={14} />
+                Print
+              </button>
+            )}
+
+            {/* Cancel Order - For warehouse statuses */}
+            {isWarehouseStatus && canCancel && (
               <button
                 onClick={handleCancelClick}
                 className="w-full px-4 py-2.5 text-left text-sm font-medium flex items-center gap-2 transition-colors"
@@ -313,8 +300,25 @@ function ActionsMenu({
               </button>
             )}
 
-            {/* Update Status - After payment approved */}
-            {canUpdateStatus && (
+            {/* Cancel Order - For non-warehouse statuses */}
+            {!isWarehouseStatus && canCancel && (
+              <button
+                onClick={handleCancelClick}
+                className="w-full px-4 py-2.5 text-left text-sm font-medium flex items-center gap-2 transition-colors"
+                style={{
+                  color: "#dc2626",
+                  backgroundColor: "transparent",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#fef2f2")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              >
+                <X size={14} />
+                Cancel Order
+              </button>
+            )}
+
+            {/* Update Status - For non-warehouse statuses */}
+            {!isWarehouseStatus && canUpdateStatus && (
               <button
                 onClick={() => handleAction(onUpdateStatus)}
                 className="w-full px-4 py-2.5 text-left text-sm font-medium flex items-center gap-2 transition-colors border-t border-gray-100"

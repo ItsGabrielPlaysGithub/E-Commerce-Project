@@ -33,10 +33,10 @@ export class OrdersService {
 
     private readonly validTransitions: Record<OrderStatus, OrderStatus[]> = {
         [OrderStatus.PENDING_APPROVAL]: [OrderStatus.ACCEPT, OrderStatus.REJECTED, OrderStatus.AWAITING_PAYMENT_VERIFICATION],
-        [OrderStatus.ACCEPT]: [OrderStatus.ORDERED_FROM_SUPPLIER],
+        [OrderStatus.ACCEPT]: [OrderStatus.ORDERED_FROM_SUPPLIER, OrderStatus.PACKING],
         [OrderStatus.REJECTED]: [],
         [OrderStatus.PACKING]: [OrderStatus.AWAITING_PAYMENT_VERIFICATION],
-        [OrderStatus.AWAITING_PAYMENT_VERIFICATION]: [OrderStatus.IN_TRANSIT, OrderStatus.REJECTED],
+        [OrderStatus.AWAITING_PAYMENT_VERIFICATION]: [OrderStatus.PACKING, OrderStatus.REJECTED],
         [OrderStatus.IN_TRANSIT]: [OrderStatus.DELIVERED],
         [OrderStatus.DELIVERED]: [],
         [OrderStatus.ORDERED_FROM_SUPPLIER]: [OrderStatus.READY_FOR_DELIVERY],

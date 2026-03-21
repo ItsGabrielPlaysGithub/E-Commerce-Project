@@ -139,7 +139,7 @@ export function OrderRow({
                 <RotateCcw size={13} />
               </button>
             )}
-            {(order.status === "PENDING_APPROVAL" || order.status === "READY_FOR_BILLING") && (
+            {(order.status === "PENDING_APPROVAL" || order.status === "READY_FOR_BILLING" || order.status === "AWAITING_PAYMENT_VERIFICATION") && (
               <button
                 onClick={() => setIsUploadModalOpen(true)}
                 className="p-2 rounded-lg border transition-colors hover:bg-blue-50 hover:text-blue-600 hover:border-blue-500 text-gray-500 border-gray-500"
