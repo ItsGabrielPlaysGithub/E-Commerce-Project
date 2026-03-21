@@ -1,20 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductsTbl } from './entity/products.tbl';
+import { CategoriesTbl } from '../categories/entity/categories.tbl';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create.products';
 import { UpdateProductDto } from './dto/update.products';
 
 @Injectable()
 export class ProductsService {
-    constructor(@InjectRepository(ProductsTbl) private readonly productsRepo: Repository<ProductsTbl>) {}
+    constructor(
+        @InjectRepository(ProductsTbl) private readonly productsRepo: Repository<ProductsTbl>,
+        @InjectRepository(CategoriesTbl) private readonly categoriesRepo: Repository<CategoriesTbl>
+    ) {}
 
     async readProducts(){
-        return await this.productsRepo.find();
+        return await this.productsRepo.find({ relations: ['category'] });
     }
 
     async readProductById(productId: number){
-        const product = await this.productsRepo.findOne({ where: { productId } });
+        const product = await this.productsRepo.findOne({ 
+            where: { productId },
+            relations: ['category']
+        });
         if (!product) {
             throw new NotFoundException('Product not found');
         }
@@ -22,7 +29,15 @@ export class ProductsService {
     }
 
     async createProduct(createProductDto: CreateProductDto){
-        const product = this.productsRepo.create(createProductDto);
+        const category = await this.categoriesRepo.findOne({ where: { categoryId: createProductDto.categoryId } });
+        if (!category) {
+            throw new BadRequestException(`Category with ID ${createProductDto.categoryId} not found`);
+        }
+        const product = this.productsRepo.create({
+            ...createProductDto,
+            categoryId: category.categoryId,
+            category,
+        });
         return await this.productsRepo.save(product);
     }
 
@@ -30,6 +45,14 @@ export class ProductsService {
         const product = await this.productsRepo.findOne({ where: { productId } });
         if (!product) {
             throw new NotFoundException('Product not found');
+        }
+        if (updateProductDto.categoryId) {
+            const category = await this.categoriesRepo.findOne({ where: { categoryId: updateProductDto.categoryId } });
+            if (!category) {
+                throw new BadRequestException(`Category with ID ${updateProductDto.categoryId} not found`);
+            }
+            product.categoryId = category.categoryId;
+            product.category = category;
         }
         Object.assign(product, updateProductDto);
         return await this.productsRepo.save(product);

@@ -116,7 +116,7 @@ export function ProductsPageProvider({
         minBulk: 50,
         image:
           "https://images.unsplash.com/photo-1696986324692-f4aa0f2f495d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
-        category: product.category || "Uncategorized",
+        category: product.category?.categoryName || "Uncategorized",
         rating: 4.5,
       };
     });

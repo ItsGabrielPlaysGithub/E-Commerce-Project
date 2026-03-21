@@ -7,7 +7,12 @@ export const GET_PRODUCTS = gql`
       productName
       productDescription
       sku
-      category
+      categoryId
+      category {
+        categoryId
+        categoryName
+        slug
+      }
       productPrice
       reorderPoint
       available
@@ -26,7 +31,12 @@ export const GET_PRODUCT_BY_ID = gql`
       productName
       productDescription
       sku
-      category
+      categoryId
+      category {
+        categoryId
+        categoryName
+        slug
+      }
       productPrice
       reorderPoint
       available

@@ -10,7 +10,7 @@ import { OrdersLoadingState } from "@/features/orders/components/OrdersLoadingSt
 import { OrdersErrorState } from "@/features/orders/components/OrdersErrorState";
 import { OrdersPaginationControls } from "@/features/orders/components/OrdersPaginationControls";
 import { BottomBar } from "@/components/layout/bottomBar";
-import { RED } from "@/imports/red-color.json";
+import  RED  from "@/imports/red-color.json";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -67,7 +67,7 @@ export default function OrderHistoryPage() {
         </div>
         <div className="min-h-screen bg-gray-50 pb-24">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <OrdersErrorState onRetry={refetchOrders} />
+            <OrdersErrorState error={error || "Failed to load orders"} onRetry={refetchOrders} />
           </div>
         </div>
         <BottomBar />
