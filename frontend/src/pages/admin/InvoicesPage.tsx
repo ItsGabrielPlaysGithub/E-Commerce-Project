@@ -9,6 +9,9 @@ import {
   payInvoiceByOrderId,
   type Invoice,
 } from "../../features/invoices";
+import { InvoiceDetailsModal } from "../../features/invoices/components/InvoiceDetailsModal";
+
+import { useState } from "react";
 
 export function InvoicesPage() {
   // Fetch invoices from backend
@@ -52,9 +55,20 @@ export function InvoicesPage() {
     },
   ];
 
+
+
+  // Modal state for viewing invoice details
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [isInvoiceModalOpen, setInvoiceModalOpen] = useState(false);
+
   // Handle actions
   const handleViewDetails = (invoice: Invoice) => {
-    console.log("View invoice details:", invoice);
+    setSelectedInvoice(invoice);
+    setInvoiceModalOpen(true);
+  };
+  const handleCloseInvoiceModal = () => {
+    setInvoiceModalOpen(false);
+    setSelectedInvoice(null);
   };
 
   const handleApprovePayment = async (invoice: Invoice) => {
@@ -70,6 +84,14 @@ export function InvoicesPage() {
 
   return (
     <div className="space-y-6 px-8 py-8">
+      {/* Invoice Details Modal */}
+      {selectedInvoice && (
+        <InvoiceDetailsModal
+          isOpen={isInvoiceModalOpen}
+          invoice={selectedInvoice}
+          onClose={handleCloseInvoiceModal}
+        />
+      )}
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>

@@ -12,6 +12,9 @@ export interface SalesOrder {
   paymentMethod?: string;
   paymentProofImage?: string;
   paymentProofUploadedAt?: string;
+  paymentProofStatus?: string;
+  paymentProofAttempts?: number;
+  paymentProofRejectionReason?: string;
   paymongoTransactionId?: string;
   paymongoAmount?: number;
   paymongoPaymentMethod?: string;

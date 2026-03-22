@@ -9,6 +9,7 @@ import { SuccessMessage } from "./SuccessMessage";
 interface PaymentProofUploadModalProps {
   isOpen: boolean;
   orderId: string | number;
+  attemptsRemaining?: number;
   onClose: () => void;
   onSubmit: (file: File) => Promise<void>;
 }
@@ -16,6 +17,7 @@ interface PaymentProofUploadModalProps {
 export function PaymentProofUploadModal({
   isOpen,
   orderId,
+  attemptsRemaining = 3,
   onClose,
   onSubmit,
 }: PaymentProofUploadModalProps) {
@@ -143,6 +145,7 @@ export function PaymentProofUploadModal({
             preview={preview}
             error={error}
             isLoading={isLoading}
+            attemptsRemaining={attemptsRemaining}
             onFileChange={handleFileChange}
             onSubmit={handleSubmit}
             onCancel={resetAndClose}

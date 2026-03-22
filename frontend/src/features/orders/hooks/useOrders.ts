@@ -21,8 +21,8 @@ export function useOrders(orders: Order[]) {
         const tabStatusMap: Record<OrderTabStatus, string[]> = {
           "All": [],
           "Open": ["PENDING_APPROVAL", "READY_FOR_BILLING"],
-          "Processing": ["APPROVED", "ORDERED_FROM_SUPPLIER", "AWAITING_PAYMENT_VERIFICATION"],
-          "Shipped": ["PAID"],
+          "Processing": ["APPROVED", "ORDERED_FROM_SUPPLIER", "AWAITING_PAYMENT_VERIFICATION", "PACKING", "READY_FOR_DELIVERY"],
+          "Shipped": ["IN_TRANSIT", "PAID"],
           "Delivered": ["DELIVERED"],
           "Cancelled": ["REJECTED"],
         };
@@ -47,8 +47,8 @@ export function useOrders(orders: Order[]) {
     return {
       All: orders.length,
       Open: orders.filter((o) => o.status === "PENDING_APPROVAL" || o.status === "READY_FOR_BILLING").length,
-      Processing: orders.filter((o) => o.status === "APPROVED" || o.status === "ORDERED_FROM_SUPPLIER" || o.status === "AWAITING_PAYMENT_VERIFICATION").length,
-      Shipped: orders.filter((o) => o.status === "PAID").length,
+      Processing: orders.filter((o) => o.status === "APPROVED" || o.status === "ORDERED_FROM_SUPPLIER" || o.status === "AWAITING_PAYMENT_VERIFICATION" || o.status === "PACKING" || o.status === "READY_FOR_DELIVERY").length,
+      Shipped: orders.filter((o) => o.status === "IN_TRANSIT" || o.status === "PAID").length,
       Delivered: orders.filter((o) => o.status === "DELIVERED").length,
       Cancelled: orders.filter((o) => o.status === "REJECTED").length,
     } as Record<OrderTabStatus, number>;

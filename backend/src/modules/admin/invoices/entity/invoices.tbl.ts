@@ -18,10 +18,12 @@ export class InvoicesTbl {
   @Field()
   userId: number;
 
+  @Field(() => OrdersTbl)
   @ManyToOne(() => OrdersTbl)
   @JoinColumn({ name: 'orderId' })
   order: OrdersTbl;
 
+  @Field(() => UsersTbl)
   @ManyToOne(() => UsersTbl)
   @JoinColumn({ name: 'userId' })
   user: UsersTbl;

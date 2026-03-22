@@ -53,6 +53,16 @@ export function OrderRowInfo({ order }: OrderRowInfoProps) {
           </span>
         )}
       </div>
+      
+      {/* Payment Proof Rejection Alert - No attempt counter shown to client */}
+      {order.paymentProofStatus === 'rejected' && (
+        <div className="mt-2 p-2 rounded-lg bg-red-50 border border-red-200">
+          <p className="text-xs font-semibold text-red-700">Payment Proof Rejected</p>
+          <p className="text-xs text-red-600 mt-0.5">{order.paymentProofRejectionReason}</p>
+          <p className="text-xs text-red-500 mt-1">Please upload new proof</p>
+        </div>
+      )}
+
       <div className="text-xs text-gray-600 mt-1 truncate">
         {order.items.map((it) => `${it.name} ×${it.qty}`).join(" · ")}
       </div>

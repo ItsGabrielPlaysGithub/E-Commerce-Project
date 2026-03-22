@@ -35,7 +35,7 @@ export class OrdersService {
         [OrderStatus.PENDING_APPROVAL]: [OrderStatus.ACCEPT, OrderStatus.REJECTED, OrderStatus.AWAITING_PAYMENT_VERIFICATION],
         [OrderStatus.ACCEPT]: [OrderStatus.ORDERED_FROM_SUPPLIER, OrderStatus.PACKING, OrderStatus.REJECTED],
         [OrderStatus.REJECTED]: [],
-        [OrderStatus.PACKING]: [OrderStatus.AWAITING_PAYMENT_VERIFICATION, OrderStatus.REJECTED],
+        [OrderStatus.PACKING]: [OrderStatus.IN_TRANSIT, OrderStatus.AWAITING_PAYMENT_VERIFICATION, OrderStatus.REJECTED],
         [OrderStatus.AWAITING_PAYMENT_VERIFICATION]: [OrderStatus.PACKING, OrderStatus.REJECTED],
         [OrderStatus.IN_TRANSIT]: [OrderStatus.DELIVERED, OrderStatus.REJECTED],
         [OrderStatus.DELIVERED]: [],
@@ -77,7 +77,16 @@ export class OrdersService {
             ...createOrderDto,
             status: createOrderDto.status ?? OrderStatus.PENDING_APPROVAL,
         });
-        return await this.ordersRepository.save(order);
+        const savedOrder = await this.ordersRepository.save(order);
+        this.logger.log(`Order saved: ${JSON.stringify(savedOrder)}`);
+        // Automatically create invoice for this order
+        try {
+            const invoice = await this.invoicesService.createInvoiceForOrder(savedOrder);
+            this.logger.log(`Invoice created for orderId ${savedOrder.orderId}: ${JSON.stringify(invoice)}`);
+        } catch (err) {
+            this.logger.error(`Failed to create invoice for orderId ${savedOrder.orderId}: ${err}`);
+        }
+        return savedOrder;
     }
 
     
@@ -146,6 +155,65 @@ export class OrdersService {
         return updatedOrder;
     }
 
+    /**
+     * Reject payment proof with attempt tracking
+     * If attempts reach 3, auto-transitions order to REJECTED
+     * Otherwise, keeps order in AWAITING_PAYMENT_VERIFICATION
+     */
+    async rejectPaymentProof(orderId: number, rejectionReason: string): Promise<OrdersTbl> {
+        const order = await this.ordersRepository.findOne({ where: { orderId } });
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        // Increment payment proof attempt count
+        order.paymentProofAttempts = (order.paymentProofAttempts || 0) + 1;
+        order.paymentProofStatus = 'rejected';
+        order.paymentProofRejectionReason = rejectionReason;
+
+        // If 3 or more rejection attempts, auto-reject the entire order
+        if (order.paymentProofAttempts >= 3) {
+            order.status = OrderStatus.REJECTED;
+            order.rejectionReason = `Payment proof rejected after ${order.paymentProofAttempts} attempts. Last reason: ${rejectionReason}`;
+        }
+        // Otherwise, keep status as AWAITING_PAYMENT_VERIFICATION for re-upload
+
+        const updatedOrder = await this.ordersRepository.save(order);
+
+        // Send notification email about rejection
+        void this.sendPaymentProofRejectedEmail(updatedOrder).catch((error: unknown) => {
+            this.logger.error(
+                `Payment proof rejection email failed for order #${orderId}`,
+                error instanceof Error ? error.stack : String(error),
+            );
+        });
+
+        return updatedOrder;
+    }
+
+    /**
+     * Approve payment proof
+     */
+    async approvePaymentProof(orderId: number): Promise<OrdersTbl> {
+        const order = await this.ordersRepository.findOne({ where: { orderId } });
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        order.paymentProofStatus = 'approved';
+        order.status = OrderStatus.PACKING;
+
+        const updatedOrder = await this.ordersRepository.save(order);
+
+        void this.sendOrderStatusNotificationEmail(updatedOrder, OrderStatus.AWAITING_PAYMENT_VERIFICATION, null).catch(
+            (error: unknown) => {
+                this.logger.error(`Payment approved email failed for order #${orderId}`, error instanceof Error ? error.stack : String(error));
+            },
+        );
+
+        return updatedOrder;
+    }
+
     async placeOrder(placeOrderDto: PlaceOrderDto): Promise<PlaceOrderResponse> {
         // Generate order number
         const orderNumber = `OMG-${randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase()}`;
@@ -180,7 +248,16 @@ export class OrdersService {
                 deliveryFee: isFirstItem ? placeOrderDto.deliveryFee : undefined,
                 grandTotal: isFirstItem ? placeOrderDto.grandTotal : undefined,
             });
-            createdOrders.push(await this.ordersRepository.save(order));
+            const savedOrder = await this.ordersRepository.save(order);
+            this.logger.log(`Order saved: ${JSON.stringify(savedOrder)}`);
+            // Automatically create invoice for each order
+            try {
+                const invoice = await this.invoicesService.createInvoiceForOrder(savedOrder);
+                this.logger.log(`Invoice created for orderId ${savedOrder.orderId}: ${JSON.stringify(invoice)}`);
+            } catch (err) {
+                this.logger.error(`Failed to create invoice for orderId ${savedOrder.orderId}: ${err}`);
+            }
+            createdOrders.push(savedOrder);
         }
 
         return {
@@ -530,4 +607,133 @@ export class OrdersService {
   </body>
 </html>`;
     }
+
+    /**
+     * Send email notification when payment proof is rejected
+     */
+    private async sendPaymentProofRejectedEmail(order: OrdersTbl): Promise<void> {
+        if (!order.user && !order.userId) {
+            this.logger.warn(`No user found for order #${order.orderId}`);
+            return;
+        }
+
+        let user: UsersTbl | null = order.user || null;
+        if (!user && order.userId) {
+            user = await this.usersRepository.findOne({ where: { userId: order.userId } });
+        }
+
+        if (!user) {
+            this.logger.warn(`User not found for order #${order.orderId}`);
+            return;
+        }
+
+        const attemptsLeft = 3 - order.paymentProofAttempts;
+        const isAutoRejected = order.paymentProofAttempts >= 3;
+
+        await this.mailerService.sendMail({
+            to: user.emailAddress,
+            subject: isAutoRejected ? `Order #${order.orderId} Cancelled - Payment Issues` : `Payment Proof Rejected - Order #${order.orderId}`,
+            text: [
+                `Hi ${user.firstName},`,
+                '',
+                isAutoRejected
+                    ? `Your order #${order.orderId} has been cancelled after 3 failed payment proof submission attempts.`
+                    : `Your payment proof for Order #${order.orderId} was rejected.`,
+                '',
+                `Reason: ${order.paymentProofRejectionReason}`,
+                '',
+                isAutoRejected
+                    ? `Please contact our support team at support@synchores.com to place a new order.`
+                    : `You have ${attemptsLeft} more attempt(s) to upload valid payment proof before the order is automatically cancelled.`,
+                '',
+                `Order Total: ${Number(order.totalPrice).toFixed(2)}`,
+                '',
+                'Please review the requirements and submit a new payment proof.',
+                '',
+                'Regards,',
+                'Synchores Team',
+            ]
+                .filter(Boolean)
+                .join('\n'),
+            html: this.buildPaymentProofRejectedEmailHtml({
+                firstName: user.firstName,
+                orderId: order.orderId,
+                totalPrice: Number(order.totalPrice),
+                rejectionReason: order.paymentProofRejectionReason || 'Invalid or unclear payment proof',
+                attemptsLeft,
+                isAutoRejected,
+            }),
+        });
+    }
+
+    /**
+     * Build HTML email template for payment proof rejection
+     */
+    private buildPaymentProofRejectedEmailHtml(data: {
+        firstName: string;
+        orderId: number;
+        totalPrice: number;
+        rejectionReason: string;
+        attemptsLeft: number;
+        isAutoRejected: boolean;
+    }): string {
+        return `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: ${data.isAutoRejected ? '#dc2626' : '#f97316'}; color: white; padding: 20px; text-align: center; border-radius: 5px; }
+      .content { padding: 20px; background: #fef5f5; margin-top: 20px; border-radius: 5px; }
+      .footer { text-align: center; padding: 20px; color: #666; font-size: 12px; }
+      .warning-box { background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #dc2626; }
+      .info-box { background: white; padding: 15px; margin: 10px 0; border-left: 4px solid #f97316; }
+      .highlight { color: #bf262f; font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>${data.isAutoRejected ? 'Order Cancelled' : 'Payment Proof Rejected'}</h1>
+      </div>
+      
+      <div class="content">
+        <p>Hi <strong>${this.escapeHtml(data.firstName)}</strong>,</p>
+        
+        <p>${data.isAutoRejected ? `Unfortunately, your order #<span class="highlight">${data.orderId}</span> has been cancelled due to 3 failed payment proof submissions.` : `Your payment proof for order <span class="highlight">#${data.orderId}</span> was not accepted.`}</p>
+        
+        <div class="${data.isAutoRejected ? 'warning-box' : 'info-box'}">
+          <strong>Reason for Rejection:</strong><br>
+          ${this.escapeHtml(data.rejectionReason)}
+        </div>
+        
+        ${!data.isAutoRejected ? `<p><strong>Action Required:</strong><br>You have <span class="highlight">${data.attemptsLeft} attempt(s)</span> remaining to submit a valid payment proof. After 3 failed attempts, the order will be automatically cancelled.</p>` : ''}
+        
+        <div class="info-box">
+          <strong>Order Details</strong><br>
+          Order ID: ${data.orderId}<br>
+          Amount: ₱${data.totalPrice.toLocaleString('en-PH', { minimumFractionDigits: 2 })}<br>
+          Status: ${data.isAutoRejected ? 'Cancelled' : 'Awaiting Payment Verification'}
+        </div>
+        
+        <p style="color: #666; font-size: 14px;">
+          <strong>${data.isAutoRejected ? 'What happens next?' : 'Please provide a clear payment proof that shows:'}</strong><br>
+          ${data.isAutoRejected 
+            ? '• You can place a new order anytime<br>• Contact us at support@synchores.com for assistance<br>• Keep your previous order number for reference'
+            : '• Clear receipt or transaction confirmation<br>• Date and amount of payment<br>• Reference number (if applicable)<br>• All text should be legible'
+          }
+        </p>
+      </div>
+      
+      <div class="footer">
+        <p>&copy; 2026 Synchores. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>`;
+    }
 }
+

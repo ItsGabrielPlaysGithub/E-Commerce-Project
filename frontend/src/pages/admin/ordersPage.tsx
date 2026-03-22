@@ -9,6 +9,7 @@ import { OrderDetailsModal } from "@/components/admin/OrderDetailsModal";
 import { UpdateOrderStatusModal } from "@/components/admin/UpdateOrderStatusModal";
 import { useOrders } from "@/features/admin/sales-order/hooks";
 import { useTransitionOrderStatus } from "@/features/admin/sales-order/hooks/use-transitionorderstatus";
+import { useRejectPaymentProof } from "@/features/admin/sales-order/hooks/use-reject-payment-proof";
 import { getStatusLabel, getStatusColor } from "@/utils/statusMapper";
 import { SalesOrder } from "@/components/admin/types";
 import { toast } from "sonner";
@@ -28,6 +29,7 @@ export default function SalesOrdersPage() {
   // Fetch orders from GraphQL
   const { data, loading, error } = useOrders();
   const [transitionOrderStatus] = useTransitionOrderStatus();
+  const [rejectPaymentProof] = useRejectPaymentProof();
 
   // Transform GraphQL data to match SalesOrder interface
   const ordersData: SalesOrder[] = (data?.allOrders || []).map((order: any) => ({
@@ -129,7 +131,7 @@ export default function SalesOrdersPage() {
     setPaymentProofLoading(true);
     try {
       // Determine next status based on current status
-      const nextStatus = order.status === "AWAITING_PAYMENT_VERIFICATION" ? "PACKING" : "ACCEPT";
+      const nextStatus = order.status === "AWAITING_PAYMENT_VERIFICATION" ? "PACKING" : "APPROVED";
       
       await transitionOrderStatus({
         variables: {
@@ -152,16 +154,21 @@ export default function SalesOrdersPage() {
   const handleRejectPayment = async (order: SalesOrder, reason?: string) => {
     setPaymentProofLoading(true);
     try {
-      await transitionOrderStatus({
+      if (!reason) {
+        toast.error("Rejection reason is required");
+        setPaymentProofLoading(false);
+        return;
+      }
+
+      await rejectPaymentProof({
         variables: {
           input: {
             orderId: parseInt(order.orderId),
-            nextStatus: "REJECTED",
-            rejectionReason: reason || undefined,
+            rejectionReason: reason,
           },
         },
       });
-      toast.success("Payment rejected");
+      toast.success("Payment proof rejected successfully");
       console.log("✅ Payment rejected with reason:", reason);
       setPaymentProofOrder(null);
     } catch (error) {
@@ -204,7 +211,8 @@ export default function SalesOrdersPage() {
         variables: {
           input: {
             orderId: parseInt(order.orderId),
-            nextStatus: "DISCREPANCY_REPORTED",
+            nextStatus: "REJECTED",
+            rejectionReason: "Discrepancy reported - flagged for manual review",
           },
         },
       });
@@ -337,7 +345,7 @@ export default function SalesOrdersPage() {
                   Status
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {["all", "PENDING_APPROVAL", "ACCEPT", "DELIVERED", "PAID"].map((status) => (
+                  {["all", "PENDING_APPROVAL", "APPROVED", "DELIVERED", "PAID"].map((status) => (
                     <button
                       key={status}
                       onClick={() => setSelectedStatus(status)}

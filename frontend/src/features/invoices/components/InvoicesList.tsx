@@ -9,7 +9,6 @@ interface InvoicesListProps {
   onViewDetails?: (invoice: Invoice) => void;
   onApprovePayment?: (invoice: Invoice) => void;
 }
-
 export const InvoicesList = ({
   invoices,
   emptyMessage = "No invoices found",
@@ -65,7 +64,6 @@ export const InvoicesList = ({
                 key={invoice.invoiceId}
                 invoice={invoice}
                 onViewDetails={onViewDetails}
-                onApprovePayment={onApprovePayment}
               />
             ))}
           </tbody>

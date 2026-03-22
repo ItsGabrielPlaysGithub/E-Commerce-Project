@@ -1,11 +1,12 @@
 "use client";
 
+
+import { Eye } from "lucide-react";
 import type { Invoice } from "../services/invoiceService";
 
 interface InvoiceRowProps {
   invoice: Invoice;
   onViewDetails?: (invoice: Invoice) => void;
-  onApprovePayment?: (invoice: Invoice) => void;
 }
 
 const getStatusColor = (status: string) => {
@@ -25,25 +26,33 @@ const getStatusColor = (status: string) => {
 export const InvoiceRow = ({
   invoice,
   onViewDetails,
-  onApprovePayment,
 }: InvoiceRowProps) => {
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-      {/* Invoice Number */}
+      {/* Billing Document (Invoice Number) */}
       <td className="px-4 py-3 text-sm font-medium text-gray-900">{invoice.invoiceNumber}</td>
 
-      {/* Order / User*/}
+      {/* Customer (Order/User) */}
       <td className="px-4 py-3 text-sm text-gray-700">
         <div className="font-medium">Order #{invoice.orderId}</div>
         <div className="text-xs text-gray-500">User #{invoice.userId}</div>
       </td>
 
-      {/* Due Date */}
-      <td className="px-4 py-3 text-sm text-gray-600">{new Date(invoice.dueDate).toLocaleDateString("en-PH")}</td>
+      {/* Sales Order Ref (OrderId) */}
+      <td className="px-4 py-3 text-sm text-gray-700">{invoice.orderId}</td>
 
-      {/* Total Amount */}
+      {/* Billing Date (createdAt) */}
+      <td className="px-4 py-3 text-sm text-gray-700">{new Date(invoice.createdAt).toLocaleDateString("en-PH")}</td>
+
+      {/* Due Date */}
+      <td className="px-4 py-3 text-sm text-gray-700">{new Date(invoice.dueDate).toLocaleDateString("en-PH")}</td>
+
+      {/* Gross Amount */}
+      <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">₱{invoice.totalAmount.toLocaleString("en-PH")}</td>
+
+      {/* Balance Due */}
       <td className="px-4 py-3 text-sm text-right font-medium text-gray-900">
-        ₱{invoice.totalAmount.toLocaleString("en-PH")}
+        {invoice.paymentStatus === "PAID" ? "₱0" : `₱${invoice.totalAmount.toLocaleString("en-PH")}`}
       </td>
 
       {/* Payment Status Badge */}
@@ -59,17 +68,10 @@ export const InvoiceRow = ({
           {onViewDetails && (
             <button
               onClick={() => onViewDetails(invoice)}
-              className="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-gray-600"
+              title="View Invoice"
             >
-              View
-            </button>
-          )}
-          {onApprovePayment && invoice.paymentStatus !== "Cleared" && (
-            <button
-              onClick={() => onApprovePayment(invoice)}
-              className="px-3 py-1 text-xs font-medium text-white bg-green-600 rounded hover:bg-green-700 transition-colors"
-            >
-              Approve
+              <Eye size={16} />
             </button>
           )}
         </div>

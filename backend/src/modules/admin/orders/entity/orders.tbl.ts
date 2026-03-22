@@ -67,6 +67,18 @@ export class OrdersTbl {
     @Field({ nullable: true })
     paymentProofUploadedAt?: Date;
 
+    @Column({ type: 'varchar', length: 500, nullable: true })
+    @Field({ nullable: true })
+    paymentProofRejectionReason?: string;
+
+    @Column({ type: 'int', default: 0 })
+    @Field()
+    paymentProofAttempts: number = 0;
+
+    @Column({ type: 'enum', enum: ['pending', 'rejected', 'approved'], nullable: true })
+    @Field({ nullable: true })
+    paymentProofStatus?: 'pending' | 'rejected' | 'approved';
+
     @Column({ nullable: true })
     @Field({ nullable: true })
     paymongoTransactionId?: string;

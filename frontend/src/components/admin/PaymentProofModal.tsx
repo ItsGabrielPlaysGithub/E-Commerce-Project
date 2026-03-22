@@ -302,17 +302,18 @@ export function PaymentProofModal({
             <>
               <button
                 onClick={handleRejectClick}
-                disabled={isLoading}
+                disabled={isLoading || order.paymentProofStatus === 'rejected' || !order.paymentProofImage}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all"
                 style={{
-                  background: "#fee2e2",
-                  border: "1px solid #fecaca",
-                  color: "#dc2626",
+                  background: order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "#f1f5f9" : "#fee2e2",
+                  border: order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "1px solid #e2e8f0" : "1px solid #fecaca",
+                  color: order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "#94a3b8" : "#dc2626",
                   fontSize: "13px",
                   fontWeight: 600,
-                  opacity: isLoading ? 0.6 : 1,
-                  cursor: isLoading ? "not-allowed" : "pointer",
+                  opacity: isLoading || order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? 0.6 : 1,
+                  cursor: isLoading || order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "not-allowed" : "pointer",
                 }}
+                title={order.paymentProofStatus === 'rejected' ? "Waiting for client to upload new proof" : !order.paymentProofImage ? "Waiting for client to upload proof" : ""}
               >
                 <XCircle size={14} />
                 {isLoading ? "Processing..." : "Reject Payment"}

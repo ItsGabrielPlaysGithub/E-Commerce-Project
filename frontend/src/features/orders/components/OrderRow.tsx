@@ -8,6 +8,7 @@ import { OrderRowInfo } from "./Row-Container/OrderRowInfo";
 import { OrderRowActions } from "./Row-Container/OrderRowActions";
 import { PaymentProofUploadModal } from "../../../components/modals/Payment-Proof";
 import { useUpdateOrderStatus } from "../hooks/use-update-order-status";
+import { Upload, Eye, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
 
 interface OrderRowProps {
   order: Order;
@@ -38,7 +39,7 @@ export function OrderRow({
       formData.append("file", file);
 
       const response = await fetch(
-        `http://localhost:4000/orders/upload-payment-proof/${orderId}`,
+        `${process.env.NEXT_PUBLIC_IMAGE_PATH}${orderId}`,
         {
           method: "POST",
           body: formData,
@@ -145,6 +146,7 @@ export function OrderRow({
       <PaymentProofUploadModal
         isOpen={isUploadModalOpen}
         orderId={order.id}
+        attemptsRemaining={3 - (order.paymentProofAttempts || 0)}
         onClose={() => setIsUploadModalOpen(false)}
         onSubmit={handleUploadPaymentProof}
       />

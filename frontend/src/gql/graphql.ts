@@ -101,10 +101,12 @@ export type InvoicesTbl = {
   dueDate: Scalars['DateTime']['output'];
   invoiceId: Scalars['Float']['output'];
   invoiceNumber: Scalars['String']['output'];
+  order: OrdersTbl;
   orderId: Scalars['Float']['output'];
   paymentStatus: Scalars['String']['output'];
   totalAmount: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  user: UsersTbl;
   userId: Scalars['Float']['output'];
 };
 
@@ -117,6 +119,7 @@ export type LoginResponse = {
 export type Mutation = {
   __typename?: 'Mutation';
   addToCart: CartItem;
+  approvePaymentProof: OrdersTbl;
   clearCart: Scalars['Boolean']['output'];
   createOrder: OrdersTbl;
   createProduct: ProductsTbl;
@@ -127,6 +130,7 @@ export type Mutation = {
   logout: LoginResponse;
   payInvoiceByOrderId: InvoicesTbl;
   placeOrder: PlaceOrderResponse;
+  rejectPaymentProof: OrdersTbl;
   removeCartItemByProductId: Scalars['Boolean']['output'];
   removeFromCart: Scalars['Boolean']['output'];
   transitionOrderStatus: OrdersTbl;
@@ -140,6 +144,11 @@ export type Mutation = {
 export type MutationAddToCartArgs = {
   input: AddToCartInput;
   userId: Scalars['Int']['input'];
+};
+
+
+export type MutationApprovePaymentProofArgs = {
+  orderId: Scalars['Int']['input'];
 };
 
 
@@ -186,6 +195,11 @@ export type MutationPayInvoiceByOrderIdArgs = {
 
 export type MutationPlaceOrderArgs = {
   input: PlaceOrderInput;
+};
+
+
+export type MutationRejectPaymentProofArgs = {
+  input: RejectPaymentProofDto;
 };
 
 
@@ -243,7 +257,10 @@ export type OrdersTbl = {
   orderNumber?: Maybe<Scalars['String']['output']>;
   orderType?: Maybe<Scalars['String']['output']>;
   paymentMethod?: Maybe<Scalars['String']['output']>;
+  paymentProofAttempts: Scalars['Float']['output'];
   paymentProofImage?: Maybe<Scalars['String']['output']>;
+  paymentProofRejectionReason?: Maybe<Scalars['String']['output']>;
+  paymentProofStatus?: Maybe<Scalars['String']['output']>;
   paymentProofUploadedAt?: Maybe<Scalars['DateTime']['output']>;
   paymongoAmount?: Maybe<Scalars['Float']['output']>;
   paymongoPaymentMethod?: Maybe<Scalars['String']['output']>;
@@ -339,6 +356,11 @@ export type QueryReadProfileArgs = {
   userId: Scalars['Int']['input'];
 };
 
+export type RejectPaymentProofDto = {
+  orderId: Scalars['Int']['input'];
+  rejectionReason: Scalars['String']['input'];
+};
+
 export type TransitionOrderStatusDto = {
   nextStatus: Scalars['String']['input'];
   orderId: Scalars['Int']['input'];
@@ -409,6 +431,13 @@ export type UsersTbl = {
   updatedAt: Scalars['DateTime']['output'];
   userId: Scalars['Float']['output'];
 };
+
+export type RejectPaymentProofMutationVariables = Exact<{
+  input: RejectPaymentProofDto;
+}>;
+
+
+export type RejectPaymentProofMutation = { __typename?: 'Mutation', rejectPaymentProof: { __typename?: 'OrdersTbl', orderId: number, status: string, paymentProofStatus?: string | null, paymentProofAttempts: number, paymentProofRejectionReason?: string | null, rejectionReason?: string | null } };
 
 export type CreateAdminOrderMutationVariables = Exact<{
   input: CreateOrderDto;
@@ -617,6 +646,7 @@ export type GetProductByIdQueryVariables = Exact<{
 export type GetProductByIdQuery = { __typename?: 'Query', getProductById: { __typename?: 'ProductsTbl', productId: number, productName: string, productDescription: string, sku: string, category: string, productPrice: number, reorderPoint: number, available: number, inTransit: number, blocked: number, createdAt: any, updatedAt: any } };
 
 
+export const RejectPaymentProofDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RejectPaymentProof"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RejectPaymentProofDto"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"rejectPaymentProof"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"orderId"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"paymentProofStatus"}},{"kind":"Field","name":{"kind":"Name","value":"paymentProofAttempts"}},{"kind":"Field","name":{"kind":"Name","value":"paymentProofRejectionReason"}},{"kind":"Field","name":{"kind":"Name","value":"rejectionReason"}}]}}]}}]} as unknown as DocumentNode<RejectPaymentProofMutation, RejectPaymentProofMutationVariables>;
 export const CreateAdminOrderDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateAdminOrder"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateOrderDto"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createOrder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"orderId"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"productId"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"totalPrice"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<CreateAdminOrderMutation, CreateAdminOrderMutationVariables>;
 export const UpdateAdminOrderDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateAdminOrder"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"UpdateOrderDto"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"updateOrder"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"orderId"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"productId"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"totalPrice"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<UpdateAdminOrderMutation, UpdateAdminOrderMutationVariables>;
 export const TransitionAdminOrderStatusDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"TransitionAdminOrderStatus"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TransitionOrderStatusDto"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"transitionOrderStatus"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"orderId"}},{"kind":"Field","name":{"kind":"Name","value":"orderNumber"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"productId"}},{"kind":"Field","name":{"kind":"Name","value":"orderType"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unitPrice"}},{"kind":"Field","name":{"kind":"Name","value":"totalPrice"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"deliveryStatus"}},{"kind":"Field","name":{"kind":"Name","value":"paymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"paymentProofImage"}},{"kind":"Field","name":{"kind":"Name","value":"paymentProofUploadedAt"}},{"kind":"Field","name":{"kind":"Name","value":"paymongoTransactionId"}},{"kind":"Field","name":{"kind":"Name","value":"paymongoAmount"}},{"kind":"Field","name":{"kind":"Name","value":"paymongoPaymentMethod"}},{"kind":"Field","name":{"kind":"Name","value":"paymongoTimestamp"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<TransitionAdminOrderStatusMutation, TransitionAdminOrderStatusMutationVariables>;

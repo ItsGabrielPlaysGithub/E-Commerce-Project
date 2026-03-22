@@ -14,6 +14,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  mutation RejectPaymentProof($input: RejectPaymentProofDto!) {\n    rejectPaymentProof(input: $input) {\n      orderId\n      status\n      paymentProofStatus\n      paymentProofAttempts\n      paymentProofRejectionReason\n      rejectionReason\n    }\n  }\n": typeof types.RejectPaymentProofDocument,
     "\n  mutation CreateAdminOrder($input: CreateOrderDto!) {\n    createOrder(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.CreateAdminOrderDocument,
     "\n  mutation UpdateAdminOrder($input: UpdateOrderDto!) {\n    updateOrder(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.UpdateAdminOrderDocument,
     "\n  mutation TransitionAdminOrderStatus($input: TransitionOrderStatusDto!) {\n    transitionOrderStatus(input: $input) {\n      orderId\n      orderNumber\n      userId\n      productId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      paymentMethod\n      paymentProofImage\n      paymentProofUploadedAt\n      paymongoTransactionId\n      paymongoAmount\n      paymongoPaymentMethod\n      paymongoTimestamp\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.TransitionAdminOrderStatusDocument,
@@ -46,6 +47,7 @@ type Documents = {
     "\n  query GetProductById($productId: Int!) {\n    getProductById(productId: $productId) {\n      productId\n      productName\n      productDescription\n      sku\n      category\n      productPrice\n      reorderPoint\n      available\n      inTransit\n      blocked\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetProductByIdDocument,
 };
 const documents: Documents = {
+    "\n  mutation RejectPaymentProof($input: RejectPaymentProofDto!) {\n    rejectPaymentProof(input: $input) {\n      orderId\n      status\n      paymentProofStatus\n      paymentProofAttempts\n      paymentProofRejectionReason\n      rejectionReason\n    }\n  }\n": types.RejectPaymentProofDocument,
     "\n  mutation CreateAdminOrder($input: CreateOrderDto!) {\n    createOrder(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateAdminOrderDocument,
     "\n  mutation UpdateAdminOrder($input: UpdateOrderDto!) {\n    updateOrder(input: $input) {\n      orderId\n      userId\n      productId\n      quantity\n      status\n      totalPrice\n      createdAt\n      updatedAt\n    }\n  }\n": types.UpdateAdminOrderDocument,
     "\n  mutation TransitionAdminOrderStatus($input: TransitionOrderStatusDto!) {\n    transitionOrderStatus(input: $input) {\n      orderId\n      orderNumber\n      userId\n      productId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      paymentMethod\n      paymentProofImage\n      paymentProofUploadedAt\n      paymongoTransactionId\n      paymongoAmount\n      paymongoPaymentMethod\n      paymongoTimestamp\n      createdAt\n      updatedAt\n    }\n  }\n": types.TransitionAdminOrderStatusDocument,
@@ -92,6 +94,10 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation RejectPaymentProof($input: RejectPaymentProofDto!) {\n    rejectPaymentProof(input: $input) {\n      orderId\n      status\n      paymentProofStatus\n      paymentProofAttempts\n      paymentProofRejectionReason\n      rejectionReason\n    }\n  }\n"): (typeof documents)["\n  mutation RejectPaymentProof($input: RejectPaymentProofDto!) {\n    rejectPaymentProof(input: $input) {\n      orderId\n      status\n      paymentProofStatus\n      paymentProofAttempts\n      paymentProofRejectionReason\n      rejectionReason\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

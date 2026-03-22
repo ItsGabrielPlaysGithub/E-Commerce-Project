@@ -11,7 +11,7 @@ import { SalesOrder } from "./types";
 function StatusBadge({ status }: { status: string }) {
   const statusColors: Record<string, { bg: string; color: string }> = {
     PENDING_APPROVAL: { bg: "#fffbeb", color: "#d97706" },
-    ACCEPT: { bg: "#eff6ff", color: "#2563eb" },
+    APPROVED: { bg: "#dcfce7", color: "#16a34a" },
     DELIVERED: { bg: "#ecfdf5", color: "#16a34a" },
     PAID: { bg: "#f3f4f6", color: "#6b7280" },
     READY_FOR_BILLING: { bg: "#fef3c7", color: "#ca8a04" },
@@ -117,16 +117,16 @@ function ActionsMenu({
   const hasPaymongoVerification = order.paymentMethod === "paymongo" && needsVerification;
 
   // Determine if update status button should show (after payment approved)
-  const canUpdateStatus = order.status === "ACCEPT" || order.status === "PACKING" || order.status === "IN_TRANSIT";
+  const canUpdateStatus = order.status === "APPROVED" || order.status === "PACKING" || order.status === "IN_TRANSIT";
 
   // Determine if cancel is allowed
-  const canCancel = order.status === "PENDING_APPROVAL" || order.status === "ACCEPT";
+  const canCancel = order.status === "PENDING_APPROVAL" || order.status === "APPROVED";
 
-  // Determine if print is allowed (ACCEPT, PACKING, READY_FOR_DELIVERY for warehouse)
-  const canPrint = order.status === "ACCEPT" || order.status === "PACKING" || order.status === "READY_FOR_DELIVERY";
+  // Determine if print is allowed (APPROVED, PACKING, READY_FOR_DELIVERY for warehouse)
+  const canPrint = order.status === "APPROVED" || order.status === "PACKING" || order.status === "READY_FOR_DELIVERY";
 
-  // For ACCEPT, PACKING, READY_FOR_DELIVERY statuses: always show View Details + Update Status as direct buttons
-  const isWarehouseStatus = order.status === "ACCEPT" || order.status === "PACKING" || order.status === "READY_FOR_DELIVERY";
+  // For APPROVED, PACKING, READY_FOR_DELIVERY statuses: always show View Details + Update Status as direct buttons
+  const isWarehouseStatus = order.status === "APPROVED" || order.status === "PACKING" || order.status === "READY_FOR_DELIVERY";
   
   // Show menu only if there are other actions besides View Details and Update Status
   const hasOtherActions = canPrint || canCancel || canUpdateStatus;

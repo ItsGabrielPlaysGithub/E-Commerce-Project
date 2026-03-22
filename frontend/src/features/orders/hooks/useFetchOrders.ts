@@ -76,7 +76,7 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
       deliveryMethod: firstOrder.deliveryStatus || "Standard",
       deliveryFee: deliveryFee, // Store delivery fee for display
       paymentProofImage: firstOrder.paymentProofImage 
-        ? `http://localhost:4000/uploads/payment-proofs/${firstOrder.paymentProofImage}`
+        ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${firstOrder.paymentProofImage}`
         : undefined,
     } as any;
     
@@ -89,7 +89,7 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
 /**
  * Map backend status to frontend OrderStatus
  */
-function mapOrderStatus(status: string): "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "ORDERED_FROM_SUPPLIER" | "READY_FOR_BILLING" | "AWAITING_PAYMENT_VERIFICATION" | "PAID" | "DELIVERED" {
+function mapOrderStatus(status: string): "PENDING_APPROVAL" | "APPROVED" | "REJECTED" | "ORDERED_FROM_SUPPLIER" | "READY_FOR_BILLING" | "AWAITING_PAYMENT_VERIFICATION" | "PACKING" | "READY_FOR_DELIVERY" | "IN_TRANSIT" | "PAID" | "DELIVERED" {
   const statusMap: Record<string, any> = {
     "PENDING_APPROVAL": "PENDING_APPROVAL",
     "APPROVED": "APPROVED",
@@ -97,10 +97,12 @@ function mapOrderStatus(status: string): "PENDING_APPROVAL" | "APPROVED" | "REJE
     "ORDERED_FROM_SUPPLIER": "ORDERED_FROM_SUPPLIER",
     "READY_FOR_BILLING": "READY_FOR_BILLING",
     "AWAITING_PAYMENT_VERIFICATION": "AWAITING_PAYMENT_VERIFICATION",
+    "PACKING": "PACKING",
+    "READY_FOR_DELIVERY": "READY_FOR_DELIVERY",
+    "IN_TRANSIT": "IN_TRANSIT",
     "PAID": "PAID",
     "DELIVERED": "DELIVERED",
     // Legacy mappings for backward compatibility
-    "IN_TRANSIT": "DELIVERED",
     "CANCELLED": "REJECTED",
   };
   return statusMap[status] || status;
