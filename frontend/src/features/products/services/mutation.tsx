@@ -7,7 +7,12 @@ export const CREATE_PRODUCT = gql`
         productName
         productDescription
         sku
-        category
+        categoryId
+        category {
+          categoryId
+          categoryName
+          slug
+        }
         productPrice
         reorderPoint
         available
@@ -26,7 +31,12 @@ export const UPDATE_PRODUCT = gql`
         productName
         productDescription
         sku
-        category
+        categoryId
+        category {
+          categoryId
+          categoryName
+          slug
+        }
         productPrice
         reorderPoint
         available

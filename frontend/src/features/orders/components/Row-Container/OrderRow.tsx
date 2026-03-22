@@ -68,7 +68,7 @@ export function OrderRow({
         variables: {
           input: {
             orderId,
-            nextStatus: "REJECTED",
+            nextStatus: "CANCELLED",
             rejectionReason: "Order cancelled by B2B customer",
           },
         },
@@ -85,9 +85,11 @@ export function OrderRow({
     }
   };
 
+  const isCancelled = order.status === "CANCELLED";
+
   return (
     <>
-      <div className="mb-3 rounded-lg border border-slate-200">
+      <div className={`mb-3 rounded-lg border ${isCancelled ? "border-gray-300 bg-gray-50" : "border-slate-200"}`}>
         <div className="px-5 py-8 flex flex-col sm:flex-row sm:items-center gap-3 hover:bg-gray-50/50 transition-colors min-h-full relative">
           <OrderRowInfo order={order} />
 

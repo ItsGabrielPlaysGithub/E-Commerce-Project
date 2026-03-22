@@ -11,6 +11,7 @@ import { AuthModule } from './modules/general/auth/auth.module';
 import { NotificationsModule } from './modules/general/notifications/notifications.module';
 import { CartModule } from './modules/general/cart/cart.module';
 import { UsersCrudModule } from './modules/admin/users-crud/users-crud.module';
+import { CategoriesModule } from './modules/admin/categories/categories.module';
 import { ProductsModule } from './modules/admin/products/products.module';
 import { OrdersModule } from './modules/admin/orders/orders.module';
 import { MailerModule } from './modules/general/mailer/mailer.module';
@@ -45,6 +46,7 @@ import { InvoicesModule } from './modules/admin/invoices/invoices.module';
     UsersCrudModule,
     NotificationsModule,
     MailerModule,
+    CategoriesModule,
     ProductsModule,
     OrdersModule,
     InvoicesModule,

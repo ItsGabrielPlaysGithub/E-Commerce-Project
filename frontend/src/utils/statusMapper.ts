@@ -1,8 +1,9 @@
 // Map database status values to display labels
 const statusLabels: Record<string, string> = {
   PENDING_APPROVAL: "Upload payment proof",
-  APPROVED: "Approved",
-  REJECTED: "Cancelled",
+  ACCEPT: "Accept",
+  REJECTED: "Rejected",
+  CANCELLED: "Cancelled",
   PACKING: "Packing",
   IN_TRANSIT: "In Transit",
   DELIVERED: "Delivered",
@@ -31,6 +32,11 @@ export function getStatusColor(status: string): { bg: string; border: string; te
       text: "#16a34a",
     },
     REJECTED: {
+      bg: "#fee2e2",
+      border: "#fecaca",
+      text: "#dc2626",
+    },
+    CANCELLED: {
       bg: "#fee2e2",
       border: "#fecaca",
       text: "#dc2626",

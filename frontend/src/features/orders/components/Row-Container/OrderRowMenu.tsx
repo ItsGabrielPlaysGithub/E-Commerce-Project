@@ -42,25 +42,32 @@ export function OrderRowMenu({
 
   if (!isOpen) return null;
 
+  // For cancelled orders, only show View Details option
+  const isCancelled = order.status === "CANCELLED";
+
   return (
     <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50" ref={menuRef}>
       <div className="py-1">
-        <button
-          onClick={() => {
-            onShowCancelModal();
-            onClose();
-          }}
-          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-        >
-          Cancel Order
-        </button>
+        {!isCancelled && (
+          <>
+            <button
+              onClick={() => {
+                onShowCancelModal();
+                onClose();
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancel Order
+            </button>
 
-        <button
-          onClick={onUploadPayment}
-          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-        >
-           Upload Payment Proof
-        </button>
+            <button
+              onClick={onUploadPayment}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+            >
+              Upload Payment Proof
+            </button>
+          </>
+        )}
 
         <button
           onClick={onViewDetails}

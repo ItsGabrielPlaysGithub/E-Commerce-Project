@@ -69,7 +69,7 @@ export function OrderRow({
         variables: {
           input: {
             orderId,
-            nextStatus: "REJECTED",
+            nextStatus: "CANCELLED",
             rejectionReason: "Order cancelled by B2B customer",
           },
         },

@@ -1,5 +1,6 @@
 import { Field, ObjectType, Int } from "@nestjs/graphql";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { CategoriesTbl } from "../../categories/entity/categories.tbl";
 
 @Entity('products_tbl')
 @ObjectType()
@@ -21,8 +22,13 @@ export class ProductsTbl {
     sku: string;
 
     @Column()
-    @Field()
-    category: string;
+    @Field(() => Int)
+    categoryId: number;
+
+    @ManyToOne(() => CategoriesTbl, (category) => category.products)
+    @JoinColumn({ name: 'categoryId', referencedColumnName: 'categoryId' })
+    @Field(() => CategoriesTbl, { nullable: true })
+    category?: CategoriesTbl;
 
     @Column('decimal', { precision: 10, scale: 2 })
     @Field()
