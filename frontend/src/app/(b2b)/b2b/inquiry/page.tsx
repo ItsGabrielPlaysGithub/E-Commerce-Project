@@ -1,4 +1,4 @@
-import { Inquiry } from "@/pages/b2b/inquiryPage";
+import { Inquiry } from "@/features/b2b/inquiry/inquiryPage";
 
 export default function Page() {
   return <Inquiry />;
