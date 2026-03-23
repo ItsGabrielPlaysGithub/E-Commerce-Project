@@ -93,9 +93,9 @@ export default function SalesOrdersPage() {
       amount: ordersData.filter((o) => o.status === "PENDING_APPROVAL").reduce((s, o) => s + o.totalPrice, 0),
     },
     {
-      label: "APPROVED",
-      count: ordersData.filter((o) => o.status === "APPROVED").length,
-      amount: ordersData.filter((o) => o.status === "APPROVED").reduce((s, o) => s + o.totalPrice, 0),
+      label: "ACCEPT",
+      count: ordersData.filter((o) => o.status === "ACCEPT").length,
+      amount: ordersData.filter((o) => o.status === "ACCEPT").reduce((s, o) => s + o.totalPrice, 0),
     },
     {
       label: "IN_TRANSIT",
@@ -131,7 +131,7 @@ export default function SalesOrdersPage() {
     setPaymentProofLoading(true);
     try {
       // Determine next status based on current status
-      const nextStatus = order.status === "AWAITING_PAYMENT_VERIFICATION" ? "PACKING" : "APPROVED";
+      const nextStatus = order.status === "AWAITING_PAYMENT_VERIFICATION" ? "ACCEPT" : "ACCEPT";
       
       await transitionOrderStatus({
         variables: {
@@ -345,7 +345,7 @@ export default function SalesOrdersPage() {
                   Status
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  {["all", "PENDING_APPROVAL", "APPROVED", "DELIVERED", "PAID"].map((status) => (
+                  {["all", "PENDING_APPROVAL", "ACCEPT", "DELIVERED", "PAID"].map((status) => (
                     <button
                       key={status}
                       onClick={() => setSelectedStatus(status)}

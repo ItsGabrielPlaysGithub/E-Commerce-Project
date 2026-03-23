@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useProducts } from "@/features/admin/products/hooks/service-hooks/use-products";
+import { useProducts } from "../hooks/service-hooks/use-products";
 import { AddProductModal, type ProductFormData } from "@/features/admin/products/components/AddProductModal";
 import { toast } from "sonner";
 
@@ -34,11 +34,25 @@ export function useProductsPage() {
   const { data, loading, error } = useProducts();
 
   // Transform data directly (no useEffect needed)
-  const products: Product[] = (data?.getProducts || []).map((product) => ({
+  interface BackendProduct {
+    productId: number;
+    productName: string;
+    sku: string;
+    category?: {
+      categoryName: string;
+    } | null;
+    available: number;
+    inTransit: number;
+    blocked: number;
+    reorderPoint: number;
+    productPrice: number;
+  }
+
+  const products: Product[] = (data?.getProducts || []).map((product: BackendProduct) => ({
     id: product.productId.toString(),
     sku: product.sku || `SKU-${product.productId}`,
     name: product.productName,
-    category: typeof product.category === 'string' ? product.category : product.category?.categoryName || "Uncategorized",
+    category: product.category?.categoryName || "Uncategorized",
     available: product.available || 0,
     inTransit: product.inTransit || 0,
     blocked: product.blocked || 0,

@@ -154,6 +154,10 @@ export function AddProductModal({
     setError(null);
 
     if (isEditMode && productToEdit) {
+      // Convert category name to categoryId
+      const selectedCategory = categories.find(cat => cat.categoryName === formData.category);
+      const categoryId = selectedCategory?.categoryId ? parseInt(selectedCategory.categoryId.toString()) : 0;
+
       // Edit mode - use updateProduct (id separate)
       updateProduct({
         variables: {
@@ -162,7 +166,7 @@ export function AddProductModal({
             productName: formData.name,
             productDescription: "",
             sku: formData.sku,
-            category: formData.category,
+            categoryId: categoryId,
             productPrice: formData.price,
             reorderPoint: formData.reorderPoint,
             available: formData.available,
@@ -190,6 +194,10 @@ export function AddProductModal({
           setLoading(false);
         });
     } else {
+      // Convert category name to categoryId
+      const selectedCategory = categories.find(cat => cat.categoryName === formData.category);
+      const categoryId = selectedCategory?.categoryId ? parseInt(selectedCategory.categoryId.toString()) : 0;
+
       // Create mode - use createProduct
       createProduct({
         variables: {
@@ -197,7 +205,7 @@ export function AddProductModal({
             productName: formData.name,
             productDescription: "",
             sku: formData.sku,
-            category: formData.category,
+            categoryId: categoryId,
             productPrice: formData.price,
             reorderPoint: formData.reorderPoint,
             available: formData.available,

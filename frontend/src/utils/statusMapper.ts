@@ -8,6 +8,10 @@ const statusLabels: Record<string, string> = {
   IN_TRANSIT: "In Transit",
   DELIVERED: "Delivered",
   PAID: "Paid",
+  UNPAID: "Unpaid",
+  OVERDUE: "Overdue",
+  PARTIALLY_PAID: "Partially Paid",
+  OPEN: "Open",
   READY_FOR_BILLING: "Ready for Billing",
   AWAITING_PAYMENT_VERIFICATION: "Waiting for Payment Verification",
   READY_FOR_DELIVERY: "Ready for Delivery",
@@ -57,9 +61,9 @@ export function getStatusColor(status: string): { bg: string; border: string; te
       text: "#16a34a",
     },
     PAID: {
-      bg: "#f3f4f6",
-      border: "#e5e7eb",
-      text: "#6b7280",
+      bg: "#dcfce7",
+      border: "#bbf7d0",
+      text: "#16a34a",
     },
     READY_FOR_BILLING: {
       bg: "#fef08a",

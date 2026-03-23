@@ -1,27 +1,13 @@
 "use client";
 
-
 import { Eye } from "lucide-react";
 import type { Invoice } from "../services/invoiceService";
+import { getStatusColor, getStatusLabel } from "@/utils/statusMapper";
 
 interface InvoiceRowProps {
   invoice: Invoice;
   onViewDetails?: (invoice: Invoice) => void;
 }
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Cleared":
-      return "bg-green-100 text-green-800";
-    case "Overdue":
-      return "bg-red-100 text-red-800";
-    case "Partially Paid":
-      return "bg-amber-100 text-amber-800";
-    case "Open":
-    default:
-      return "bg-amber-100 text-amber-800";
-  }
-};
 
 export const InvoiceRow = ({
   invoice,
@@ -57,9 +43,25 @@ export const InvoiceRow = ({
 
       {/* Payment Status Badge */}
       <td className="px-4 py-3 text-sm">
-        <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(invoice.paymentStatus)}`}>
-          {invoice.paymentStatus}
-        </span>
+        {(() => {
+          const colors = getStatusColor(invoice.paymentStatus);
+          return (
+            <span
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium"
+              style={{
+                backgroundColor: colors.bg,
+                border: `1px solid ${colors.border}`,
+                color: colors.text,
+              }}
+            >
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: colors.text }}
+              />
+              {getStatusLabel(invoice.paymentStatus)}
+            </span>
+          );
+        })()}
       </td>
 
       {/* Actions */}

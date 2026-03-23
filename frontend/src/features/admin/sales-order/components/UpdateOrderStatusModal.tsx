@@ -14,30 +14,48 @@ interface UpdateOrderStatusModalProps {
 }
 
 const STATUS_FLOW = {
-  PENDING_APPROVAL: ["APPROVED", "REJECTED"],
-  APPROVED: ["PACKING", "REJECTED"],
+  PENDING_APPROVAL: ["AWAITING_PAYMENT_VERIFICATION", "REJECTED", "CANCELLED"],
+  AWAITING_PAYMENT_VERIFICATION: ["ACCEPT", "REJECTED", "CANCELLED"],
+  ACCEPT: ["PACKING", "REJECTED", "CANCELLED"],
+  PACKING: ["IN_TRANSIT", "REJECTED", "CANCELLED"],
+  IN_TRANSIT: ["DELIVERED", "REJECTED", "CANCELLED"],
+  DELIVERED: ["CANCELLED"],
   REJECTED: [],
-  PACKING: ["IN_TRANSIT", "REJECTED"],
-  IN_TRANSIT: ["DELIVERED", "REJECTED"],
-  DELIVERED: [],
+  CANCELLED: [],
+  ORDERED_FROM_SUPPLIER: ["READY_FOR_DELIVERY", "REJECTED", "CANCELLED"],
+  READY_FOR_DELIVERY: ["PACKING", "REJECTED", "CANCELLED"],
+  READY_FOR_BILLING: ["PAID", "REJECTED", "CANCELLED"],
+  PAID: ["DELIVERED", "CANCELLED"],
 };
 
 const STATUS_LABELS: Record<string, string> = {
   PENDING_APPROVAL: "Pending Approval",
-  APPROVED: "Approved",
+  ACCEPT: "Accept",
   REJECTED: "Rejected",
   PACKING: "Packing",
+  AWAITING_PAYMENT_VERIFICATION: "Awaiting Payment Verification",
   IN_TRANSIT: "In Transit",
   DELIVERED: "Delivered",
+  ORDERED_FROM_SUPPLIER: "Ordered from Supplier",
+  READY_FOR_BILLING: "Ready for Billing",
+  READY_FOR_DELIVERY: "Ready for Delivery",
+  PAID: "Paid",
+  CANCELLED: "Cancelled",
 };
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   PENDING_APPROVAL: { bg: "#fffbeb", color: "#d97706" },
-  APPROVED: { bg: "#dcfce7", color: "#16a34a" },
+  ACCEPT: { bg: "#dcfce7", color: "#16a34a" },
   REJECTED: { bg: "#fee2e2", color: "#dc2626" },
   PACKING: { bg: "#faf5ff", color: "#9333ea" },
+  AWAITING_PAYMENT_VERIFICATION: { bg: "#e0e7ff", color: "#4f46e5" },
   IN_TRANSIT: { bg: "#fef3c7", color: "#ca8a04" },
   DELIVERED: { bg: "#ecfdf5", color: "#16a34a" },
+  ORDERED_FROM_SUPPLIER: { bg: "#f0f9ff", color: "#0369a1" },
+  READY_FOR_BILLING: { bg: "#fef08a", color: "#ca8a04" },
+  READY_FOR_DELIVERY: { bg: "#fbf8f3", color: "#78350f" },
+  PAID: { bg: "#dcfce7", color: "#16a34a" },
+  CANCELLED: { bg: "#f3f4f6", color: "#6b7280" },
 };
 
 export function UpdateOrderStatusModal({
@@ -197,7 +215,7 @@ export function UpdateOrderStatusModal({
                       disabled={loading}
                       className="w-full px-4 py-3 rounded-lg border-2 text-sm font-semibold transition-all text-left"
                       style={{
-                        borderColor: selectedStatus === status ? "#bf262f" : "#e5e7eb",
+                        borderColor: selectedStatus === status ? STATUS_COLORS[status].color : "#e5e7eb",
                         backgroundColor:
                           selectedStatus === status
                             ? STATUS_COLORS[status].bg

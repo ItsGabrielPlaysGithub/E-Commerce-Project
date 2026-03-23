@@ -32,18 +32,18 @@ export class OrdersService {
     ) {}
 
     private readonly validTransitions: Record<OrderStatus, OrderStatus[]> = {
-        [OrderStatus.PENDING_APPROVAL]: [OrderStatus.ACCEPT, OrderStatus.REJECTED, OrderStatus.AWAITING_PAYMENT_VERIFICATION, OrderStatus.CANCELLED],
-        [OrderStatus.ACCEPT]: [OrderStatus.ACCEPT, OrderStatus.PACKING, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.PENDING_APPROVAL]: [OrderStatus.AWAITING_PAYMENT_VERIFICATION, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.AWAITING_PAYMENT_VERIFICATION]: [OrderStatus.ACCEPT, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.ACCEPT]: [OrderStatus.PACKING, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.PACKING]: [OrderStatus.IN_TRANSIT, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.IN_TRANSIT]: [OrderStatus.DELIVERED, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.DELIVERED]: [OrderStatus.CANCELLED],
         [OrderStatus.REJECTED]: [],
-        [OrderStatus.PACKING]: [OrderStatus.AWAITING_PAYMENT_VERIFICATION, OrderStatus.REJECTED],
-        [OrderStatus.AWAITING_PAYMENT_VERIFICATION]: [OrderStatus.IN_TRANSIT, OrderStatus.REJECTED],
-        [OrderStatus.IN_TRANSIT]: [OrderStatus.DELIVERED, OrderStatus.REJECTED],
-        [OrderStatus.DELIVERED]: [],
-        [OrderStatus.ORDERED_FROM_SUPPLIER]: [OrderStatus.READY_FOR_DELIVERY, OrderStatus.REJECTED, OrderStatus.CANCELLED],
-        [OrderStatus.READY_FOR_BILLING]: [OrderStatus.PAID, OrderStatus.REJECTED, OrderStatus.CANCELLED],
-        [OrderStatus.READY_FOR_DELIVERY]: [OrderStatus.PACKING, OrderStatus.REJECTED, OrderStatus.CANCELLED],
-        [OrderStatus.PAID]: [],
         [OrderStatus.CANCELLED]: [],
+        [OrderStatus.ORDERED_FROM_SUPPLIER]: [OrderStatus.READY_FOR_DELIVERY, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.READY_FOR_DELIVERY]: [OrderStatus.PACKING, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.READY_FOR_BILLING]: [OrderStatus.PAID, OrderStatus.REJECTED, OrderStatus.CANCELLED],
+        [OrderStatus.PAID]: [OrderStatus.DELIVERED, OrderStatus.CANCELLED],
     };
 
     // ADMIN SIDE ORDER FUNCTIONS

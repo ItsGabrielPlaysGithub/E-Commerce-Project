@@ -44,7 +44,7 @@ export function OrderDetailsModal({
   const getStatusColor = (status: string) => {
     const statusColors: Record<string, { bg: string; color: string }> = {
       PENDING_APPROVAL: { bg: "#fffbeb", color: "#d97706" },
-      APPROVED: { bg: "#eff6ff", color: "#2563eb" },
+      ACCEPT: { bg: "#dcfce7", color: "#16a34a" },
       DELIVERED: { bg: "#ecfdf5", color: "#16a34a" },
       PAID: { bg: "#f3f4f6", color: "#6b7280" },
       READY_FOR_BILLING: { bg: "#fef3c7", color: "#ca8a04" },
