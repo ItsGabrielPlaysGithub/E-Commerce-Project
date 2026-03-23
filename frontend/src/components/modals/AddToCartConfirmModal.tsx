@@ -44,9 +44,9 @@ export function AddToCartConfirmModal({
           <div className="flex justify-center mb-4">
             <div
               className="w-16 h-16 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: "#f9e9ea" }}
+              style={{ backgroundColor: "#cd3842" }}
             >
-              <ShoppingCart size={28} style={{ color: "#bf262f" }} />
+              <ShoppingCart size={28} style={{ color: "#ffffff" }} />
             </div>
           </div>
 
@@ -68,7 +68,7 @@ export function AddToCartConfirmModal({
             <button
               onClick={onConfirm}
               className="w-full py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#bf262f" }}
+              style={{ backgroundColor: "#3b82f6" }}
             >
               <ShoppingCart size={16} />
               Proceed to Checkout
