@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useUpdateProduct } from "@/features/admin/products/hooks/use-updateproduct";
+import { useUpdateProduct } from "@/features/admin/products/hooks/service-hooks/use-updateproduct";
 import { toast } from "sonner";
 
 interface AdjustStockModalProps {
