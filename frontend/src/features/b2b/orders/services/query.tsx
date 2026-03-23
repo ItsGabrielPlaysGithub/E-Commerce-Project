@@ -21,6 +21,9 @@ export const GET_CLIENT_ORDERS = gql`
       createdAt
       updatedAt
       paymentProofImage
+      paymentProofStatus
+      paymentProofRejectionReason
+      paymentProofAttempts
     }
   }
 `;
@@ -43,6 +46,9 @@ export const GET_ORDER_DETAILS = gql`
       createdAt
       updatedAt
       paymentProofImage
+      paymentProofStatus
+      paymentProofRejectionReason
+      paymentProofAttempts
     }
   }
 `;
@@ -65,6 +71,55 @@ export const GET_ALL_ORDERS = gql`
       createdAt
       updatedAt
       paymentProofImage
+      paymentProofStatus
+      paymentProofRejectionReason
+      paymentProofAttempts
+    }
+  }
+`;
+
+/**
+ * Notifications Query
+ */
+export const GET_NOTIFICATIONS = gql`
+  query GetNotificationsByUserId($userId: Int!) {
+    getNotificationsByUserId(userId: $userId) {
+      notificationId
+      userId
+      type
+      title
+      message
+      orderId
+      isRead
+      createdAt
+      readAt
+      metadata
+    }
+  }
+`;
+
+/**
+ * Mark Notification as Read Mutation
+ */
+export const MARK_NOTIFICATION_AS_READ = gql`
+  mutation MarkNotificationAsRead($notificationId: Int!) {
+    markNotificationAsRead(notificationId: $notificationId) {
+      notificationId
+      isRead
+      readAt
+    }
+  }
+`;
+
+/**
+ * Mark All Notifications as Read Mutation
+ */
+export const MARK_ALL_NOTIFICATIONS_AS_READ = gql`
+  mutation MarkAllNotificationsAsRead($userId: Int!) {
+    markAllNotificationsAsRead(userId: $userId) {
+      notificationId
+      isRead
+      readAt
     }
   }
 `;

@@ -102,7 +102,12 @@ export function OrderRow({
           />
         </div>
 
-        {isExpanded && <OrderDetails order={order} />}
+        {isExpanded && (
+          <OrderDetails
+            order={order}
+            onReUploadClick={() => setIsUploadModalOpen(true)}
+          />
+        )}
       </div>
 
       <PaymentProofUploadModal

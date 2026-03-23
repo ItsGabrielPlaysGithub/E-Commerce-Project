@@ -48,6 +48,9 @@ export default function SalesOrdersPage() {
       ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${order.paymentProofImage}`
       : "",
     paymentProofUploadedAt: order.paymentProofUploadedAt || "",
+    paymentProofStatus: order.paymentProofStatus || "",
+    paymentProofRejectionReason: order.paymentProofRejectionReason || "",
+    paymentProofAttempts: order.paymentProofAttempts || 0,
     paymongoTransactionId: order.paymongoTransactionId || "",
     paymongoAmount: order.paymongoAmount || 0,
     paymongoPaymentMethod: order.paymongoPaymentMethod || "",

@@ -1,12 +1,13 @@
-import { AlertCircle, Download, RotateCcw, ExternalLink } from "lucide-react";
+import { AlertCircle, Download, RotateCcw, ExternalLink, Upload } from "lucide-react";
 import type { Order } from "../types/order";
 import { formatDateWithTime2DigitYear } from "@/utils/dateFormatter";
 
 interface OrderDetailsProps {
   order: Order;
+  onReUploadClick?: () => void;
 }
 
-export function OrderDetails({ order }: OrderDetailsProps) {
+export function OrderDetails({ order, onReUploadClick }: OrderDetailsProps) {
   return (
     <div className="px-5 pb-5 pt-0 bg-slate-50">
       <div className="rounded-xl border border-slate-200 overflow-hidden">
@@ -33,6 +34,34 @@ export function OrderDetails({ order }: OrderDetailsProps) {
                   className="inline mr-1 text-amber-600"
                 />
                 {order.notes}
+              </div>
+            )}
+            {order.paymentProofStatus === "rejected" && (
+              <div className="mt-2 p-3 rounded-lg bg-red-50 border border-red-300">
+                <div className="flex items-start gap-2 mb-2">
+                  <AlertCircle size={14} className="text-red-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="text-xs font-semibold text-red-700 mb-1">Payment Proof Rejected</div>
+                    <div className="text-xs text-red-600 mb-2">
+                      <span className="font-medium">Reason:</span> {order.paymentProofRejectionReason || "Not specified"}
+                    </div>
+                    <div className="text-xs text-red-600 mb-3">
+                      <span className="font-medium">Attempts:</span> {(order.paymentProofAttempts || 0)}/3
+                    </div>
+                    {(order.paymentProofAttempts || 0) < 3 ? (
+                      <button
+                        onClick={onReUploadClick}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-600 text-white rounded text-xs font-medium hover:bg-red-700 transition-colors"
+                      >
+                        <Upload size={12} /> Re-upload Payment Proof
+                      </button>
+                    ) : (
+                      <div className="text-xs font-semibold text-red-700 bg-red-100 px-2 py-1 rounded">
+                        Maximum attempts reached
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
             {order.paymentProofImage && (order.status === "AWAITING_PAYMENT_VERIFICATION" || order.status === "PAID") && (

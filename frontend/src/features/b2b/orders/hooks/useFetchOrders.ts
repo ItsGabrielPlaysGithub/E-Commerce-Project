@@ -78,6 +78,9 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
       paymentProofImage: firstOrder.paymentProofImage 
         ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${firstOrder.paymentProofImage}`
         : undefined,
+      paymentProofStatus: firstOrder.paymentProofStatus || "pending",
+      paymentProofRejectionReason: firstOrder.paymentProofRejectionReason || "",
+      paymentProofAttempts: firstOrder.paymentProofAttempts || 0,
     } as any;
     
     mappedOrders.push(mappedOrder);

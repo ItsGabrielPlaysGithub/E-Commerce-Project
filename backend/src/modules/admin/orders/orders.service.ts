@@ -14,6 +14,7 @@ import { ProductsTbl } from '../products/entity/products.tbl';
 import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
 import { InvoicesTbl } from '../invoices/entity/invoices.tbl';
 import { MailerService } from '../../general/mailer/mailer.service';
+import { NotificationsService } from '../../general/notifications/notifications.service';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -29,6 +30,7 @@ export class OrdersService {
         private readonly usersRepository: Repository<UsersTbl>,
         private readonly invoicesService: InvoicesService,
         private readonly mailerService: MailerService,
+        private readonly notificationsService: NotificationsService,
     ) {}
 
     private readonly validTransitions: Record<OrderStatus, OrderStatus[]> = {
@@ -166,6 +168,9 @@ export class OrdersService {
         if (!order) {
             throw new NotFoundException('Order not found');
         }
+        const user = await this.usersRepository.findOne({
+            where: { userId: order.userId },
+        });
 
         // Increment payment proof attempt count
         order.paymentProofAttempts = (order.paymentProofAttempts || 0) + 1;
@@ -181,13 +186,30 @@ export class OrdersService {
 
         const updatedOrder = await this.ordersRepository.save(order);
 
-        // Send notification email about rejection
-        void this.sendPaymentProofRejectedEmail(updatedOrder).catch((error: unknown) => {
-            this.logger.error(
-                `Payment proof rejection email failed for order #${orderId}`,
-                error instanceof Error ? error.stack : String(error),
-            );
-        });
+        // Create in-app notification
+        if (user) {
+            const attemptsLeft = Math.max(0, 3 - order.paymentProofAttempts);
+            try {
+                await this.notificationsService.createNotification({
+                    userId: order.userId,
+                    type: 'payment_proof_rejected',
+                    title: 'Payment Proof Rejected',
+                    message: `Your payment proof for order ${order.orderNumber} has been rejected.\n\nReason: ${rejectionReason}\n\n${attemptsLeft > 0 ? `Please upload a valid proof. Attempts left: ${attemptsLeft}` : 'Maximum upload attempts reached. Please contact support.'}`,
+                    orderId: orderId,
+                    metadata: JSON.stringify({ rejectionReason, attemptNumber: order.paymentProofAttempts, attemptsLeft }),
+                });
+            } catch (err) {
+                this.logger.error(`Failed to create notification for order #${orderId}:`, err);
+            }
+
+            // Send email notification about rejection
+            void this.sendPaymentProofRejectedEmail(updatedOrder).catch((error: unknown) => {
+                this.logger.error(
+                    `Payment proof rejection email failed for order #${orderId}`,
+                    error instanceof Error ? error.stack : String(error),
+                );
+            });
+        }
 
         return updatedOrder;
     }

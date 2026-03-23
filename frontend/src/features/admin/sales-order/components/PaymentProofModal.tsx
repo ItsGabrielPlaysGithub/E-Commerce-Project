@@ -295,25 +295,69 @@ export function PaymentProofModal({
 
         {/* Footer */}
         <div
-          className="px-6 py-4 flex gap-3"
+          className="px-6 py-4 space-y-3"
           style={{ borderTop: "1px solid #f1f5f9" }}
         >
+          {/* Show status if rejected or approved */}
+          {(order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved') && (
+            <div className={`p-3 rounded-lg border-l-4 ${
+              order.paymentProofStatus === 'rejected' 
+                ? 'bg-red-50 border-red-600' 
+                : 'bg-green-50 border-green-600'
+            }`}>
+              <p style={{
+                fontSize: "12px",
+                fontWeight: 600,
+                color: order.paymentProofStatus === 'rejected' ? "#dc2626" : "#16a34a",
+                marginBottom: "4px"
+              }}>
+                {order.paymentProofStatus === 'rejected' ? '❌ Rejected' : '✅ Approved'}
+              </p>
+              {order.paymentProofStatus === 'rejected' && order.paymentProofRejectionReason && (
+                <p style={{
+                  fontSize: "12px",
+                  color: "#991b1b",
+                  lineHeight: "1.4",
+                  marginBottom: "6px"
+                }}>
+                  {order.paymentProofRejectionReason}
+                </p>
+              )}
+              <p style={{
+                fontSize: "11px",
+                color: order.paymentProofStatus === 'rejected' ? "#b91c1c" : "#15803d"
+              }}>
+                Attempts: {order.paymentProofAttempts || 0}/3
+              </p>
+              {order.paymentProofStatus === 'rejected' && (
+                <p style={{
+                  fontSize: "11px",
+                  color: "#991b1b",
+                  marginTop: "6px",
+                  fontWeight: 500
+                }}>
+                  ⚠️ Client must re-upload new proof
+                </p>
+              )}
+            </div>
+          )}
+
           {!showRejectReason ? (
             <>
               <button
                 onClick={handleRejectClick}
-                disabled={isLoading || order.paymentProofStatus === 'rejected' || !order.paymentProofImage}
+                disabled={isLoading || order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' || !order.paymentProofImage}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all"
                 style={{
-                  background: order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "#f1f5f9" : "#fee2e2",
-                  border: order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "1px solid #e2e8f0" : "1px solid #fecaca",
-                  color: order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "#94a3b8" : "#dc2626",
+                  background: order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' || !order.paymentProofImage ? "#f1f5f9" : "#fee2e2",
+                  border: order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' || !order.paymentProofImage ? "1px solid #e2e8f0" : "1px solid #fecaca",
+                  color: order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' || !order.paymentProofImage ? "#94a3b8" : "#dc2626",
                   fontSize: "13px",
                   fontWeight: 600,
-                  opacity: isLoading || order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? 0.6 : 1,
-                  cursor: isLoading || order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "not-allowed" : "pointer",
+                  opacity: isLoading || order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' || !order.paymentProofImage ? 0.6 : 1,
+                  cursor: isLoading || order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' || !order.paymentProofImage ? "not-allowed" : "pointer",
                 }}
-                title={order.paymentProofStatus === 'rejected' ? "Waiting for client to upload new proof" : !order.paymentProofImage ? "Waiting for client to upload proof" : ""}
+                title={order.paymentProofStatus === 'rejected' ? "This proof has been rejected - waiting for new upload" : order.paymentProofStatus === 'approved' ? "This proof has been approved" : !order.paymentProofImage ? "Waiting for client to upload proof" : ""}
               >
                 <XCircle size={14} />
                 {isLoading ? "Processing..." : "Reject Payment"}
@@ -321,26 +365,27 @@ export function PaymentProofModal({
 
               <button
                 onClick={() => onApprove(order)}
-                disabled={isLoading || !order.paymentProofImage}
+                disabled={isLoading || !order.paymentProofImage || order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved'}
                 className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg transition-all"
                 style={{
-                  background: order.paymentProofImage ? "#dcfce7" : "#f1f5f9",
-                  border: order.paymentProofImage ? "1px solid #bbf7d0" : "1px solid #e2e8f0",
-                  color: order.paymentProofImage ? "#16a34a" : "#94a3b8",
+                  background: order.paymentProofStatus === 'approved' ? "#dcfce7" : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "#f1f5f9" : "#dcfce7"),
+                  border: order.paymentProofStatus === 'approved' ? "1px solid #bbf7d0" : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "1px solid #e2e8f0" : "1px solid #bbf7d0"),
+                  color: order.paymentProofStatus === 'approved' ? "#16a34a" : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "#94a3b8" : "#16a34a"),
                   fontSize: "13px",
                   fontWeight: 600,
-                  opacity: isLoading || !order.paymentProofImage ? 0.6 : 1,
-                  cursor: isLoading || !order.paymentProofImage ? "not-allowed" : "pointer",
+                  opacity: isLoading || !order.paymentProofImage || order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' ? 0.6 : 1,
+                  cursor: isLoading || !order.paymentProofImage || order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' ? "not-allowed" : "pointer",
                 }}
+                title={order.paymentProofStatus === 'approved' ? "This proof has been approved" : order.paymentProofStatus === 'rejected' ? "This proof has been rejected" : !order.paymentProofImage ? "Waiting for client to upload proof" : ""}
               >
                 <CheckCircle size={14} />
-                {isLoading ? "Processing..." : "Accept Payment"}
+                {order.paymentProofStatus === 'approved' ? "Approved" : order.paymentProofStatus === 'rejected' ? "Rejected" : (isLoading ? "Processing..." : "Accept Payment")}
               </button>
 
               <button
                 onClick={onClose}
                 disabled={isLoading}
-                className="px-4 py-2.5 rounded-lg transition-all"
+                className="px-4 py-2.5 rounded-lg transition-all w-full"
                 style={{
                   background: "#f8fafc",
                   border: "1px solid #e2e8f0",

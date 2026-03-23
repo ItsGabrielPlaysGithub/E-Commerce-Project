@@ -11,6 +11,7 @@ import {
   Menu, X, Settings, ChevronDown,
 } from "lucide-react";
 import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
+import { NotificationDropdown } from "@/features/admin/notifications/components/NotificationDropdown";
 
 const NAV_SECTIONS = [
   {
@@ -40,6 +41,7 @@ const NAV_SECTIONS = [
 export default function AdminNav({ children }: { children?: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
   const pathname = usePathname() || "/admin/dashboard";
 
   const isActive = (path: string) =>
@@ -258,16 +260,26 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
 
           {/* Right actions */}
           <div className="flex items-center gap-2 ml-auto">
-            <button
-              className="relative p-2 rounded-lg transition-colors hover:bg-gray-100"
-              style={{ color: "#6b7280" }}
-            >
-              <Bell size={17} />
-              <span
-                className="absolute top-1 right-1 w-2 h-2 rounded-full border-2 border-white"
-                style={{ backgroundColor: "#bf262f" }}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                className="relative p-2 rounded-lg transition-colors hover:bg-gray-100"
+                style={{ color: "#6b7280" }}
+              >
+                <Bell size={17} />
+                <span
+                  className="absolute top-1 right-1 w-2 h-2 rounded-full border-2 border-white"
+                  style={{ backgroundColor: "#bf262f" }}
+                />
+              </button>
+
+              {/* Notification Dropdown */}
+              <NotificationDropdown
+                userId={1} // Replace with actual admin user ID
+                isOpen={notificationDropdownOpen}
+                onClose={() => setNotificationDropdownOpen(false)}
               />
-            </button>
+            </div>
 
             <div
               className="flex items-center gap-2.5 pl-3 ml-1"

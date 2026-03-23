@@ -7,6 +7,7 @@ import { ProductsTbl } from "src/modules/admin/products/entity/products.tbl";
 import { PaymentsTbl } from "src/modules/admin/payments/entity/payments.tbl";
 import { CartItem } from "src/modules/general/cart/cart.entity";
 import { CategoriesTbl } from "src/modules/admin/categories/entity/categories.tbl";
+import { NotificationsTbl } from "src/modules/general/notifications/entity/notifications.tbl";
 
 export const DatabaseConfig =  TypeOrmModule.forRootAsync({
     imports: [ConfigModule],
@@ -18,7 +19,7 @@ export const DatabaseConfig =  TypeOrmModule.forRootAsync({
         username: config.get<string>('DB_USER'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_NAME'),
-        entities: [UsersTbl, OrdersTbl, InvoicesTbl, ProductsTbl, PaymentsTbl, CartItem, CategoriesTbl],
+        entities: [UsersTbl, OrdersTbl, InvoicesTbl, ProductsTbl, PaymentsTbl, CartItem, CategoriesTbl, NotificationsTbl],
         synchronize: config.get<string>('DB_SYNC') === 'true',
     })
 })

@@ -3,13 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, ShoppingCart, LogOut } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, Bell } from "lucide-react";
 import { useAuth } from "../../features/auth/hooks/useAuth";
 import { useMutation } from "@apollo/client/react";
 import { LOGOUT_MUTATION } from "@/features/auth/services/mutation";
 import { Logo } from "../ui/Logo";
 import { NavLinks } from "./NavLinks";
 import { ProfileDropdown } from "./ProfileDropdown";
+import { NotificationDropdown } from "@/features/admin/notifications/components/NotificationDropdown";
 import { useCart } from "@/features/b2b/cart/hooks/useCart";
 import { useFetchOrders } from "@/features/b2b/orders/hooks/useFetchOrders";
 import type { SessionUser } from "@/lib/session";
@@ -42,6 +43,7 @@ export function Header({ sessionUser }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { isLoggedIn, company, logout } = useAuth();
@@ -102,6 +104,28 @@ export function Header({ sessionUser }: HeaderProps) {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            {/* Notifications - dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                className="relative p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+                title="Notifications"
+              >
+                <Bell size={17} />
+                <span
+                  className="absolute top-1 right-1 w-2 h-2 rounded-full border-2 border-white"
+                  style={{ backgroundColor: RED }}
+                />
+              </button>
+
+              {/* Notification Dropdown */}
+              <NotificationDropdown
+                userId={company?.userId}
+                isOpen={notificationDropdownOpen}
+                onClose={() => setNotificationDropdownOpen(false)}
+              />
+            </div>
+
             {/* Cart - always visible */}
             <div className="relative">
               <Link

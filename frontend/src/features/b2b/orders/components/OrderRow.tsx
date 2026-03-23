@@ -101,7 +101,7 @@ export function OrderRow({
           />
         </div>
 
-        {isExpanded && <OrderDetails order={order} />}
+        {isExpanded && <OrderDetails order={order} onReUploadClick={() => setIsUploadModalOpen(true)} />}
         <div className="flex items-center gap-3 shrink-0">
           <div className="text-right">
             <div className="font-bold text-gray-800 text-sm">

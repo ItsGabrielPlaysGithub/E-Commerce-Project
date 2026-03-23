@@ -7,11 +7,13 @@ import { OrdersTbl } from './entity/orders.tbl';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { ProductsTbl } from '../products/entity/products.tbl';
 import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
+import { NotificationsModule } from '../../general/notifications/notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([OrdersTbl, ProductsTbl, UsersTbl]),
     InvoicesModule,
+    NotificationsModule,
   ],
   providers: [OrdersResolver, OrdersService],
   controllers: [PaymentProofController],

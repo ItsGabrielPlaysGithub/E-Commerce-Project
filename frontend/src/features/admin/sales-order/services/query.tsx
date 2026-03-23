@@ -16,6 +16,9 @@ export const GET_ALL_ORDERS = gql`
       paymentMethod
       paymentProofImage
       paymentProofUploadedAt
+      paymentProofStatus
+      paymentProofRejectionReason
+      paymentProofAttempts
       paymongoTransactionId
       paymongoAmount
       paymongoPaymentMethod
@@ -42,6 +45,9 @@ export const GET_ORDER_DETAILS = gql`
       paymentMethod
       paymentProofImage
       paymentProofUploadedAt
+      paymentProofStatus
+      paymentProofRejectionReason
+      paymentProofAttempts
       paymongoTransactionId
       paymongoAmount
       paymongoPaymentMethod
@@ -68,6 +74,9 @@ export const GET_CLIENT_ORDERS = gql`
       paymentMethod
       paymentProofImage
       paymentProofUploadedAt
+      paymentProofStatus
+      paymentProofRejectionReason
+      paymentProofAttempts
       paymongoTransactionId
       paymongoAmount
       paymongoPaymentMethod

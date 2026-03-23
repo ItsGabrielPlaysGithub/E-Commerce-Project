@@ -50,6 +50,7 @@ import { InvoicesModule } from './modules/admin/invoices/invoices.module';
     ProductsModule,
     OrdersModule,
     InvoicesModule,
+    NotificationsModule
   ],
   controllers: [AppController],
   providers: [AppService],

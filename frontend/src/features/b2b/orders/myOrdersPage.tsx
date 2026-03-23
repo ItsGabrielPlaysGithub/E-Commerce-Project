@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/features/auth";
 import { useOrders } from "./hooks/useOrders";
 import { useFetchOrders } from "./hooks/useFetchOrders";
 import { useMostOrderedItems } from "./hooks/useMostOrderedItems";
@@ -12,6 +13,7 @@ import { OrdersSummary } from "./components/OrdersSummary";
 import { OrdersLoadingState } from "./components/OrdersLoadingState";
 import { OrdersErrorState } from "./components/OrdersErrorState";
 import { OrdersMainContent } from "./components/OrdersMainContent";
+import { NotificationBar } from "./components/NotificationBar";
 import { BottomBar } from "@/components/layout/bottomBar";
 
 const ITEMS_PER_PAGE = 6;
@@ -19,6 +21,7 @@ const ITEMS_PER_PAGE = 6;
 export function MyOrdersPage() {
   const searchParams = useSearchParams();
   const expandOrderId = searchParams?.get("expandOrderId");
+  const { company } = useAuth(); // Get current user info
 
   // Fetch orders from backend
   const { orders, loading, error, refetchOrders } = useFetchOrders();
@@ -69,7 +72,12 @@ export function MyOrdersPage() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
-      <OrdersPageHeader ordersCount={counts.All || orders.length} />
+      <OrdersPageHeader 
+        ordersCount={counts.All || orders.length}
+      />
+
+      {/* Notification Bar - displays payment proof rejections/approvals at the top */}
+      <NotificationBar userId={company?.userId} />
 
       <div className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

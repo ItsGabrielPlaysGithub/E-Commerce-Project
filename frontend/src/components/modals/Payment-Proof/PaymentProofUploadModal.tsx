@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { UploadForm } from "./UploadForm";
@@ -26,6 +26,37 @@ export function PaymentProofUploadModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Reset state when modal opens for re-upload
+  useEffect(() => {
+    if (isOpen) {
+      // Clear any pending timeouts from previous operations
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      // Reset all state for fresh upload
+      setSelectedFile(null);
+      setPreview(null);
+      setError(null);
+      setSuccess(false);
+      setIsLoading(false);
+    } else {
+      // Cleanup timeout if modal is closing
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    }
+
+    // Cleanup function
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -92,7 +123,7 @@ export function PaymentProofUploadModal({
       toast.success("Payment proof uploaded successfully!");
 
       // Close modal after 2 seconds of success
-      setTimeout(() => {
+      timeoutRef.current = setTimeout(() => {
         resetAndClose();
       }, 2000);
     } catch (err) {
@@ -103,7 +134,6 @@ export function PaymentProofUploadModal({
       setError(errorMsg);
       toast.dismiss();
       toast.error(errorMsg);
-    } finally {
       setIsLoading(false);
     }
   };
