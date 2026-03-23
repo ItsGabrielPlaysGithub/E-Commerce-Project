@@ -16,13 +16,14 @@ import {
   sanitizeSKU,
   sanitizeProductName,
 } from "../utils/validation";
+import { uploadProductImage } from "../services/imageUpload";
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (product: ProductFormData) => void;
   productToEdit?: ProductFormData & { productId: number };
-  categories: { categoryId: number; categoryName: string }[];
+  categories: { categoryId: number; categoryName: string; skuPrefix: string }[];
 }
 
 const INITIAL_FORM_STATE: ProductFormData = {
@@ -32,6 +33,8 @@ const INITIAL_FORM_STATE: ProductFormData = {
   price: 0,
   reorderPoint: 0,
   available: 0,
+  productDescription: "",
+  image: null,
 };
 
 export function AddProductModal({
@@ -50,6 +53,7 @@ export function AddProductModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Pre-fill form when editing or reset when creating
   useEffect(() => {
@@ -62,17 +66,20 @@ export function AddProductModal({
           price: productToEdit.price,
           reorderPoint: productToEdit.reorderPoint,
           available: productToEdit.available,
+          productDescription: (productToEdit as any).productDescription || "",
+          image: null,
         });
       } else {
         setFormData(INITIAL_FORM_STATE);
       }
+      setImagePreview(null);
       setErrors({});
       setError(null);
     }
   }, [isOpen, isEditMode, productToEdit]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     let finalValue: any = value;
@@ -84,6 +91,30 @@ export function AddProductModal({
         break;
       case "sku":
         finalValue = sanitizeSKU(value);
+        break;
+      case "category":
+        // Auto-populate SKU with the selected category's prefix
+        finalValue = value;
+        const selectedCategory = categories.find(
+          (cat) => cat.categoryName === value
+        );
+        if (selectedCategory && selectedCategory.skuPrefix) {
+          setFormData((prev) => ({
+            ...prev,
+            category: finalValue,
+            sku: selectedCategory.skuPrefix,
+          }));
+          // Clear errors for both fields
+          if (errors.category || errors.sku) {
+            setErrors((prev) => {
+              const newErrors = { ...prev };
+              delete newErrors.category;
+              delete newErrors.sku;
+              return newErrors;
+            });
+          }
+          return; // Return early to avoid duplicate state update
+        }
         break;
       case "price":
       case "reorderPoint":
@@ -106,6 +137,50 @@ export function AddProductModal({
         delete newErrors[name];
         return newErrors;
       });
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setErrors((prev) => ({
+          ...prev,
+          image: "Please select an image file",
+        }));
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors((prev) => ({
+          ...prev,
+          image: "Image size must be less than 5MB",
+        }));
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Clear error
+      if (errors.image) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.image;
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -139,18 +214,33 @@ export function AddProductModal({
       );
       const categoryId = selectedCategory?.categoryId ?? 0;
 
+      // Upload image if provided
+      let imageUrl = formData.imageUrl || "";
+      if (formData.image) {
+        toast.loading("Uploading image...");
+        try {
+          imageUrl = await uploadProductImage(formData.image);
+          toast.dismiss(); // Dismiss loading toast
+        } catch (uploadError: any) {
+          toast.error("Failed to upload image. Please try again.");
+          setLoading(false);
+          return;
+        }
+      }
+
       if (isEditMode && productToEdit) {
         await updateProduct({
           variables: {
             id: productToEdit.productId,
             input: {
               productName: formData.name,
-              productDescription: "",
+              productDescription: formData.productDescription,
               sku: formData.sku,
               categoryId,
               productPrice: formData.price,
               reorderPoint: formData.reorderPoint,
               available: formData.available,
+              ...(imageUrl && { imageUrl }), // Include imageUrl if available
             },
           },
         });
@@ -160,12 +250,13 @@ export function AddProductModal({
           variables: {
             input: {
               productName: formData.name,
-              productDescription: "",
+              productDescription: formData.productDescription,
               sku: formData.sku,
               categoryId,
               productPrice: formData.price,
               reorderPoint: formData.reorderPoint,
               available: formData.available,
+              ...(imageUrl && { imageUrl }), // Include imageUrl if available
             },
           },
         });
@@ -186,6 +277,7 @@ export function AddProductModal({
 
   const handleClose = () => {
     setFormData(INITIAL_FORM_STATE);
+    setImagePreview(null);
     setErrors({});
     setError(null);
     onClose();
@@ -316,6 +408,110 @@ export function AddProductModal({
           min="0"
           required
         />
+
+        {/* Product Description */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label
+              htmlFor="productDescription"
+              className="block text-sm font-semibold"
+              style={{ color: COLORS.textPrimary }}
+            >
+              Product Description *
+            </label>
+            <span className="text-xs" style={{ color: COLORS.textTertiary }}>
+              {formData.productDescription.length}/500
+            </span>
+          </div>
+          <textarea
+            id="productDescription"
+            name="productDescription"
+            value={formData.productDescription}
+            onChange={handleChange}
+            placeholder="e.g., A premium vacuum flask with double-wall insulation..."
+            maxLength={500}
+            rows={4}
+            className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all resize-none"
+            style={{
+              borderColor: errors.productDescription
+                ? COLORS.error
+                : COLORS.borderDefault,
+              backgroundColor: COLORS.bgNeutral,
+            }}
+          />
+          {errors.productDescription && (
+            <p className="text-xs mt-1" style={{ color: COLORS.error }}>
+              {errors.productDescription}
+            </p>
+          )}
+        </div>
+
+        {/* Product Image */}
+        <div>
+          <label
+            htmlFor="image"
+            className="block text-sm font-semibold mb-2"
+            style={{ color: COLORS.textPrimary }}
+          >
+            Product Image
+          </label>
+          <div className="flex gap-4">
+            {/* Image Preview */}
+            <div
+              className="w-32 h-32 rounded-lg border-2 border-dashed flex items-center justify-center"
+              style={{
+                borderColor: errors.image ? COLORS.error : COLORS.borderDefault,
+                backgroundColor: COLORS.bgNeutral,
+              }}
+            >
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : (
+                <div
+                  className="text-center"
+                  style={{ color: COLORS.textTertiary }}
+                >
+                  <p className="text-xs">Upload image</p>
+                </div>
+              )}
+            </div>
+
+            {/* Upload Input */}
+            <div className="flex-1">
+              <input
+                id="image"
+                type="file"
+                name="image"
+                onChange={handleImageChange}
+                accept="image/*"
+                className="hidden"
+              />
+              <label
+                htmlFor="image"
+                className="block w-full px-4 py-2.5 rounded-lg border-2 border-dashed text-sm font-semibold text-center cursor-pointer transition-colors hover:bg-opacity-50"
+                style={{
+                  borderColor: errors.image ? COLORS.error : COLORS.borderDefault,
+                  color: COLORS.textPrimary,
+                  backgroundColor: COLORS.bgNeutral,
+                }}
+              >
+                Click to upload image
+              </label>
+              <p className="text-xs mt-2" style={{ color: COLORS.textTertiary }}>
+                JPG, PNG, or WebP (Max 5MB)
+              </p>
+              {errors.image && (
+                <p className="text-xs mt-2" style={{ color: COLORS.error }}>
+                  {errors.image}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Divider */}
         <div

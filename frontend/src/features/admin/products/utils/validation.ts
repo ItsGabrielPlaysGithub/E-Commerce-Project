@@ -9,6 +9,9 @@ export interface ProductFormData {
   price: number;
   reorderPoint: number;
   available: number;
+  productDescription: string;
+  image: File | null;
+  imageUrl?: string;
 }
 
 /**
@@ -39,6 +42,10 @@ export function validateProductForm(formData: ProductFormData): ValidationErrors
 
   if (formData.available < 0) {
     errors.available = "Available units cannot be negative";
+  }
+
+  if (!formData.productDescription.trim()) {
+    errors.productDescription = "Product description is required";
   }
 
   return errors;

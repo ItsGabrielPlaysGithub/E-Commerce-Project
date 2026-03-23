@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
     return {
       beforeFiles: [
         {
+          source: '/products/upload-image',
+          destination: 'http://localhost:4000/products/upload-image',
+        },
+        {
           source: '/uploads/:path*',
           destination: 'http://localhost:4000/uploads/:path*',
         },
