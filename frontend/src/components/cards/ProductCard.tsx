@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Star, ShoppingCart, LogIn } from "lucide-react";
+import { Star } from "lucide-react";
 import { Product } from "../../data/products";
 import {
   getProductPrice,
@@ -13,6 +13,7 @@ import {
 import { useCart } from "@/features/b2b/cart/hooks/useCart";
 import { useAuth } from "@/features/auth";
 import { AddToCartConfirmModal } from "../modals/AddToCartConfirmModal";
+import { AddToCartButton } from "../ui/AddToCartButton";
 
 const RED = "#bf262f";
 const RED_LIGHT = "#f9e9ea";
@@ -99,29 +100,12 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
             <div className="text-gray-900 font-bold text-sm sm:text-base">₱{displayPrice.toLocaleString()}</div>
           </div>
           <div className="w-full sm:w-auto order-1 sm:order-2">
-          {isLoggedIn && inStock ? (
-            <button
+            <AddToCartButton
+              isLoggedIn={isLoggedIn}
+              inStock={inStock}
               onClick={handleAddItem}
-              className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-80 hover:shadow-md hover:scale-105 transition-all text-white whitespace-nowrap cursor-pointer"
-              style={{ backgroundColor: RED }}
-            >
-              <ShoppingCart size={14} className="sm:hidden" />
-              <ShoppingCart size={12} className="hidden sm:block" />
-              <span>Add</span>
-            </button>
-          ) : !isLoggedIn ? (
-            <Link
-              href="/b2b/login"
-              className="w-full sm:w-auto flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold px-2 sm:px-3 py-2 sm:py-1.5 rounded-lg hover:opacity-80 hover:shadow-md hover:scale-105 transition-all whitespace-nowrap cursor-pointer"
-              style={{ backgroundColor: RED, color: "#ffffff" }}
-            >
-              <LogIn size={14} className="sm:hidden" />
-              <LogIn size={12} className="hidden sm:block" />
-              <span>Add to Cart</span>
-            </Link>
-          ) : (
-            <span className="text-xs text-gray-300 font-medium">Sold Out</span>
-          )}
+              size="md"
+            />
           </div>
         </div>
       </div>

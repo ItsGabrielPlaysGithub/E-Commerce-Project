@@ -462,13 +462,13 @@ export type QueryGetProductByIdArgs = {
 };
 
 
-<<<<<<< HEAD
-export type QueryGetUnreadNotificationCountArgs = {
-  userId: Scalars['Int']['input'];
-=======
 export type QueryGetProductByNameArgs = {
   productName: Scalars['String']['input'];
->>>>>>> 9c73684a984184db48ffffbbfec250cf3fe3cc5e
+};
+
+
+export type QueryGetUnreadNotificationCountArgs = {
+  userId: Scalars['Int']['input'];
 };
 
 
