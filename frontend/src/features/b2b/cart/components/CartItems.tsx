@@ -4,6 +4,15 @@ import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { CartItem, Company } from "../types";
 
+// Helper function to convert product name to URL slug
+const productNameToSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]/g, "");
+};
+
 interface CartItemsProps {
   items: CartItem[];
   company: Company;
@@ -61,7 +70,7 @@ export function CartItems({
                   <div className="min-w-0">
                     <div className="text-gray-400 text-xs mb-0.5">{item.product.category}</div>
                     <Link
-                      href={`/products/${item.product.id}`}
+                      href={`/b2b/products/${productNameToSlug(item.product.name)}`}
                       className="text-gray-800 text-xs font-medium leading-snug hover:text-red-600 transition-colors line-clamp-2 block"
                     >
                       {item.product.name}

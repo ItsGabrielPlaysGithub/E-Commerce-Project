@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useGetProductIdQuery } from "@/features/admin/products/hooks/service-hooks/use-product-id";
+import { useGetProductByNameQuery } from "@/features/admin/products/hooks/service-hooks/use-product-name";
 // import { ProductDetailContainer } from "@/features/products/products-details";
 import type { Product } from "@/data/products";
 
@@ -10,23 +10,27 @@ import type { Product } from "@/data/products";
  * 
  * Usage Flow:
  * 1. User clicks on a ProductCard from the products listing page
- * 2. Next.js routes to /b2b/products/[id]
+ * 2. Next.js routes to /b2b/products/[productName]
  * 3. This page component loads
- * 4. useParams() extracts the product ID from the URL
- * 5. We fetch the product from GraphQL using the ID
+ * 4. useParams() extracts the product name (slug) from the URL
+ * 5. We fetch the product from GraphQL using the name
  * 6. ProductDetailContainer renders all product details
  */
 export default function ProductDetailPage() {
   const params = useParams();
-  const productId = params?.id as string | undefined;
+  // Get the dynamic segment (works whether folder is [id] or [name])
+  const productName = (params?.id || params?.name) as string | undefined;
 
-  // Fetch product by ID from GraphQL
-  const { data, loading, error } = useGetProductIdQuery(productId);
+  // Decode the slug back to product name (convert hyphens back to spaces)
+  const decodedName = productName ? productName.replace(/-/g, " ") : undefined;
+
+  // Fetch product by name from GraphQL
+  const { data, loading, error } = useGetProductByNameQuery(decodedName);
 
   // Transform GraphQL product to Product type
   let product: Product | undefined = undefined;
-  if (data?.getProductById) {
-    const graphQLProduct = data.getProductById;
+  if (data?.getProductByName) {
+    const graphQLProduct = data.getProductByName;
     product = {
       id: graphQLProduct.productId.toString(),
       name: graphQLProduct.productName,
