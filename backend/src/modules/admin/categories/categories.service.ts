@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CategoriesTbl } from './entity/categories.tbl';
 import { ProductsTbl } from '../products/entity/products.tbl';
@@ -37,17 +37,46 @@ export class CategoriesService {
     }
 
     async createCategory(createCategoryDto: CreateCategoryDto){
-        const category = this.categoriesRepo.create(createCategoryDto);
-        return await this.categoriesRepo.save(category);
+        try {
+            const category = this.categoriesRepo.create(createCategoryDto);
+            return await this.categoriesRepo.save(category);
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY' || error.code === '23505') {
+                if (error.message.includes('slug')) {
+                    throw new BadRequestException('Slug already exists');
+                }
+                if (error.message.includes('skuPrefix')) {
+                    throw new BadRequestException('SKU Prefix already exists');
+                }
+                throw new BadRequestException('Duplicate entry in categories');
+            }
+            throw error;
+        }
     }
 
     async updateCategory(categoryId: number, updateCategoryDto: UpdateCategoryDto){
-        const category = await this.categoriesRepo.findOne({ where: { categoryId } });
-        if (!category) {
-            throw new NotFoundException('Category not found');
+        try {
+            const category = await this.categoriesRepo.findOne({ where: { categoryId } });
+            if (!category) {
+                throw new NotFoundException('Category not found');
+            }
+            Object.assign(category, updateCategoryDto);
+            return await this.categoriesRepo.save(category);
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY' || error.code === '23505') {
+                if (error.message.includes('slug')) {
+                    throw new BadRequestException('Slug already exists');
+                }
+                if (error.message.includes('skuPrefix')) {
+                    throw new BadRequestException('SKU Prefix already exists');
+                }
+                throw new BadRequestException('Duplicate entry in categories');
+            }
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw error;
         }
-        Object.assign(category, updateCategoryDto);
-        return await this.categoriesRepo.save(category);
     }
 
     async deleteCategory(categoryId: number){

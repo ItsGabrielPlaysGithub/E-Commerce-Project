@@ -33,14 +33,14 @@ export class CategoriesResolver {
     }
 
     @Mutation(() => CategoriesTbl, { name: 'createCategory' })
-    async createCategory(@Args('input') input: CreateCategoryDto) {
+    async createCategory(@Args('input', { type: () => CreateCategoryDto }) input: CreateCategoryDto) {
         return await this.categoriesService.createCategory(input);
     }
 
     @Mutation(() => CategoriesTbl, { name: 'updateCategory' })
     async updateCategory(
       @Args('id', { type: () => Int }) id: number,
-      @Args('input') input: UpdateCategoryDto
+      @Args('input', { type: () => UpdateCategoryDto }) input: UpdateCategoryDto
     ) {
         return await this.categoriesService.updateCategory(id, input);
     }

@@ -2,8 +2,8 @@
 
 import { X, Package } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useCreateProduct } from "../hooks/use-createproduct";
-import { useUpdateProduct } from "../hooks/use-updateproduct";
+import { useCreateProduct } from "../hooks/service-hooks/use-createproduct";
+import { useUpdateProduct } from "../hooks/service-hooks/use-updateproduct";
 import { toast } from "sonner";
 
 interface AddProductModalProps {
@@ -11,6 +11,7 @@ interface AddProductModalProps {
   onClose: () => void;
   onSubmit: (product: ProductFormData) => void;
   productToEdit?: ProductFormData & { productId: number };
+  categories: { categoryId: number; categoryName: string }[];
 }
 
 export interface ProductFormData {
@@ -22,19 +23,12 @@ export interface ProductFormData {
   available: number;
 }
 
-const categories = [
-  "Hydration",
-  "Cookware",
-  "Glassware",
-  "Dinnerware",
-  "Bakeware",
-];
-
 export function AddProductModal({
   isOpen,
   onClose,
   onSubmit,
   productToEdit,
+  categories,
 }: AddProductModalProps) {
   const [createProduct] = useCreateProduct();
   const [updateProduct] = useUpdateProduct();
@@ -406,8 +400,8 @@ export function AddProductModal({
               >
                 <option value="">Select a category</option>
                 {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                  <option key={cat.categoryId} value={cat.categoryName}>
+                    {cat.categoryName}
                   </option>
                 ))}
               </select>

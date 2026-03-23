@@ -1,9 +1,11 @@
 import { Field, ObjectType, Int } from "@nestjs/graphql";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { ProductsTbl } from "../../products/entity/products.tbl";
 
 @Entity('categories_tbl')
 @ObjectType()
+@Unique(['slug'])
+@Unique(['skuPrefix'])
 export class CategoriesTbl {
     @PrimaryGeneratedColumn()
     @Field(() => Int)

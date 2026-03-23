@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client/react";
-import { UPDATE_PRODUCT } from "../services/mutation";
+import { UPDATE_PRODUCT } from "../../services/mutation";
 import { UpdateProductMutation, UpdateProductMutationVariables, GetProductsQuery } from "@/gql/graphql";
-import { GET_PRODUCTS } from "../services/query";
+import { GET_PRODUCTS } from "../../services/query";
 
 export const useUpdateProduct = () => {
     return useMutation<UpdateProductMutation, UpdateProductMutationVariables>(UPDATE_PRODUCT, {

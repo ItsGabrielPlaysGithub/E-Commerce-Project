@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client/react";
-import { GET_PRODUCT_BY_ID } from "../services/query";
+import { GET_PRODUCT_BY_ID } from "../../services/query";
 import { GetProductByIdQuery } from "@/gql/graphql";
 
 export const useGetProductIdQuery = (productId: string | number | undefined) => {

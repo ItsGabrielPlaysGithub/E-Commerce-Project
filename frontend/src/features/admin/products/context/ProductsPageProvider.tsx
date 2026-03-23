@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useProducts } from "../hooks/use-products";
+import { useProducts } from "../hooks/service-hooks/use-products";
 import type { Product } from "../../../../data/products";
 import {
   getProductPrice,

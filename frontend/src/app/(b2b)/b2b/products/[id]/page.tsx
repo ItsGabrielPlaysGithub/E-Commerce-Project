@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useGetProductIdQuery } from "@/features/admin/products/hooks/use-product-id";
+import { useGetProductIdQuery } from "@/features/admin/products/hooks/service-hooks/use-product-id";
 // import { ProductDetailContainer } from "@/features/products/products-details";
 import type { Product } from "@/data/products";
 
