@@ -3,11 +3,31 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { useMutation, useQuery as apolloUseQuery } from "@apollo/client/react";
 import { useAuth } from "@/features/auth";
-import { Product, products } from "../../../../data/products";
 import { GET_CART } from "../services/query";
 import { ADD_TO_CART, UPDATE_CART_ITEM, REMOVE_FROM_CART, CLEAR_CART, REMOVE_CART_ITEM_BY_PRODUCT_ID } from "../services/cartMutation";
 
+// Product type built from dynamic data
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  retailPrice: number;
+  wholesalePrice?: number;
+  bulkPrice?: number;
+  minWholesale?: number;
+  minBulk?: number;
+  image?: string;
+  imageUrl?: string;
+  category?: string;
+  rating?: number;
+  badge?: string;
+  specs?: string[];
+  description?: string;
+  reviews?: number;
+}
+
 export interface CartItem {
+  id?: number;
   product: Product;
   qty: number;
   selectedColor?: string;
@@ -28,7 +48,11 @@ interface CartContextType {
 }
 
 type PersistedCartItem = {
+  id?: number;
   productId: string;
+  productName?: string;
+  productImage?: string;
+  productCategory?: string;
   qty: number;
   selectedColor?: string;
   selectedSize?: string;
@@ -43,6 +67,33 @@ interface GetCartResponse {
   getCart: {
     items: any[];
   };
+}
+
+const CART_STORAGE_KEY = "omega_b2b_cart_items";
+
+// Transform backend cart item response to persisted format
+function transformBackendCartItem(backendItem: any): PersistedCartItem {
+  try {
+    const product = backendItem.product || {};
+    const categoryName = product.category?.categoryName || product.categoryName || 'Unknown';
+    const imageUrl = product.imageUrl || '';
+    
+    const transformed = {
+      id: backendItem.id,
+      productId: String(backendItem.productId || product.productId),
+      productName: product.productName,
+      productImage: imageUrl,
+      productCategory: categoryName,
+      qty: backendItem.quantity,
+      selectedColor: backendItem.selectedColor,
+      selectedSize: backendItem.selectedSize,
+      unitPrice: parseFloat(String(backendItem.unitPrice || product.productPrice || 0)),
+    };
+    return transformed;
+  } catch (error) {
+    console.error("[Cart] Error transforming backend item:", error, backendItem);
+    throw error;
+  }
 }
 
 const CartContext = createContext<CartContextType>({
@@ -63,7 +114,12 @@ function getUnitPrice(product: Product) {
 
 function serializeCartItems(items: CartItem[]): PersistedCartItem[] {
   return items.map((item) => ({
+    id: item.id,
     productId: item.product.id,
+    productName: item.product.name,
+    // Prefer canonical backend upload path over UI thumbnail/fallback image.
+    productImage: item.product.imageUrl || item.product.image,
+    productCategory: item.product.category,
     qty: item.qty,
     selectedColor: item.selectedColor,
     selectedSize: item.selectedSize,
@@ -72,18 +128,30 @@ function serializeCartItems(items: CartItem[]): PersistedCartItem[] {
 }
 
 function hydrateCartItems(serializedItems: any[]): CartItem[] {
-  const productMap = new Map(products.map((product) => [product.id, product]));
-
   return serializedItems
     .map((serializedItem) => {
-      // Handle both old and new format
       const productId = String(serializedItem.productId);
-      const product = productMap.get(productId);
-      if (!product) {
-        return null;
-      }
+      const imageUrl = serializedItem.productImage || '';
+      
+      // Always reconstruct product from persisted data
+      // No dependency on static products array
+      const product: Product = {
+        id: productId,
+        name: serializedItem.productName || `Product ${productId}`,
+        price: serializedItem.unitPrice || 0,
+        retailPrice: serializedItem.unitPrice || 0,
+        wholesalePrice: serializedItem.unitPrice || 0,
+        bulkPrice: serializedItem.unitPrice || 0,
+        minWholesale: 1,
+        minBulk: 1,
+        imageUrl: imageUrl,  // Set imageUrl for component
+        image: imageUrl,      // Also set image as fallback
+        category: serializedItem.productCategory || 'Unknown',
+        rating: 0,
+      };
 
       return {
+        id: serializedItem.id,
         product,
         qty: serializedItem.quantity || serializedItem.qty || 1,
         selectedColor: serializedItem.selectedColor,
@@ -102,6 +170,7 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
 
   // GraphQL mutations
   const [addToCartMutation] = useMutation(ADD_TO_CART);
+  const [updateCartItemMutation] = useMutation(UPDATE_CART_ITEM);
   const [removeFromCartMutation] = useMutation(REMOVE_FROM_CART);
   const [clearCartMutation] = useMutation(CLEAR_CART);
   const [removeByProductMutation] = useMutation(REMOVE_CART_ITEM_BY_PRODUCT_ID);
@@ -112,17 +181,45 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     skip: !company?.userId,
   });
 
-  // Handle cart data updates
+  // Load cart from localStorage on initial mount
   useEffect(() => {
-    if (cartData?.getCart?.items) {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const cached = localStorage.getItem(CART_STORAGE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        const hydrated = hydrateCartItems(parsed);
+        setItems(hydrated);
+      }
+    } catch (error) {
+      console.error("Failed to load cart from localStorage:", error);
+    }
+    
+    setIsHydrated(true);
+  }, []);
+
+  // Handle cart data updates from GraphQL
+  useEffect(() => {
+    // Only update cart if backend actually returned items (not empty)
+    if (cartData?.getCart?.items && Array.isArray(cartData.getCart.items) && cartData.getCart.items.length > 0) {
       try {
-        setItems(hydrateCartItems(cartData.getCart.items));
+        // Transform backend response to persisted format
+        const transformedItems = cartData.getCart.items.map(transformBackendCartItem);
+        // Hydrate the transformed items
+        const hydrated = hydrateCartItems(transformedItems);
+        setItems(hydrated);
+        // Sync backend data to localStorage
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(transformedItems));
         setIsHydrated(true);
       } catch (error) {
         console.error("Failed to hydrate cart items:", error);
         setIsHydrated(true);
         setItems([]);
       }
+    } else if (cartData?.getCart) {
+      // Backend query returned but with empty cart - don't clear localStorage
+      setIsHydrated(true);
     }
   }, [cartData]);
 
@@ -170,41 +267,85 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     if (company?.userId) {
       void refetchCart();
     } else {
+      // User is not logged in - keep localStorage items, just mark as hydrated
       setIsHydrated(true);
-      setItems([]);
     }
   }, [company?.userId, refetchCart]);
 
   const addItem = (product: Product, qty: number, opts?: { color?: string; size?: string }) => {
-    const unitPrice = getUnitPrice(product);
+    let unitPrice = getUnitPrice(product);
     
-    // Update local state immediately
+    // Fallback if retailPrice is missing
+    if (!unitPrice || unitPrice <= 0) {
+      unitPrice = product.price || 0;
+    }
+    
+
     setItems((prev) => {
       const existing = prev.find((i) => i.product.id === product.id);
+      let updated: CartItem[];
       if (existing) {
-        return prev.map((i) =>
+        updated = prev.map((i) =>
           i.product.id === product.id ? { ...i, qty: i.qty + qty } : i
         );
+      } else {
+        updated = [...prev, {
+          id: undefined,
+          product, qty, unitPrice,
+          selectedColor: opts?.color,
+          selectedSize: opts?.size,
+        }];
       }
-      return [...prev, {
-        product, qty, unitPrice,
-        selectedColor: opts?.color,
-        selectedSize: opts?.size,
-      }];
+      
+      // Persist to localStorage with full product details
+      const serialized = serializeCartItems(updated);
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(serialized));
+      
+      return updated;
     });
     
     // Sync with backend
     if (company?.userId) {
+      const productId = parseInt(product.id, 10);
+      const input: any = {
+        productId,
+        quantity: qty,
+        unitPrice,
+      };
+      
+      // Only include optional fields if they have values
+      if (opts?.color) {
+        input.selectedColor = opts.color;
+      }
+      if (opts?.size) {
+        input.selectedSize = opts.size;
+      }
+      
+      const payload = {
+        userId: company.userId,
+        input,
+      };
+      
+      if (!productId || productId <= 0) {
+        return;
+      }
+      
+      if (!unitPrice || unitPrice <= 0) {
+        return;
+      }
+      
       void addToCartMutation({
-        variables: {
-          userId: company.userId,
-          input: {
-            productId: parseInt(product.id, 10),
-            quantity: qty,
-            unitPrice,
-            selectedColor: opts?.color,
-            selectedSize: opts?.size,
-          },
+        variables: payload,
+        onCompleted: () => {
+          void refetchCart();
+        },
+        onError: (error) => {
+          const apolloError = error as any;
+          console.error("[Cart] Failed to add item to backend:", {
+            message: error.message,
+            graphQLErrors: apolloError.graphQLErrors,
+            networkError: apolloError.networkError,
+          });
         },
       });
     }
@@ -215,24 +356,47 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
 
   const updateQty = (productId: string, qty: number) => {
     if (qty < 1) return;
+
+    const targetItem = items.find((i) => i.product.id === productId);
     
     // Update local state
-    setItems((prev) =>
-      prev.map((i) => i.product.id === productId ? { ...i, qty } : i)
-    );
+    setItems((prev) => {
+      const updated = prev.map((i) => i.product.id === productId ? { ...i, qty } : i);
+      // Persist to localStorage
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(serializeCartItems(updated)));
+      return updated;
+    });
 
     // Sync with backend
-    if (company?.userId) {
-      const item = items.find(i => i.product.id === productId);
-      if (item) {
-        // We would need to track the backend ID, for now just refetch
-        void refetchCart();
-      }
+    if (company?.userId && targetItem?.id) {
+      void updateCartItemMutation({
+        variables: {
+          userId: company.userId,
+          input: {
+            id: targetItem.id,
+            quantity: qty,
+          },
+        },
+        onCompleted: () => {
+          void refetchCart();
+        },
+        onError: (error) => {
+          console.error("[Cart] Failed to update quantity on backend:", error);
+        },
+      });
+    } else if (company?.userId) {
+      // If legacy local cart item has no backend id yet, resync full cart snapshot.
+      void refetchCart();
     }
   };
 
   const removeItem = (productId: string) => {
-    setItems((prev) => prev.filter((i) => i.product.id !== productId));
+    setItems((prev) => {
+      const updated = prev.filter((i) => i.product.id !== productId);
+      // Persist to localStorage
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(serializeCartItems(updated)));
+      return updated;
+    });
     
     // Sync with backend
     if (company?.userId) {
@@ -240,6 +404,12 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
         variables: {
           userId: company.userId,
           productId: parseInt(productId, 10),
+        },
+        onCompleted: () => {
+          void refetchCart();
+        },
+        onError: (error) => {
+          console.error("[Cart] Failed to remove item from backend:", error);
         },
       });
     }
@@ -251,7 +421,12 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     }
 
     const productIdSet = new Set(productIds);
-    setItems((prev) => prev.filter((item) => !productIdSet.has(item.product.id)));
+    setItems((prev) => {
+      const updated = prev.filter((item) => !productIdSet.has(item.product.id));
+      // Persist to localStorage
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(serializeCartItems(updated)));
+      return updated;
+    });
     
     // Sync with backend
     if (company?.userId) {
@@ -261,6 +436,12 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
             userId: company.userId,
             productId: parseInt(productId, 10),
           },
+          onCompleted: () => {
+            void refetchCart();
+          },
+          onError: (error) => {
+            console.error("[Cart] Failed to remove items from backend:", error);
+          },
         });
       });
     }
@@ -268,11 +449,19 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
 
   const clearCart = () => {
     setItems([]);
+    // Persist to localStorage
+    localStorage.removeItem(CART_STORAGE_KEY);
     
     // Sync with backend
     if (company?.userId) {
       void clearCartMutation({
         variables: { userId: company.userId },
+        onCompleted: () => {
+          void refetchCart();
+        },
+        onError: (error) => {
+          console.error("[Cart] Failed to clear cart on backend:", error);
+        },
       });
     }
   };

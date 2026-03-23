@@ -13,6 +13,17 @@ export const GET_CART = gql`
         selectedSize
         createdAt
         updatedAt
+        product {
+          productId
+          productName
+          imageUrl
+          productDescription
+          productPrice
+          category {
+            categoryId
+            categoryName
+          }
+        }
       }
       totalItems
       totalPrice

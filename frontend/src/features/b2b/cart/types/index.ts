@@ -12,6 +12,7 @@ export interface CartItem {
     name: string;
     category: string;
     image: string;
+    imageUrl?: string;
     retailPrice: number;
     minWholesale: number;
     minBulk: number;

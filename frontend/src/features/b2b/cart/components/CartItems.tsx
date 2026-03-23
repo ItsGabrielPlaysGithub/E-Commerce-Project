@@ -62,11 +62,13 @@ export function CartItems({
                     aria-label={`Select ${item.product.name} for checkout`}
                     className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
                   />
-                  <img
-                    src={item.product.image}
-                    alt={item.product.name}
-                    className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-gray-100"
-                  />
+                  {(item.product.imageUrl || item.product.image) && (
+                    <img
+                      src={item.product.imageUrl || item.product.image}
+                      alt={item.product.name}
+                      className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-gray-100"
+                    />
+                  )}
                   <div className="min-w-0">
                     <div className="text-gray-400 text-xs mb-0.5">{item.product.category}</div>
                     <Link

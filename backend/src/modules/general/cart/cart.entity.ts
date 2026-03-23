@@ -1,5 +1,6 @@
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, Int, ObjectType, Float } from '@nestjs/graphql';
 import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 @Entity('cart_items')
 @ObjectType()
@@ -21,7 +22,7 @@ export class CartItem {
   quantity: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
-  @Field()
+  @Field(() => Float)
   unitPrice: number;
 
   @Column({ nullable: true })
@@ -44,27 +45,41 @@ export class CartItem {
 @InputType()
 export class AddToCartInput {
   @Field(() => Int)
+  @IsInt()
+  @Min(1)
   productId: number;
 
   @Field(() => Int)
+  @IsInt()
+  @Min(1)
   quantity: number;
 
-  @Field()
+  @Field(() => Float)
+  @IsNumber()
+  @Min(0)
   unitPrice: number;
 
   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   selectedColor?: string;
 
   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   selectedSize?: string;
 }
 
 @InputType()
 export class UpdateCartItemInput {
   @Field(() => Int)
+  @IsInt()
+  @Min(1)
   id: number;
 
   @Field(() => Int)
+  @IsInt()
+  @Min(1)
   quantity: number;
 }
 
