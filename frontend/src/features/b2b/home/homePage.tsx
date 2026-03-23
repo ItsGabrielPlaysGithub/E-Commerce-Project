@@ -1,14 +1,14 @@
 "use client";
 
-import { HeroCarousel } from "../../../components/b2b/home/HeroCarousel";
-import { FeatureStrip } from "../../../components/b2b/home/FeatureStrip";
-import { OrderTypesSection } from "../../../components/b2b/home/OrderTypesSection";
-import { StatsSection } from "../../../components/b2b/home/StatsSection";
-import { CategoryShowcase } from "../../../components/b2b/home/CategoryShowcase";
-import { FeaturedProducts } from "../../../components/b2b/home/FeaturedProducts";
-import { Testimonials } from "../../../components/b2b/home/Testimonials";
-import { PromoBanners } from "../../../components/b2b/home/PromoBanners";
-import { InquiryCTA } from "../../../components/b2b/home/InquiryCTA";
+import { HeroCarousel } from "../../../components/home/HeroCarousel";
+import { FeatureStrip } from "../../../components/home/FeatureStrip";
+import { OrderTypesSection } from "../../../components/home/OrderTypesSection";
+import { StatsSection } from "../../../components/home/StatsSection";
+import { CategoryShowcase } from "../../../components/home/CategoryShowcase";
+import { FeaturedProducts } from "../../../components/home/FeaturedProducts";
+import { Testimonials } from "../../../components/home/Testimonials";
+import { PromoBanners } from "../../../components/home/PromoBanners";
+import { InquiryCTA } from "../../../components/home/InquiryCTA";
 
 export function HomePage() {
   return (

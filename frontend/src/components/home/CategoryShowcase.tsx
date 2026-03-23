@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { categories } from "../../../data/homeData";
+import { categories } from "../../data/homeData";
 
 export function CategoryShowcase() {
   return (

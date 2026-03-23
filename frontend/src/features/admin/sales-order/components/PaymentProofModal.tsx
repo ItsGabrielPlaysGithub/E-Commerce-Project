@@ -3,7 +3,7 @@
 import { X, CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { formatDateWithTime } from "@/utils/dateFormatter";
-import { SalesOrder } from "./types";
+import { SalesOrder } from "../../../../types/types";
 
 interface PaymentProofModalProps {
   isOpen: boolean;

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Truck } from "lucide-react";
-import { heroSlides } from "../../../data/homeData";
+import { heroSlides } from "../../data/homeData";
 
 export function HeroCarousel() {
   const [activeSlide, setActiveSlide] = useState(0);

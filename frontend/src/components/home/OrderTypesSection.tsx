@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import { orderTypes } from "../../../data/homeData";
+import { orderTypes } from "../../data/homeData";
 
 export function OrderTypesSection() {
   return (

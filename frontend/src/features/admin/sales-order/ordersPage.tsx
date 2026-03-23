@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { Download, Plus, Search, Filter } from "lucide-react";
-import { SalesOrdersTable } from "@/components/admin/SalesOrdersTable";
-import { PaymentProofModal } from "@/components/admin/PaymentProofModal";
-import { PaymongoTransactionModal } from "@/components/admin/PaymongoTransactionModal";
-import { OrderDetailsModal } from "@/components/admin/OrderDetailsModal";
-import { UpdateOrderStatusModal } from "@/components/admin/UpdateOrderStatusModal";
+import { SalesOrdersTable } from "@/features/admin/sales-order/components/SalesOrdersTable";
+import { PaymentProofModal } from "@/features/admin/sales-order/components/PaymentProofModal";
+import { PaymongoTransactionModal } from "@/features/admin/sales-order/components/PaymongoTransactionModal";
+import { OrderDetailsModal } from "@/features/admin/sales-order/components/OrderDetailsModal";
+import { UpdateOrderStatusModal } from "@/features/admin/sales-order/components/UpdateOrderStatusModal";
 import { useOrders } from "@/features/admin/sales-order/hooks";
 import { useTransitionOrderStatus } from "@/features/admin/sales-order/hooks/use-transitionorderstatus";
 import { useRejectPaymentProof } from "@/features/admin/sales-order/hooks/use-reject-payment-proof";
 import { getStatusLabel, getStatusColor } from "@/utils/statusMapper";
-import { SalesOrder } from "@/components/admin/types";
+import { SalesOrder } from "../../../types/types";
 import { toast } from "sonner";
 
 export default function SalesOrdersPage() {

@@ -1,4 +1,4 @@
-import { features } from "../../../data/homeData";
+import { features } from "../../data/homeData";
 
 export function FeatureStrip() {
   return (

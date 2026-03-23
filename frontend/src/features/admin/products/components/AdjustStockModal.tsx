@@ -70,7 +70,7 @@ export function AdjustStockModal({
           productName: product.name,
           productDescription: "",
           sku: product.sku,
-          category: product.category,
+          categoryId: parseInt(product.category),
           productPrice: product.price,
           reorderPoint: product.reorderPoint,
           available: data.available,

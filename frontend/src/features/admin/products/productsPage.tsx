@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Download, Package, AlertTriangle, Zap, TrendingUp, Plus, Search, Filter } from "lucide-react";
-import { ProductsTable } from "@/components/admin/ProductsTable";
+import { ProductsTable } from "@/features/admin/products/components/ProductsTable";
 import { AddProductModal, type ProductFormData } from "@/features/admin/products/components/AddProductModal";
-import { ArchiveConfirmDialog } from "@/components/admin/ArchiveConfirmDialog";
-import { AdjustStockModal } from "@/components/admin/AdjustStockModal";
-import { ProductDetailsModal } from "@/components/admin/ProductDetailsModal";
+import { ArchiveConfirmDialog } from "@/components/modals/dialogs/ArchiveConfirmDialog";
+import { AdjustStockModal } from "@/features/admin/products/components/AdjustStockModal";
+import { ProductDetailsModal } from "@/features/admin/products/components/ProductDetailsModal";
 import { useProducts } from "@/features/admin/products/hooks/use-products";
 import { toast } from "sonner";
 

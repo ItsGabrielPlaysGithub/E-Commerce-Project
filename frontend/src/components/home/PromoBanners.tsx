@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { promoBanners } from "../../../data/homeData";
+import { promoBanners } from "../../data/homeData";
 
 export function PromoBanners() {
   return (

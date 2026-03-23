@@ -1,5 +1,5 @@
 import { Star, Quote } from "lucide-react";
-import { reviews } from "../../../data/products";
+import { reviews } from "../../data/products";
 
 export function Testimonials() {
   return (

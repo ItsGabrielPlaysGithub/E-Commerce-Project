@@ -4,9 +4,9 @@ import { MoreVertical, Edit2, Eye, FileText, Printer, X, Calendar, CreditCard, A
 import { useState, useRef, useEffect } from "react";
 import { getStatusLabel } from "@/utils/statusMapper";
 import { formatDateLong } from "@/utils/dateFormatter";
-import { CancelOrderConfirmDialog } from "./CancelOrderConfirmDialog";
-import { UpdateOrderStatusModal } from "./UpdateOrderStatusModal";
-import { SalesOrder } from "./types";
+import { CancelOrderConfirmDialog } from "../../../../components/modals/dialogs/CancelOrderConfirmDialog";
+import { UpdateOrderStatusModal } from "../modals/UpdateOrderStatusModal";
+import { SalesOrder } from "../../../../types/types";
 
 function StatusBadge({ status }: { status: string }) {
   const statusColors: Record<string, { bg: string; color: string }> = {
