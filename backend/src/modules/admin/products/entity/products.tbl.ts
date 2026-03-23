@@ -13,10 +13,12 @@ export class ProductsTbl {
     @Field()
     productName: string;
 
-    @Column()
+    @Column('longtext')
     @Field()
     productDescription: string;
-
+    @Column({ type: 'varchar', length: 500, nullable: true })
+    @Field({ nullable: true })
+    imageUrl: string;
     @Column()
     @Field()
     sku: string;

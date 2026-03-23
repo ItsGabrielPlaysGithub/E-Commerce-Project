@@ -37,7 +37,8 @@ export default function ProductDetailPage() {
       minWholesale: 10,
       minBulk: 50,
       image: "https://images.unsplash.com/photo-1696986324692-f4aa0f2f495d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
-      category: graphQLProduct.category || "Uncategorized",
+      imageUrl: graphQLProduct.imageUrl || undefined,
+      category: typeof graphQLProduct.category === 'string' ? graphQLProduct.category : (graphQLProduct.category?.categoryName || "Uncategorized"),
       rating: 4.5,
       description: graphQLProduct.productDescription,
     };

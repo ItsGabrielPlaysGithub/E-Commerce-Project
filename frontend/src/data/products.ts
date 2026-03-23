@@ -8,6 +8,7 @@ export type Product = {
   minWholesale: number;
   minBulk: number;
   image: string;
+  imageUrl?: string;
   category: string;
   rating: number;
   badge?: string;

@@ -8,6 +8,7 @@ export const GET_PRODUCTS = gql`
       productDescription
       sku
       categoryId
+      imageUrl
       category {
         categoryId
         categoryName
@@ -32,6 +33,7 @@ export const GET_PRODUCT_BY_ID = gql`
       productDescription
       sku
       categoryId
+      imageUrl
       category {
         categoryId
         categoryName
