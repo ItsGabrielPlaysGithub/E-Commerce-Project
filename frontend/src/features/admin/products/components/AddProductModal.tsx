@@ -1,27 +1,41 @@
 "use client";
 
-import { X, Package } from "lucide-react";
+import { Package } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useCreateProduct } from "../hooks/service-hooks/use-createproduct";
 import { useUpdateProduct } from "../hooks/service-hooks/use-updateproduct";
+import { useModal } from "../hooks/useModal";
 import { toast } from "sonner";
+import { COLORS } from "../constants/colors";
+import { Modal } from "./Modal";
+import { FormField } from "./FormField";
+import {
+  ProductFormData,
+  validateProductForm,
+  normalizeNumericInput,
+  sanitizeSKU,
+  sanitizeProductName,
+} from "../utils/validation";
+import { uploadProductImage } from "../services/imageUpload";
 
 interface AddProductModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (product: ProductFormData) => void;
   productToEdit?: ProductFormData & { productId: number };
-  categories: { categoryId: number; categoryName: string }[];
+  categories: { categoryId: number; categoryName: string; skuPrefix: string }[];
 }
 
-export interface ProductFormData {
-  name: string;
-  sku: string;
-  category: string;
-  price: number;
-  reorderPoint: number;
-  available: number;
-}
+const INITIAL_FORM_STATE: ProductFormData = {
+  name: "",
+  sku: "",
+  category: "",
+  price: 0,
+  reorderPoint: 0,
+  available: 0,
+  productDescription: "",
+  image: null,
+};
 
 export function AddProductModal({
   isOpen,
@@ -32,77 +46,83 @@ export function AddProductModal({
 }: AddProductModalProps) {
   const [createProduct] = useCreateProduct();
   const [updateProduct] = useUpdateProduct();
+  const { isAnimating, handleAnimationEnd } = useModal();
+
   const isEditMode = !!productToEdit;
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  const [formData, setFormData] = useState<ProductFormData>({
-    name: "",
-    sku: "",
-    category: "",
-    price: 0,
-    reorderPoint: 0,
-    available: 0,
-  });
-
+  const [formData, setFormData] = useState<ProductFormData>(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  // Pre-fill form when editing
+  // Pre-fill form when editing or reset when creating
   useEffect(() => {
     if (isOpen) {
-      setIsAnimating(true);
+      if (isEditMode && productToEdit) {
+        setFormData({
+          name: productToEdit.name,
+          sku: productToEdit.sku,
+          category: productToEdit.category,
+          price: productToEdit.price,
+          reorderPoint: productToEdit.reorderPoint,
+          available: productToEdit.available,
+          productDescription: (productToEdit as any).productDescription || "",
+          image: null,
+        });
+      } else {
+        setFormData(INITIAL_FORM_STATE);
+      }
+      setImagePreview(null);
+      setErrors({});
+      setError(null);
     }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isEditMode && productToEdit) {
-      setFormData({
-        name: productToEdit.name,
-        sku: productToEdit.sku,
-        category: productToEdit.category,
-        price: productToEdit.price,
-        reorderPoint: productToEdit.reorderPoint,
-        available: productToEdit.available,
-      });
-    } else {
-      setFormData({
-        name: "",
-        sku: "",
-        category: "",
-        price: 0,
-        reorderPoint: 0,
-        available: 0,
-      });
-    }
-    setErrors({});
-    setError(null);
   }, [isOpen, isEditMode, productToEdit]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     let finalValue: any = value;
 
-    // Handle numeric fields
-    if (name === "price" || name === "reorderPoint" || name === "available") {
-      // Block negative sign input
-      if (value.includes("-")) {
-        return;
-      }
-      const numValue = parseFloat(value);
-      finalValue = value === "" ? 0 : numValue || 0;
-    }
-
-    // Handle text fields - trim and validate
-    if (name === "name") {
-      finalValue = value.slice(0, 100); // Max 100 characters
-    }
-
-    if (name === "sku") {
-      // Allow only alphanumeric and hyphens
-      finalValue = value.replace(/[^a-zA-Z0-9-]/g, "").slice(0, 20);
+    // Apply field-specific validation and formatting
+    switch (name) {
+      case "name":
+        finalValue = sanitizeProductName(value);
+        break;
+      case "sku":
+        finalValue = sanitizeSKU(value);
+        break;
+      case "category":
+        // Auto-populate SKU with the selected category's prefix
+        finalValue = value;
+        const selectedCategory = categories.find(
+          (cat) => cat.categoryName === value
+        );
+        if (selectedCategory && selectedCategory.skuPrefix) {
+          setFormData((prev) => ({
+            ...prev,
+            category: finalValue,
+            sku: selectedCategory.skuPrefix,
+          }));
+          // Clear errors for both fields
+          if (errors.category || errors.sku) {
+            setErrors((prev) => {
+              const newErrors = { ...prev };
+              delete newErrors.category;
+              delete newErrors.sku;
+              return newErrors;
+            });
+          }
+          return; // Return early to avoid duplicate state update
+        }
+        break;
+      case "price":
+      case "reorderPoint":
+      case "available":
+        finalValue = normalizeNumericInput(value);
+        break;
+      default:
+        break;
     }
 
     setFormData((prev) => ({
@@ -110,13 +130,57 @@ export function AddProductModal({
       [name]: finalValue,
     }));
 
-    // Clear error for this field
+    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setErrors((prev) => ({
+          ...prev,
+          image: "Please select an image file",
+        }));
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setErrors((prev) => ({
+          ...prev,
+          image: "Image size must be less than 5MB",
+        }));
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
+      // Clear error
+      if (errors.image) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors.image;
+          return newErrors;
+        });
+      }
     }
   };
 
@@ -132,401 +196,364 @@ export function AddProductModal({
     }
   };
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.name.trim()) newErrors.name = "Product name is required";
-    if (!formData.sku.trim()) newErrors.sku = "SKU is required";
-    if (!formData.category) newErrors.category = "Category is required";
-    if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
-    if (formData.reorderPoint < 0) newErrors.reorderPoint = "Reorder point cannot be negative";
-    if (formData.available < 0) newErrors.available = "Available units cannot be negative";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    const newErrors = validateProductForm(formData);
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
-    if (isEditMode && productToEdit) {
-      // Convert category name to categoryId
-      const selectedCategory = categories.find(cat => cat.categoryName === formData.category);
-      const categoryId = selectedCategory?.categoryId ? parseInt(selectedCategory.categoryId.toString()) : 0;
+    try {
+      const selectedCategory = categories.find(
+        (cat) => cat.categoryName === formData.category
+      );
+      const categoryId = selectedCategory?.categoryId ?? 0;
 
-      // Edit mode - use updateProduct (id separate)
-      updateProduct({
-        variables: {
-          id: productToEdit.productId,
-          input: {
-            productName: formData.name,
-            productDescription: "",
-            sku: formData.sku,
-            categoryId: categoryId,
-            productPrice: formData.price,
-            reorderPoint: formData.reorderPoint,
-            available: formData.available,
-          },
-        },
-      })
-        .then(() => {
-          onSubmit(formData);
-          toast.success("Product updated successfully!");
-          setFormData({
-            name: "",
-            sku: "",
-            category: "",
-            price: 0,
-            reorderPoint: 0,
-            available: 0,
-          });
-          onClose();
-        })
-        .catch((err) => {
-          setError(err);
-          toast.error("Failed to update product.");
-        })
-        .finally(() => {
+      // Upload image if provided
+      let imageUrl = formData.imageUrl || "";
+      if (formData.image) {
+        toast.loading("Uploading image...");
+        try {
+          imageUrl = await uploadProductImage(formData.image);
+          toast.dismiss(); // Dismiss loading toast
+        } catch (uploadError: any) {
+          toast.error("Failed to upload image. Please try again.");
           setLoading(false);
-        });
-    } else {
-      // Convert category name to categoryId
-      const selectedCategory = categories.find(cat => cat.categoryName === formData.category);
-      const categoryId = selectedCategory?.categoryId ? parseInt(selectedCategory.categoryId.toString()) : 0;
+          return;
+        }
+      }
 
-      // Create mode - use createProduct
-      createProduct({
-        variables: {
-          input: {
-            productName: formData.name,
-            productDescription: "",
-            sku: formData.sku,
-            categoryId: categoryId,
-            productPrice: formData.price,
-            reorderPoint: formData.reorderPoint,
-            available: formData.available,
+      if (isEditMode && productToEdit) {
+        await updateProduct({
+          variables: {
+            id: productToEdit.productId,
+            input: {
+              productName: formData.name,
+              productDescription: formData.productDescription,
+              sku: formData.sku,
+              categoryId,
+              productPrice: formData.price,
+              reorderPoint: formData.reorderPoint,
+              available: formData.available,
+              ...(imageUrl && { imageUrl }), // Include imageUrl if available
+            },
           },
-        },
-      })
-        .then(() => {
-          onSubmit(formData);
-          toast.success("Product created successfully!");
-          setFormData({
-            name: "",
-            sku: "",
-            category: "",
-            price: 0,
-            reorderPoint: 0,
-            available: 0,
-          });
-          onClose();
-        })
-        .catch((err) => {
-          setError(err);
-          toast.error("Failed to create product.");
-        })
-        .finally(() => {
-          setLoading(false);
         });
+        toast.success("Product updated successfully!");
+      } else {
+        await createProduct({
+          variables: {
+            input: {
+              productName: formData.name,
+              productDescription: formData.productDescription,
+              sku: formData.sku,
+              categoryId,
+              productPrice: formData.price,
+              reorderPoint: formData.reorderPoint,
+              available: formData.available,
+              ...(imageUrl && { imageUrl }), // Include imageUrl if available
+            },
+          },
+        });
+        toast.success("Product created successfully!");
+      }
+
+      onSubmit(formData);
+      handleClose();
+    } catch (err: any) {
+      setError(err);
+      toast.error(
+        isEditMode ? "Failed to update product." : "Failed to create product."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleClose = () => {
+    setFormData(INITIAL_FORM_STATE);
+    setImagePreview(null);
+    setErrors({});
+    setError(null);
+    onClose();
+  }
+
   if (!isOpen && !isAnimating) return null;
 
+  const categoryOptions = categories.map((cat) => ({
+    value: cat.categoryName,
+    label: cat.categoryName,
+  }));
+
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed top-0 left-0 w-screen h-screen z-40"
-        style={{
-          background: "rgba(0,0,0,0.5)",
-          animation: isOpen
-            ? "fadeIn 0.2s ease-out"
-            : "fadeOut 0.2s ease-out forwards",
-        }}
-        onClick={onClose}
-        onAnimationEnd={() => {
-          if (!isOpen) setIsAnimating(false);
-        }}
-      />
-
-      {/* Modal */}
-      <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 pointer-events-none" style={{ maxHeight: "100vh", maxWidth: "100vw" }}>
-        <div
-          className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 overflow-hidden pointer-events-auto"
-          style={{
-            animation: isOpen
-              ? "slideUp 0.3s ease-out"
-              : "slideDown 0.2s ease-out forwards",
-          }}
-          onAnimationEnd={() => {
-            if (!isOpen) setIsAnimating(false);
-          }}
-        >
-          <style>{`
-            @keyframes fadeIn {
-              from { opacity: 0; }
-              to { opacity: 1; }
-            }
-            @keyframes fadeOut {
-              from { opacity: 1; }
-              to { opacity: 0; }
-            }
-            @keyframes slideUp {
-              from {
-                opacity: 0;
-                transform: translateY(20px);
-              }
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
-            @keyframes slideDown {
-              from {
-                opacity: 1;
-                transform: translateY(0);
-              }
-              to {
-                opacity: 0;
-                transform: translateY(20px);
-              }
-            }
-          `}</style>
-        {/* Header */}
-        <div
-          className="px-6 py-4 border-b border-gray-100 flex items-center justify-between"
-          style={{ backgroundColor: "#fdf2f2" }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center"
-              style={{ backgroundColor: "#fff4f4" }}
-            >
-              <Package size={20} style={{ color: "#bf262f" }} />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">
-                {isEditMode ? "Edit Product" : "Add New Product"}
-              </h2>
-              <p className="text-sm text-gray-500">
-                {isEditMode ? "Update the product details below" : "Fill in the product details below"}
-              </p>
-            </div>
-          </div>
-
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg hover:bg-gray-200 transition-colors"
+    <Modal
+      isOpen={isOpen}
+      isAnimating={isAnimating}
+      onClose={handleClose}
+      onAnimationEnd={() => handleAnimationEnd(isOpen)}
+      title={isEditMode ? "Edit Product" : "Add New Product"}
+      subtitle={
+        isEditMode
+          ? "Update the product details below"
+          : "Fill in the product details below"
+      }
+      icon={<Package size={20} style={{ color: COLORS.brandPrimary }} />}
+      headerBg={COLORS.bgLight}
+      maxWidth="2xl"
+    >
+      <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        {/* Error from mutation */}
+        {error && (
+          <div
+            className="p-3 rounded-lg border"
+            style={{
+              backgroundColor: "#fee2e2",
+              borderColor: COLORS.error,
+            }}
           >
-            <X size={20} className="text-gray-600" />
-          </button>
+            <p className="text-sm" style={{ color: COLORS.error }}>
+              {error.message}
+            </p>
+          </div>
+        )}
+
+        {/* Product Name */}
+        <FormField
+          label="Product Name"
+          name="name"
+          type="text"
+          value={formData.name}
+          onChange={handleChange}
+          error={errors.name}
+          placeholder="e.g., Elite Vacuum Flask 500ml"
+          required
+          showCharCount
+          maxChars={100}
+          maxLength={100}
+        />
+
+        {/* SKU and Category Row */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            label="SKU"
+            name="sku"
+            type="text"
+            value={formData.sku}
+            onChange={handleChange}
+            error={errors.sku}
+            placeholder="e.g., OHW-VF-001"
+            required
+            showCharCount
+            maxChars={20}
+            maxLength={20}
+          />
+
+          <FormField
+            label="Category"
+            name="category"
+            type="select"
+            value={formData.category}
+            onChange={handleChange}
+            error={errors.category}
+            options={categoryOptions}
+            required
+          />
         </div>
 
-        {/* Form Content */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Error from mutation */}
-          {error && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-              <p className="text-sm text-red-700">{error.message}</p>
-            </div>
-          )}
-          {/* Product Name */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-semibold text-gray-700">
-                Product Name *
-              </label>
-              <span className="text-xs text-gray-500">
-                {formData.name.trim().length}/100
-              </span>
-            </div>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              maxLength={100}
-              placeholder="e.g., Elite Vacuum Flask 500ml"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
-              style={{
-                borderColor: errors.name ? "#dc2626" : "",
-              }}
-            />
-            {errors.name && (
-              <p className="text-xs text-red-600 mt-1">{errors.name}</p>
-            )}
-          </div>
+        {/* Price and Reorder Point Row */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            label="Price (₱)"
+            name="price"
+            type="number"
+            value={formData.price || ""}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            error={errors.price}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+            required
+          />
 
-          {/* SKU and Category Row */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* SKU */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-semibold text-gray-700">
-                  SKU *
-                </label>
-                <span className="text-xs text-gray-500">
-                  {formData.sku.length}/20
-                </span>
-              </div>
-              <input
-                type="text"
-                name="sku"
-                value={formData.sku}
-                onChange={handleChange}
-                maxLength={20}
-                placeholder="e.g., OHW-VF-001"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
-                style={{
-                  borderColor: errors.sku ? "#dc2626" : "",
-                }}
-              />
-              {errors.sku && (
-                <p className="text-xs text-red-600 mt-1">{errors.sku}</p>
+          <FormField
+            label="Reorder Point"
+            name="reorderPoint"
+            type="number"
+            value={formData.reorderPoint || ""}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            error={errors.reorderPoint}
+            placeholder="100"
+            min="0"
+            required
+          />
+        </div>
+
+        {/* Available Units */}
+        <FormField
+          label="Available Units"
+          name="available"
+          type="number"
+          value={formData.available || ""}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          error={errors.available}
+          placeholder="0"
+          min="0"
+          required
+        />
+
+        {/* Product Description */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label
+              htmlFor="productDescription"
+              className="block text-sm font-semibold"
+              style={{ color: COLORS.textPrimary }}
+            >
+              Product Description *
+            </label>
+            <span className="text-xs" style={{ color: COLORS.textTertiary }}>
+              {formData.productDescription.length}/500
+            </span>
+          </div>
+          <textarea
+            id="productDescription"
+            name="productDescription"
+            value={formData.productDescription}
+            onChange={handleChange}
+            placeholder="e.g., A premium vacuum flask with double-wall insulation..."
+            maxLength={500}
+            rows={4}
+            className="w-full px-4 py-2.5 rounded-lg border text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all resize-none"
+            style={{
+              borderColor: errors.productDescription
+                ? COLORS.error
+                : COLORS.borderDefault,
+              backgroundColor: COLORS.bgNeutral,
+            }}
+          />
+          {errors.productDescription && (
+            <p className="text-xs mt-1" style={{ color: COLORS.error }}>
+              {errors.productDescription}
+            </p>
+          )}
+        </div>
+
+        {/* Product Image */}
+        <div>
+          <label
+            htmlFor="image"
+            className="block text-sm font-semibold mb-2"
+            style={{ color: COLORS.textPrimary }}
+          >
+            Product Image
+          </label>
+          <div className="flex gap-4">
+            {/* Image Preview */}
+            <div
+              className="w-32 h-32 rounded-lg border-2 border-dashed flex items-center justify-center"
+              style={{
+                borderColor: errors.image ? COLORS.error : COLORS.borderDefault,
+                backgroundColor: COLORS.bgNeutral,
+              }}
+            >
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              ) : (
+                <div
+                  className="text-center"
+                  style={{ color: COLORS.textTertiary }}
+                >
+                  <p className="text-xs">Upload image</p>
+                </div>
               )}
             </div>
 
-            {/* Category */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Category *
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all bg-white"
+            {/* Upload Input */}
+            <div className="flex-1">
+              <input
+                id="image"
+                type="file"
+                name="image"
+                onChange={handleImageChange}
+                accept="image/*"
+                className="hidden"
+              />
+              <label
+                htmlFor="image"
+                className="block w-full px-4 py-2.5 rounded-lg border-2 border-dashed text-sm font-semibold text-center cursor-pointer transition-colors hover:bg-opacity-50"
                 style={{
-                  borderColor: errors.category ? "#dc2626" : "",
+                  borderColor: errors.image ? COLORS.error : COLORS.borderDefault,
+                  color: COLORS.textPrimary,
+                  backgroundColor: COLORS.bgNeutral,
                 }}
               >
-                <option value="">Select a category</option>
-                {categories.map((cat) => (
-                  <option key={cat.categoryId} value={cat.categoryName}>
-                    {cat.categoryName}
-                  </option>
-                ))}
-              </select>
-              {errors.category && (
-                <p className="text-xs text-red-600 mt-1">{errors.category}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Price and Reorder Point Row */}
-          <div className="grid grid-cols-2 gap-4">
-            {/* Price */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Price (₱) *
+                Click to upload image
               </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price || ""}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
-                style={{
-                  borderColor: errors.price ? "#dc2626" : "",
-                }}
-              />
-              {errors.price && (
-                <p className="text-xs text-red-600 mt-1">{errors.price}</p>
-              )}
-            </div>
-
-            {/* Reorder Point */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Reorder Point *
-              </label>
-              <input
-                type="number"
-                name="reorderPoint"
-                value={formData.reorderPoint || ""}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                placeholder="100"
-                min="0"
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
-                style={{
-                  borderColor: errors.reorderPoint ? "#dc2626" : "",
-                }}
-              />
-              {errors.reorderPoint && (
-                <p className="text-xs text-red-600 mt-1">{errors.reorderPoint}</p>
+              <p className="text-xs mt-2" style={{ color: COLORS.textTertiary }}>
+                JPG, PNG, or WebP (Max 5MB)
+              </p>
+              {errors.image && (
+                <p className="text-xs mt-2" style={{ color: COLORS.error }}>
+                  {errors.image}
+                </p>
               )}
             </div>
           </div>
-
-          {/* Available Units */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Available Units *
-            </label>
-            <input
-              type="number"
-              name="available"
-              value={formData.available || ""}
-              onChange={handleChange}
-              onKeyDown={handleKeyDown}
-              placeholder="0"
-              min="0"
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 transition-all"
-              style={{
-                borderColor: errors.available ? "#dc2626" : "",
-              }}
-            />
-            {errors.available && (
-              <p className="text-xs text-red-600 mt-1">{errors.available}</p>
-            )}
-          </div>
-
-          {/* Divider */}
-          <div className="border-t border-gray-100 pt-6" />
-
-          {/* Action Buttons */}
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 py-3 rounded-xl font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: "#bf262f" }}
-            >
-              {loading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {isEditMode ? "Updating..." : "Creating..."}
-                </>
-              ) : (
-                <>
-                  <Package size={16} />
-                  {isEditMode ? "Update Product" : "Add Product"}
-                </>
-              )}
-            </button>
-          </div>
-        </form>
         </div>
-      </div>
-    </>
+
+        {/* Divider */}
+        <div
+          className="border-t pt-6"
+          style={{ borderColor: COLORS.borderDefault }}
+        />
+
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={handleClose}
+            disabled={loading}
+            className="flex-1 py-3 rounded-xl font-semibold border transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              borderColor: COLORS.borderDefault,
+              color: COLORS.textPrimary,
+              backgroundColor: loading ? COLORS.bgNeutral : "transparent",
+            }}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 py-3 rounded-xl text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: COLORS.brandPrimary }}
+          >
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                {isEditMode ? "Updating..." : "Creating..."}
+              </>
+            ) : (
+              <>
+                <Package size={16} />
+                {isEditMode ? "Update Product" : "Add Product"}
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 }

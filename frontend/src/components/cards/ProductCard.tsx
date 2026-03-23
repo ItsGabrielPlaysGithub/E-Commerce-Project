@@ -17,6 +17,15 @@ import { AddToCartConfirmModal } from "../modals/AddToCartConfirmModal";
 const RED = "#bf262f";
 const RED_LIGHT = "#f9e9ea";
 
+// Helper function to convert product name to URL slug
+const productNameToSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]/g, "");
+};
+
 interface ProductCardProps {
   product: Product;
   showPricing?: "retail" | "wholesale" | "bulk";
@@ -67,7 +76,7 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
       {/* Info */}
       <div className="p-2 sm:p-3 md:p-3.5 flex flex-col grow gap-2">
         <div className="text-xs text-gray-300 mb-0.5 uppercase tracking-wider truncate">{product.category}</div>
-        <Link href={`/b2b/products/${product.id}`}>
+        <Link href={`/b2b/products/${productNameToSlug(product.name)}`}>
           <p className="text-gray-800 text-xs sm:text-sm font-medium mb-1 line-clamp-2 hover:text-red-600 transition-colors leading-snug">
             {product.name}
           </p>

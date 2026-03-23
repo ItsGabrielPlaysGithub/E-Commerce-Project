@@ -52,4 +52,9 @@ export class CreateProductDto {
   @IsInt()
   @Min(0)
   blocked?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  imageUrl?: string;
 }

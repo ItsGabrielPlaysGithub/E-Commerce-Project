@@ -28,6 +28,17 @@ export class ProductsService {
         return product;
     }
 
+    async readProductByName(productName: string){
+        const product = await this.productsRepo.findOne({ 
+            where: { productName },
+            relations: ['category']
+        });
+        if (!product) {
+            throw new NotFoundException(`Product "${productName}" not found`);
+        }
+        return product;
+    }
+
     async createProduct(createProductDto: CreateProductDto){
         const category = await this.categoriesRepo.findOne({ where: { categoryId: createProductDto.categoryId } });
         if (!category) {

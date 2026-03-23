@@ -6,6 +6,7 @@ export const CREATE_PRODUCT = gql`
         productId
         productName
         productDescription
+        imageUrl
         sku
         categoryId
         category {
@@ -30,6 +31,7 @@ export const UPDATE_PRODUCT = gql`
         productId
         productName
         productDescription
+        imageUrl
         sku
         categoryId
         category {
