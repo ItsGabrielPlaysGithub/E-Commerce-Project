@@ -10,7 +10,7 @@ import {
   getProductReviewCount,
   getRetailPrice,
 } from "../../data/pricing";
-import { useCart } from "@/features/cart/hooks/useCart";
+import { useCart } from "@/features/b2b/cart/hooks/useCart";
 import { useAuth } from "@/features/auth";
 import { AddToCartConfirmModal } from "../modals/AddToCartConfirmModal";
 

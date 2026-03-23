@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "../styles/globals.css";
 import ApolloClientProvider from "@/components/providers/ApolloProvider";
 import { AuthProvider } from "@/features/auth/hooks/useAuth";
-import { CartProvider } from "@/features/cart/hooks/useCart";
+import { CartProvider } from "@/features/b2b/cart/hooks/useCart";
 import { getSession } from "@/lib/session";
 import { Toaster } from 'sonner';
 

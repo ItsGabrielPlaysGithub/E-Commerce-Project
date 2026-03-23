@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { OrderSuccess } from "@/features/cart/components/OrderSuccess";
+import { OrderSuccess } from "@/features/b2b/cart/components/OrderSuccess";
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams();

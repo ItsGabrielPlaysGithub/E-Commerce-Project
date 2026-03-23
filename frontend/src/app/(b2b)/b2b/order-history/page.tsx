@@ -4,11 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useFetchOrders } from "@/features/orders/hooks/useFetchOrders";
-import { OrderHistoryTable } from "@/features/orders/components/OrderHistoryTable";
-import { OrdersLoadingState } from "@/features/orders/components/OrdersLoadingState";
-import { OrdersErrorState } from "@/features/orders/components/OrdersErrorState";
-import { OrdersPaginationControls } from "@/features/orders/components/OrdersPaginationControls";
+import { useFetchOrders } from "@/features/b2b/orders/hooks/useFetchOrders";
+import { OrderHistoryTable } from "@/features/b2b/orders/components/OrderHistoryTable";
+import { OrdersLoadingState } from "@/features/b2b/orders/components/OrdersLoadingState";
+import { OrdersErrorState } from "@/features/b2b/orders/components/OrdersErrorState";
+import { OrdersPaginationControls } from "@/features/b2b/orders/components/OrdersPaginationControls";
 import { BottomBar } from "@/components/layout/bottomBar";
 import  RED  from "@/imports/red-color.json";
 

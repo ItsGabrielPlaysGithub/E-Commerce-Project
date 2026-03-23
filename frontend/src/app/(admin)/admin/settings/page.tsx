@@ -1,6 +1,6 @@
 'use client';
 
-import { SettingsPage } from "@/pages/admin/SettingsPage";
+import { SettingsPage } from "@/features/admin/settings/SettingsPage";
 
 export default function Page() {
   return <SettingsPage />;

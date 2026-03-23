@@ -1,6 +1,6 @@
 "use client";
 
-import { Products } from "@/pages/b2b/productsPage";
+import { Products } from "@/features/b2b/products/productsPage";
 
 export default function AllProductsPage() {
   return <Products initialCategory="all" />;

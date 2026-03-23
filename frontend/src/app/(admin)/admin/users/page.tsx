@@ -1,6 +1,6 @@
 'use client';
 
-import { UsersPage } from "@/pages/admin/UsersPage";
+import { UsersPage } from "@/features/admin/users/UsersPage";
 
 export default function Page() {
   return <UsersPage />;

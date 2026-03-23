@@ -10,8 +10,8 @@ import { LOGOUT_MUTATION } from "@/features/auth/services/mutation";
 import { Logo } from "../ui/Logo";
 import { NavLinks } from "./NavLinks";
 import { ProfileDropdown } from "./ProfileDropdown";
-import { useCart } from "@/features/cart/hooks/useCart";
-import { useFetchOrders } from "@/features/orders/hooks/useFetchOrders";
+import { useCart } from "@/features/b2b/cart/hooks/useCart";
+import { useFetchOrders } from "@/features/b2b/orders/hooks/useFetchOrders";
 import type { SessionUser } from "@/lib/session";
 
 const nav = [

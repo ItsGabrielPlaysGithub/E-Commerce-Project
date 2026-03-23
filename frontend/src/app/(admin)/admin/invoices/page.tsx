@@ -1,6 +1,6 @@
 'use client';
 
-import { InvoicesPage } from "@/pages/admin/InvoicesPage";
+import { InvoicesPage } from "@/features/admin/invoices/InvoicesPage";
 
 export default function Page() {
   return <InvoicesPage />;
