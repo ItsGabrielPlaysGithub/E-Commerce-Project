@@ -60,10 +60,9 @@ export function FilterBar({
               className={
                 `px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ` +
                 (activeCategory === cat
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-red-500 hover:text-white")
+                  ? "bg-gray-300 text-gray-800"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-300 hover:text-gray-800")
               }
-              style={activeCategory === cat ? { backgroundColor: RED, color: "#fff" } : {}}
             >
               {cat}
             </button>

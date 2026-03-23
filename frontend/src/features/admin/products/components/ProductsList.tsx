@@ -28,7 +28,7 @@ export function ProductsList({ products, priceType }: ProductsListProps) {
         const productSlug = productNameToSlug(p.name);
         return (
           <div key={p.id} className="bg-white rounded-xl border border-gray-100 p-4 flex gap-4 items-center hover:shadow-sm transition-shadow">
-            <img src={p.image} alt={p.name} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+            <img src={p.imageUrl || p.image} alt={p.name} className="w-16 h-16 rounded-xl object-cover shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="text-xs text-gray-400 uppercase tracking-wider mb-0.5">{p.category}</div>
               <Link href={`/b2b/products/${productSlug}`} className="text-gray-800 text-sm font-medium hover:text-red-600 transition-colors line-clamp-1">
