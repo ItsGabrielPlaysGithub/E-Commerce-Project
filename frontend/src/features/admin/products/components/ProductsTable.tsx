@@ -8,6 +8,7 @@ interface Product {
   sku: string;
   name: string;
   category: string;
+  categoryId: number;
   available: number;
   inTransit: number;
   blocked: number;

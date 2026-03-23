@@ -8,16 +8,20 @@ export const useCreateProduct = () => {
         update(cache, { data }) {
             if (!data?.createProduct) return;
 
-            const existingData = cache.readQuery<GetProductsQuery>({ query: GET_PRODUCTS });
-            if (!existingData) return;
+            try {
+                const existingData = cache.readQuery<GetProductsQuery>({ query: GET_PRODUCTS });
+                if (!existingData) return;
 
-            // Add the new product to the cache
-            cache.writeQuery<GetProductsQuery>({
-                query: GET_PRODUCTS,
-                data: {
-                    getProducts: [...existingData.getProducts, data.createProduct as any],
-                },
-            });
+                // Add the new product to the cache
+                cache.writeQuery<GetProductsQuery>({
+                    query: GET_PRODUCTS,
+                    data: {
+                        getProducts: [...existingData.getProducts, data.createProduct],
+                    },
+                });
+            } catch (error) {
+                console.error('Error creating product in cache:', error);
+            }
         },
     });
 }

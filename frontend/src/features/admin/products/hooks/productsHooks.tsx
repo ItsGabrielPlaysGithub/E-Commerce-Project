@@ -8,6 +8,7 @@ export interface Product {
   sku: string;
   name: string;
   category: string;
+  categoryId: number;
   available: number;
   inTransit: number;
   blocked: number;
@@ -38,6 +39,7 @@ export function useProductsPage() {
     productId: number;
     productName: string;
     sku: string;
+    categoryId: number;
     category?: {
       categoryName: string;
     } | null;
@@ -53,6 +55,7 @@ export function useProductsPage() {
     sku: product.sku || `SKU-${product.productId}`,
     name: product.productName,
     category: product.category?.categoryName || "Uncategorized",
+    categoryId: product.categoryId,
     available: product.available || 0,
     inTransit: product.inTransit || 0,
     blocked: product.blocked || 0,

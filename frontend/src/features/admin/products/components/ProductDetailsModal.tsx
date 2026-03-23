@@ -10,6 +10,7 @@ interface ProductDetailsModalProps {
     name: string;
     sku: string;
     category: string;
+    categoryId: number;
     available: number;
     inTransit: number;
     blocked: number;

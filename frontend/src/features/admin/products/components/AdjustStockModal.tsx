@@ -12,6 +12,7 @@ interface AdjustStockModalProps {
     name: string;
     sku: string;
     category: string;
+    categoryId: number;
     price: number;
     reorderPoint: number;
     available: number;
@@ -70,7 +71,7 @@ export function AdjustStockModal({
           productName: product.name,
           productDescription: "",
           sku: product.sku,
-          categoryId: parseInt(product.category),
+          categoryId: product.categoryId,
           productPrice: product.price,
           reorderPoint: product.reorderPoint,
           available: data.available,
