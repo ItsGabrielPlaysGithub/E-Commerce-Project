@@ -13,8 +13,8 @@ export interface ReadProfileData {
 }
 
 export const GET_ME = gql`
-  query readProfile($userId: Int!) {
-    readProfile(userId: $userId) {
+  query readProfile {
+    readProfile {
       userId
       fullName
       emailAddress

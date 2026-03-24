@@ -59,8 +59,8 @@ export const GET_ORDER_DETAILS = gql`
 `;
 
 export const GET_CLIENT_ORDERS = gql`
-  query ClientOrders($userId: Int!) {
-    clientOrders(userId: $userId) {
+  query ClientOrders {
+    clientOrders {
       orderId
       orderNumber
       userId

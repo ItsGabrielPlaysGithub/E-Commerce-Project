@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import type { SessionUser } from "@/lib/session";
+import { apolloClient } from "@/lib/apolloClient";
 
 export interface CompanyProfile {
   userId: number;
@@ -80,6 +81,13 @@ export function AuthProvider({
   const logout = () => {
     setIsLoggedIn(false);
     setCompany(null);
+    // Clear Apollo cache to remove old user data
+    // This ensures next login fetches fresh data from the backend
+    apolloClient.cache.reset();
+    // Clear user-specific data from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('omega_b2b_cart_items');
+    }
   };
 
   return (

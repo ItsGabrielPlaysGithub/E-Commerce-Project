@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const GET_CART = gql`
-  query GetCart($userId: Int!) {
-    getCart(userId: $userId) {
+  query GetCart {
+    getCart {
       items {
         id
         userId

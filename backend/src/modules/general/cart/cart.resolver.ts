@@ -1,4 +1,6 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent, Context } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../general/auth/guards/jwt-auth.guard';
 import { CartService } from './cart.service';
 import { CartItem, AddToCartInput, UpdateCartItemInput, CartResponse } from './cart.entity';
 import { ProductsTbl } from '../../admin/products/entity/products.tbl';
@@ -25,8 +27,11 @@ export class CartResolver {
   }
 
   @Query(() => CartResponse)
-  async getCart(@Args('userId', { type: () => Int }) userId: number) {
+  @UseGuards(JwtAuthGuard)
+  async getCart(@Context() context: any) {
     try {
+      const userId = context.req?.user?.userId || context.user?.userId;
+      if (!userId) throw new Error('Unauthorized: User ID not found in request');
       return await this.cartService.getCart(userId);
     } catch (error) {
       console.error('[CartResolver] getCart error:', error);
@@ -35,11 +40,14 @@ export class CartResolver {
   }
 
   @Mutation(() => CartItem)
+  @UseGuards(JwtAuthGuard)
   async addToCart(
-    @Args('userId', { type: () => Int }) userId: number,
+    @Context() context: any,
     @Args('input', { type: () => AddToCartInput }) input: AddToCartInput,
   ) {
     try {
+      const userId = context.req?.user?.userId || context.user?.userId;
+      if (!userId) throw new Error('Unauthorized: User ID not found in request');
       return await this.cartService.addToCart(userId, input);
     } catch (error: any) {
       console.error('[CartResolver] addToCart error:', {
@@ -53,11 +61,14 @@ export class CartResolver {
   }
 
   @Mutation(() => CartItem)
+  @UseGuards(JwtAuthGuard)
   async updateCartItem(
-    @Args('userId', { type: () => Int }) userId: number,
+    @Context() context: any,
     @Args('input', { type: () => UpdateCartItemInput }) input: UpdateCartItemInput,
   ) {
     try {
+      const userId = context.req?.user?.userId || context.user?.userId;
+      if (!userId) throw new Error('Unauthorized: User ID not found in request');
       return await this.cartService.updateCartItem(userId, input);
     } catch (error) {
       console.error('[CartResolver] updateCartItem error:', error);
@@ -66,11 +77,14 @@ export class CartResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
   async removeFromCart(
-    @Args('userId', { type: () => Int }) userId: number,
+    @Context() context: any,
     @Args('itemId', { type: () => Int }) itemId: number,
   ) {
     try {
+      const userId = context.req?.user?.userId || context.user?.userId;
+      if (!userId) throw new Error('Unauthorized: User ID not found in request');
       await this.cartService.removeFromCart(userId, itemId);
       return true;
     } catch (error) {
@@ -80,8 +94,11 @@ export class CartResolver {
   }
 
   @Mutation(() => Boolean)
-  async clearCart(@Args('userId', { type: () => Int }) userId: number) {
+  @UseGuards(JwtAuthGuard)
+  async clearCart(@Context() context: any) {
     try {
+      const userId = context.req?.user?.userId || context.user?.userId;
+      if (!userId) throw new Error('Unauthorized: User ID not found in request');
       await this.cartService.clearCart(userId);
       return true;
     } catch (error) {
@@ -91,11 +108,14 @@ export class CartResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
   async removeCartItemByProductId(
-    @Args('userId', { type: () => Int }) userId: number,
+    @Context() context: any,
     @Args('productId', { type: () => Int }) productId: number,
   ) {
     try {
+      const userId = context.req?.user?.userId || context.user?.userId;
+      if (!userId) throw new Error('Unauthorized: User ID not found in request');
       await this.cartService.removeByProductId(userId, productId);
       return true;
     } catch (error) {

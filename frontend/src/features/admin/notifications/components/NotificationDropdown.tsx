@@ -38,7 +38,6 @@ export function NotificationDropdown({ userId, isOpen, onClose }: NotificationDr
   const { data, loading, refetch } = useQuery<{
     getNotificationsByUserId: Notification[];
   }>(GET_NOTIFICATIONS, {
-    variables: { userId: userId || 0 },
     skip: !userId || !isOpen,
   });
 

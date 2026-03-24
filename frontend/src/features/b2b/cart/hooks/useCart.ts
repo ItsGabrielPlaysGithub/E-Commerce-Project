@@ -71,6 +71,12 @@ interface GetCartResponse {
 
 const CART_STORAGE_KEY = "omega_b2b_cart_items";
 
+// Helper to check if user is likely authenticated (can't check httpOnly cookies from JS)
+// This is just a heuristic - actual auth is validated by backend via cookie
+function isLikelyAuthenticated(company?: any): boolean {
+  return !!company?.userId;
+}
+
 // Transform backend cart item response to persisted format
 function transformBackendCartItem(backendItem: any): PersistedCartItem {
   try {
@@ -175,9 +181,9 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
   const [clearCartMutation] = useMutation(CLEAR_CART);
   const [removeByProductMutation] = useMutation(REMOVE_CART_ITEM_BY_PRODUCT_ID);
 
-  // GraphQL query
+  // GraphQL query - skip if no user ID
+  // httpOnly cookie is sent automatically by browser with credentials: "include"
   const { data: cartData, refetch: refetchCart, error: cartError } = apolloUseQuery<GetCartResponse>(GET_CART, {
-    variables: { userId: company?.userId || 0 },
     skip: !company?.userId,
   });
 
@@ -226,6 +232,14 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
   // Handle cart errors
   useEffect(() => {
     if (cartError) {
+      // Suppress "No token provided" errors - user may be logged out or session expired
+      // These are expected and not critical errors
+      const errorMessage = cartError?.message || '';
+      if (errorMessage.includes('No token provided') || errorMessage.includes('Unauthorized')) {
+        // Silently handle token errors - user can still browse with localStorage cart
+        setIsHydrated(true);
+        return;
+      }
       console.error("Failed to fetch cart:", cartError);
       setIsHydrated(true);
     }
@@ -321,11 +335,6 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
         input.selectedSize = opts.size;
       }
       
-      const payload = {
-        userId: company.userId,
-        input,
-      };
-      
       if (!productId || productId <= 0) {
         return;
       }
@@ -335,17 +344,45 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
       }
       
       void addToCartMutation({
-        variables: payload,
+        variables: { input },
         onCompleted: () => {
           void refetchCart();
         },
-        onError: (error) => {
-          const apolloError = error as any;
-          console.error("[Cart] Failed to add item to backend:", {
-            message: error.message,
-            graphQLErrors: apolloError.graphQLErrors,
-            networkError: apolloError.networkError,
+        onError: (mutationError) => {
+          console.error("[Cart] Add to cart mutation failed");
+          console.error("[Cart] User context:", { 
+            isHydrated,
+            hasCompanyId: !!company?.userId,
+            likelyAuthenticated: isLikelyAuthenticated(company),
           });
+          console.error("[Cart] Error type:", mutationError.constructor.name);
+          console.error("[Cart] Error toString():", mutationError.toString());
+          console.error("[Cart] Error message:", mutationError.message);
+          
+          const apolloError = mutationError as any;
+          
+          if (apolloError.graphQLErrors && apolloError.graphQLErrors.length > 0) {
+            console.error("[Cart] GraphQL Errors:");
+            apolloError.graphQLErrors.forEach((gqlErr: any, index: number) => {
+              console.error(`  [${index}] Message: ${gqlErr.message}`);
+              console.error(`  [${index}] Path: ${JSON.stringify(gqlErr.path)}`);
+              console.error(`  [${index}] Extensions: ${JSON.stringify(gqlErr.extensions)}`);
+            });
+          } else {
+            console.error("[Cart] No GraphQL errors");
+          }
+          
+          if (apolloError.networkError) {
+            console.error("[Cart] Network error:", {
+              message: apolloError.networkError.message,
+              statusCode: (apolloError.networkError as any).statusCode,
+              result: (apolloError.networkError as any).result,
+            });
+          } else {
+            console.error("[Cart] No network error");
+          }
+          
+          console.error("[Cart] Full error object:", mutationError);
         },
       });
     }
@@ -371,7 +408,6 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     if (company?.userId && targetItem?.id) {
       void updateCartItemMutation({
         variables: {
-          userId: company.userId,
           input: {
             id: targetItem.id,
             quantity: qty,
@@ -402,7 +438,6 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     if (company?.userId) {
       void removeByProductMutation({
         variables: {
-          userId: company.userId,
           productId: parseInt(productId, 10),
         },
         onCompleted: () => {
@@ -433,7 +468,6 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
       productIds.forEach(productId => {
         void removeByProductMutation({
           variables: {
-            userId: company.userId,
             productId: parseInt(productId, 10),
           },
           onCompleted: () => {
@@ -455,7 +489,7 @@ export function CartProvider({ children }: { children: ReactNode }): React.React
     // Sync with backend
     if (company?.userId) {
       void clearCartMutation({
-        variables: { userId: company.userId },
+        variables: {},
         onCompleted: () => {
           void refetchCart();
         },

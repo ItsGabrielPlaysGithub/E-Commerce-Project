@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@apollo/client/react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { GET_ME } from "@/features/auth/services/query";
+import { GET_ME, ReadProfileData } from "@/features/auth/services/query";
 import { Company } from "../types";
 
 /**
@@ -13,8 +13,7 @@ export const useEnrichedCompanyProfile = () => {
   const [enrichedCompany, setEnrichedCompany] = useState<Company | null>(authCompany || null);
 
   // Fetch full profile data from backend
-  const { data: profileData, loading } = useQuery(GET_ME, {
-    variables: { userId: authCompany?.userId },
+  const { data: profileData, loading } = useQuery<ReadProfileData>(GET_ME, {
     skip: !authCompany?.userId,
   });
 

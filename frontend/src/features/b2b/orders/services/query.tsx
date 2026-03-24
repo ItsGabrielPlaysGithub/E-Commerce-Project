@@ -4,8 +4,8 @@ import { gql } from "@apollo/client";
  * GraphQL Queries for Orders
  */
 export const GET_CLIENT_ORDERS = gql`
-  query GetClientOrders($userId: Int!) {
-    clientOrders(userId: $userId) {
+  query GetClientOrders {
+    clientOrders {
       orderId
       orderNumber
       productId
@@ -82,8 +82,8 @@ export const GET_ALL_ORDERS = gql`
  * Notifications Query
  */
 export const GET_NOTIFICATIONS = gql`
-  query GetNotificationsByUserId($userId: Int!) {
-    getNotificationsByUserId(userId: $userId) {
+  query GetNotificationsByUserId {
+    getNotificationsByUserId {
       notificationId
       userId
       type
@@ -115,8 +115,8 @@ export const MARK_NOTIFICATION_AS_READ = gql`
  * Mark All Notifications as Read Mutation
  */
 export const MARK_ALL_NOTIFICATIONS_AS_READ = gql`
-  mutation MarkAllNotificationsAsRead($userId: Int!) {
-    markAllNotificationsAsRead(userId: $userId) {
+  mutation MarkAllNotificationsAsRead {
+    markAllNotificationsAsRead {
       notificationId
       isRead
       readAt
