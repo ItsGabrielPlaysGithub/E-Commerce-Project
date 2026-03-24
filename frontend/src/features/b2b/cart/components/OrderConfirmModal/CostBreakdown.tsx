@@ -20,7 +20,7 @@ export function CostBreakdown({ subtotal, deliveryFee, grandTotal, redColor }: C
       </div>
       <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-200">
         <span>Total</span>
-        <span style={{ color: redColor }}>₱{grandTotal.toLocaleString()}</span>
+        <span style={{ color: "#000000" }}>₱{grandTotal.toLocaleString()}</span>
       </div>
     </div>
   );

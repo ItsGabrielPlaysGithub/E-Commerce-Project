@@ -78,7 +78,7 @@ export function CartSummary({
           className="w-full py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 bg-blue-600"
           
         >
-          {hasSelectedItems ? "Proceed Checkout" : "Select Items to Order"} <ArrowRight size={15} />
+          {hasSelectedItems ? "Proceed to Checkout" : "Select Items to Order"} <ArrowRight size={15} />
         </button>
         {!hasSelectedItems && (
           <p className="mt-2 text-xs text-gray-400">
