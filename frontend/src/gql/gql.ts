@@ -54,6 +54,7 @@ type Documents = {
     "\n  query GetNotificationsByUserId {\n    getNotificationsByUserId {\n      notificationId\n      userId\n      type\n      title\n      message\n      orderId\n      isRead\n      createdAt\n      readAt\n      metadata\n    }\n  }\n": typeof types.GetNotificationsByUserIdDocument,
     "\n  mutation MarkNotificationAsRead($notificationId: Int!) {\n    markNotificationAsRead(notificationId: $notificationId) {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n": typeof types.MarkNotificationAsReadDocument,
     "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n": typeof types.MarkAllNotificationsAsReadDocument,
+    "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n": typeof types.InitiatePaymongoCheckoutDocument,
 };
 const documents: Documents = {
     "\n  mutation PayInvoiceByOrderId($orderId: Int!) {\n    payInvoiceByOrderId(orderId: $orderId) {\n      invoiceId\n      orderId\n      invoiceNumber\n      totalAmount\n      paymentStatus\n      dueDate\n      updatedAt\n    }\n  }\n": types.PayInvoiceByOrderIdDocument,
@@ -96,6 +97,7 @@ const documents: Documents = {
     "\n  query GetNotificationsByUserId {\n    getNotificationsByUserId {\n      notificationId\n      userId\n      type\n      title\n      message\n      orderId\n      isRead\n      createdAt\n      readAt\n      metadata\n    }\n  }\n": types.GetNotificationsByUserIdDocument,
     "\n  mutation MarkNotificationAsRead($notificationId: Int!) {\n    markNotificationAsRead(notificationId: $notificationId) {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n": types.MarkNotificationAsReadDocument,
     "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n": types.MarkAllNotificationsAsReadDocument,
+    "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n": types.InitiatePaymongoCheckoutDocument,
 };
 
 /**
@@ -272,6 +274,10 @@ export function graphql(source: "\n  mutation MarkNotificationAsRead($notificati
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n"): (typeof documents)["\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n"): (typeof documents)["\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

@@ -15,6 +15,7 @@ import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
 import { InvoicesTbl } from '../invoices/entity/invoices.tbl';
 import { MailerService } from '../../general/mailer/mailer.service';
 import { NotificationsService } from '../../general/notifications/notifications.service';
+import { PaymongoService } from '../../general/paymongo/paymongo.service';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -31,6 +32,7 @@ export class OrdersService {
         private readonly invoicesService: InvoicesService,
         private readonly mailerService: MailerService,
         private readonly notificationsService: NotificationsService,
+        private readonly paymongoService: PaymongoService,
     ) {}
 
     private readonly validTransitions: Record<OrderStatus, OrderStatus[]> = {
@@ -833,6 +835,95 @@ export class OrdersService {
     </div>
   </body>
 </html>`;
+    }
+
+    /**
+     * Initiate PayMongo checkout for an order
+     * Creates a PayMongo payment intent and returns checkout URL
+     */
+    async initiatePaymongoCheckout(orderId: number): Promise<{
+        paymentIntentId: string;
+        checkoutUrl: string;
+        message: string;
+    }> {
+        const order = await this.ordersRepository.findOne({ where: { orderId } });
+        if (!order) {
+            throw new NotFoundException(`Order #${orderId} not found`);
+        }
+
+        // Debug: log what we got from the database
+        this.logger.debug(`Order retrieved: orderId=${order.orderId}, grandTotal=${order.grandTotal}, totalPrice=${order.totalPrice}, deliveryFee=${order.deliveryFee}`);
+
+        // Calculate total amount to charge
+        const totalAmount = order.grandTotal || (order.totalPrice + (order.deliveryFee || 0));
+
+        // Debug: log final calculation
+        this.logger.debug(`Calculated totalAmount: ${totalAmount}`);
+
+        if (totalAmount <= 0 || isNaN(totalAmount)) {
+            this.logger.error(`Invalid order amount calculation: grandTotal=${order.grandTotal}, totalPrice=${order.totalPrice}, deliveryFee=${order.deliveryFee}, computed=${totalAmount}`);
+            throw new BadRequestException(`Invalid order amount: ₱${totalAmount}`);
+        }
+
+        this.logger.log(`Initiating PayMongo checkout for Order #${orderId}, Amount: ₱${totalAmount}`);
+
+        try {
+            const result = await this.paymongoService.createCheckoutLink(
+                totalAmount,
+                orderId,
+                `Order #${order.orderId} - ${order.orderNumber || 'Unnamed'}`,
+            );
+
+            // Update order with checkout link ID and set payment status to PENDING
+            order.paymentIntentId = result.checkoutId;
+            order.paymentStatus = 'PENDING';
+            await this.ordersRepository.save(order);
+
+            this.logger.log(`PayMongo checkout initiated for Order #${orderId}: ${result.checkoutId}`);
+
+            return {
+                paymentIntentId: result.checkoutId,
+                checkoutUrl: result.checkoutUrl,
+                message: `Checkout session created. Redirect to: ${result.checkoutUrl}`,
+            };
+        } catch (error) {
+            this.logger.error(`Failed to initiate PayMongo checkout for Order #${orderId}:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Update payment status after PayMongo callback/verification
+     */
+    async updatePaymentStatus(
+        orderId: number,
+        paymentStatus: 'PAID' | 'FAILED' | 'PENDING',
+        paymentIntentId?: string,
+    ): Promise<OrdersTbl> {
+        const order = await this.ordersRepository.findOne({ where: { orderId } });
+        if (!order) {
+            throw new NotFoundException(`Order #${orderId} not found`);
+        }
+
+        order.paymentStatus = paymentStatus;
+
+        if (paymentIntentId) {
+            order.paymentIntentId = paymentIntentId;
+        }
+
+        const updatedOrder = await this.ordersRepository.save(order);
+
+        // If payment is successful, update invoice to PAID
+        if (paymentStatus === 'PAID') {
+            try {
+                await this.invoicesService.payInvoiceByOrderId(orderId);
+                this.logger.log(`Invoice updated to PAID for Order #${orderId}`);
+            } catch (err) {
+                this.logger.error(`Failed to update invoice for Order #${orderId}:`, err);
+            }
+        }
+
+        return updatedOrder;
     }
 }
 

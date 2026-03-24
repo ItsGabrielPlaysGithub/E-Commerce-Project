@@ -7,6 +7,7 @@ import {
   CartSummary,
   OrderConfirmModal,
 } from "./components/index";
+import { PaymongoCheckoutModal } from "@/features/checkout";
 import { CART_COLORS } from "./constants/index";
 
 export function Cart() {
@@ -29,6 +30,10 @@ export function Cart() {
     setErrors,
     placing,
     selectedMoqWarnings,
+    orderId,
+    orderNumber,
+    paymentTrigger,
+    resetPaymentTrigger,
     hasSelectedItems,
     handlePlaceOrder,
     handleCloseModal,
@@ -37,11 +42,42 @@ export function Cart() {
     onToggleItemSelection,
   } = useCartLogic();
 
+  console.log("[cartPage] paymentTrigger:", paymentTrigger);
+  console.log("[cartPage] About to render OrderConfirmModal with paymentTrigger:", paymentTrigger, "showModal:", showModal);
+
   if (!company) return null;
-  if (items.length === 0) return <CartEmpty />;
+  if (items.length === 0 && !paymentTrigger) return <CartEmpty />;
+
+  if (paymentTrigger) {
+    console.log("[cartPage] ⭐ RENDER CONDITION TRUE - About to render PaymongoCheckoutModal");
+  }
+
+  const deliveryFee = selectedSubtotal >= 1500 ? 0 : 350;
+  const currentGrandTotal = selectedSubtotal + deliveryFee;
+  const payableAmount = paymentTrigger?.orderAmount ?? currentGrandTotal;
 
   return (
     <div className="bg-gray-50 min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* PayMongo Modal - Render at top level, not inside OrderConfirmModal */}
+      {paymentTrigger && (
+        <PaymongoCheckoutModal
+          isOpen={true}
+          orderId={paymentTrigger.orderId}
+          orderAmount={payableAmount}
+          orderNumber={paymentTrigger.orderNumber}
+          onClose={() => {
+            console.log("[cartPage] PayMongo modal closed");
+            resetPaymentTrigger();
+            setShowModal(false);
+          }}
+          onSuccess={() => {
+            console.log("[cartPage] PayMongo payment successful");
+            resetPaymentTrigger();
+            setShowModal(false);
+          }}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-white border-b border-gray-100 py-6 px-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
@@ -99,7 +135,8 @@ export function Cart() {
       </div>
 
       <OrderConfirmModal
-        isOpen={showModal}
+        key={`modal-${paymentTrigger?.orderId || 'initial'}`}
+        isOpen={showModal && !paymentTrigger}
         onClose={handleCloseModal}
         items={selectedItems}
         company={company}
@@ -125,6 +162,8 @@ export function Cart() {
           setErrors((prev) => ({ ...prev, notes: undefined }));
         }}
         onPlaceOrder={handlePlaceOrder}
+        orderId={undefined}
+        orderNumber={undefined}
       />
     </div>
   );

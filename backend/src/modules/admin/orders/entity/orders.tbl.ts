@@ -103,6 +103,14 @@ export class OrdersTbl {
     @Field({ nullable: true })
     paymentProofStatus?: 'pending' | 'rejected' | 'approved';
 
+    @Column({ type: 'varchar', length: 200, nullable: true })
+    @Field({ nullable: true })
+    paymentIntentId?: string;
+
+    @Column({ type: 'varchar', length: 50, nullable: true, default: 'UNPAID' })
+    @Field({ nullable: true })
+    paymentStatus?: string;
+
     @Column({ nullable: true })
     @Field({ nullable: true })
     paymongoTransactionId?: string;

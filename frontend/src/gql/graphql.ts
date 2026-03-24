@@ -166,6 +166,7 @@ export type Mutation = {
   deleteNotification: Scalars['Boolean']['output'];
   deleteProduct: ProductsTbl;
   deleteUser: UsersTbl;
+  initiatePaymongoCheckout: PaymongoCheckoutResponse;
   login: LoginResponse;
   logout: LoginResponse;
   markAllNotificationsAsRead: Array<NotificationsTbl>;
@@ -236,6 +237,11 @@ export type MutationDeleteProductArgs = {
 
 export type MutationDeleteUserArgs = {
   userId: Scalars['Int']['input'];
+};
+
+
+export type MutationInitiatePaymongoCheckoutArgs = {
+  orderId: Scalars['Int']['input'];
 };
 
 
@@ -340,12 +346,14 @@ export type OrdersTbl = {
   orderId: Scalars['Float']['output'];
   orderNumber?: Maybe<Scalars['String']['output']>;
   orderType?: Maybe<Scalars['String']['output']>;
+  paymentIntentId?: Maybe<Scalars['String']['output']>;
   paymentMethod?: Maybe<Scalars['String']['output']>;
   paymentProofAttempts: Scalars['Float']['output'];
   paymentProofImage?: Maybe<Scalars['String']['output']>;
   paymentProofRejectionReason?: Maybe<Scalars['String']['output']>;
   paymentProofStatus?: Maybe<Scalars['String']['output']>;
   paymentProofUploadedAt?: Maybe<Scalars['DateTime']['output']>;
+  paymentStatus?: Maybe<Scalars['String']['output']>;
   paymongoAmount?: Maybe<Scalars['Float']['output']>;
   paymongoPaymentMethod?: Maybe<Scalars['String']['output']>;
   paymongoTimestamp?: Maybe<Scalars['DateTime']['output']>;
@@ -359,6 +367,14 @@ export type OrdersTbl = {
   updatedAt: Scalars['DateTime']['output'];
   usePrimaryAddress?: Maybe<Scalars['Boolean']['output']>;
   userId: Scalars['Float']['output'];
+};
+
+export type PaymongoCheckoutResponse = {
+  __typename?: 'PaymongoCheckoutResponse';
+  checkoutUrl: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  paymentIntentId: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type PlaceOrderInput = {
@@ -794,6 +810,13 @@ export type MarkAllNotificationsAsReadMutationVariables = Exact<{ [key: string]:
 
 export type MarkAllNotificationsAsReadMutation = { __typename?: 'Mutation', markAllNotificationsAsRead: Array<{ __typename?: 'NotificationsTbl', notificationId: number, isRead: boolean, readAt?: any | null }> };
 
+export type InitiatePaymongoCheckoutMutationVariables = Exact<{
+  orderId: Scalars['Int']['input'];
+}>;
+
+
+export type InitiatePaymongoCheckoutMutation = { __typename?: 'Mutation', initiatePaymongoCheckout: { __typename?: 'PaymongoCheckoutResponse', success: boolean, paymentIntentId: string, checkoutUrl: string, message: string } };
+
 
 export const PayInvoiceByOrderIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"PayInvoiceByOrderId"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"payInvoiceByOrderId"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"orderId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"orderId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"paymentStatus"}},{"kind":"Field","name":{"kind":"Name","value":"dueDate"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<PayInvoiceByOrderIdMutation, PayInvoiceByOrderIdMutationVariables>;
 export const GetAllInvoicesDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllInvoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allInvoices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"invoiceId"}},{"kind":"Field","name":{"kind":"Name","value":"orderId"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"invoiceNumber"}},{"kind":"Field","name":{"kind":"Name","value":"totalAmount"}},{"kind":"Field","name":{"kind":"Name","value":"dueDate"}},{"kind":"Field","name":{"kind":"Name","value":"paymentStatus"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetAllInvoicesQuery, GetAllInvoicesQueryVariables>;
@@ -835,3 +858,4 @@ export const GetAllOrdersDocument = {"kind":"Document","definitions":[{"kind":"O
 export const GetNotificationsByUserIdDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNotificationsByUserId"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getNotificationsByUserId"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationId"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"message"}},{"kind":"Field","name":{"kind":"Name","value":"orderId"}},{"kind":"Field","name":{"kind":"Name","value":"isRead"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"readAt"}},{"kind":"Field","name":{"kind":"Name","value":"metadata"}}]}}]}}]} as unknown as DocumentNode<GetNotificationsByUserIdQuery, GetNotificationsByUserIdQueryVariables>;
 export const MarkNotificationAsReadDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MarkNotificationAsRead"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"notificationId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"markNotificationAsRead"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"notificationId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"notificationId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationId"}},{"kind":"Field","name":{"kind":"Name","value":"isRead"}},{"kind":"Field","name":{"kind":"Name","value":"readAt"}}]}}]}}]} as unknown as DocumentNode<MarkNotificationAsReadMutation, MarkNotificationAsReadMutationVariables>;
 export const MarkAllNotificationsAsReadDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MarkAllNotificationsAsRead"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"markAllNotificationsAsRead"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationId"}},{"kind":"Field","name":{"kind":"Name","value":"isRead"}},{"kind":"Field","name":{"kind":"Name","value":"readAt"}}]}}]}}]} as unknown as DocumentNode<MarkAllNotificationsAsReadMutation, MarkAllNotificationsAsReadMutationVariables>;
+export const InitiatePaymongoCheckoutDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"InitiatePaymongoCheckout"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"orderId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"initiatePaymongoCheckout"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"orderId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"orderId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"success"}},{"kind":"Field","name":{"kind":"Name","value":"paymentIntentId"}},{"kind":"Field","name":{"kind":"Name","value":"checkoutUrl"}},{"kind":"Field","name":{"kind":"Name","value":"message"}}]}}]}}]} as unknown as DocumentNode<InitiatePaymongoCheckoutMutation, InitiatePaymongoCheckoutMutationVariables>;

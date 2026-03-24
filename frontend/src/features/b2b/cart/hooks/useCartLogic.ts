@@ -34,8 +34,12 @@ export function useCartLogic() {
     confirmed,
     setConfirmed,
     placing,
+    orderId,
+    orderNumber,
+    paymentTrigger,
     handlePlaceOrder: _handlePlaceOrder,
     handleCloseModal,
+    resetPaymentTrigger,
   } = useOrderPlacement(selectedItems, selectedSubtotal, delivery, currentCompany, removeItems, setErrors);
 
   const handlePlaceOrder = useCallback(
@@ -75,6 +79,10 @@ export function useCartLogic() {
     placing,
     moqWarnings,
     selectedMoqWarnings,
+    orderId,
+    orderNumber,
+    paymentTrigger,
+    resetPaymentTrigger,
     hasSelectedItems: selectedItems.length > 0,
     handlePlaceOrder,
     handleCloseModal,

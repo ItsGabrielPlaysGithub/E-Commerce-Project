@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaceOrder } from "../services";
 import { CartItem, DeliveryDetails } from "../types";
+import { toast } from "sonner";
 
 export type CartAuthCompany = {
   userId?: number;
@@ -19,6 +20,9 @@ export const useOrderPlacement = (
   const [placing, setPlacing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [orderId, setOrderId] = useState<number | undefined>(undefined);
+  const [orderNumber, setOrderNumber] = useState<string | undefined>(undefined);
+  const [paymentTrigger, setPaymentTrigger] = useState<{orderId: number; orderNumber: string; orderAmount: number} | null>(null);
   const [placeOrderMutation] = usePlaceOrder();
 
   const handlePlaceOrder = useCallback(
@@ -42,7 +46,10 @@ export const useOrderPlacement = (
       }
 
       setPlacing(true);
+      setPaymentTrigger(null);
       try {
+        const deliveryFeeValue = selectedSubtotal >= 1500 ? 0 : 350;
+        const grandTotalValue = selectedSubtotal + deliveryFeeValue;
         const mutationInput = {
           items: selectedItems.map((item: CartItem) => ({
             productId: parseInt(String(item.product.id), 10),
@@ -51,8 +58,8 @@ export const useOrderPlacement = (
           })),
           delivery,
           subtotal: parseFloat(String(selectedSubtotal)),
-          deliveryFee: parseFloat(String(selectedSubtotal >= 1500 ? 0 : 350)),
-          grandTotal: parseFloat(String(selectedSubtotal + (selectedSubtotal >= 1500 ? 0 : 350))),
+          deliveryFee: parseFloat(String(deliveryFeeValue)),
+          grandTotal: parseFloat(String(grandTotalValue)),
           userId: currentCompany?.userId || 0,
           companyId: currentCompany?.userId?.toString(),
           paymentMethod,
@@ -78,10 +85,41 @@ export const useOrderPlacement = (
 
         const { placeOrder } = responseData;
         removeItems(selectedItems.map((item) => item.product.id));
-        const grandTotal = selectedSubtotal + (selectedSubtotal >= 1500 ? 0 : 350);
-        router.push(
-          `/b2b/order-success?orderNumber=${placeOrder.orderNumber}&orderId=${placeOrder.orderId}&grandTotal=${grandTotal}`
-        );
+        const grandTotal = grandTotalValue;
+
+        // Store orderId and orderNumber for PayMongo modal
+        console.log("[useOrderPlacement] Order placed successfully:", {
+          orderId: placeOrder.orderId,
+          orderNumber: placeOrder.orderNumber,
+          paymentMethod,
+        });
+
+        setOrderId(placeOrder.orderId);
+        setOrderNumber(placeOrder.orderNumber);
+
+        // For e-payment, DON'T CLOSE modal - keep it open so PayMongo modal can appear
+        // For manual_transfer, redirect to order success page
+        if (paymentMethod === "manual_transfer") {
+          console.log("[useOrderPlacement] Manual transfer - closing modal and redirecting to success page");
+          setShowModal(false); // Close modal for manual transfer
+          router.push(
+            `/b2b/order-success?orderNumber=${placeOrder.orderNumber}&orderId=${placeOrder.orderId}&grandTotal=${grandTotal}`
+          );
+        } else {
+          // e-payment: Close and immediately re-open modal to force component refresh
+          console.log("[useOrderPlacement] E-payment selected - triggering modal refresh");
+          setShowModal(false);
+          // Use setTimeout to ensure state updates
+          setTimeout(() => {
+            setPaymentTrigger({
+              orderId: placeOrder.orderId,
+              orderNumber: placeOrder.orderNumber,
+              orderAmount: grandTotal,
+            });
+            setShowModal(true);
+          }, 100);
+          toast.success("Order created successfully! Please complete payment.");
+        }
       } catch (error) {
         let errorMessage = "Failed to place order";
 
@@ -119,10 +157,16 @@ export const useOrderPlacement = (
   );
 
   const handleCloseModal = useCallback(() => {
+    console.log("[useOrderPlacement] handleCloseModal called");
+    // IMPORTANT: Don't reset orderId and orderNumber here - they need to persist for PayMongo modal
     setShowModal(false);
     setErrors({});
     setConfirmed(false);
   }, [setErrors]);
+
+  const resetPaymentTrigger = useCallback(() => {
+    setPaymentTrigger(null);
+  }, []);
 
   return {
     showModal,
@@ -130,7 +174,11 @@ export const useOrderPlacement = (
     confirmed,
     setConfirmed,
     placing,
+    orderId,
+    orderNumber,
+    paymentTrigger,
     handlePlaceOrder,
     handleCloseModal,
+    resetPaymentTrigger,
   };
 };

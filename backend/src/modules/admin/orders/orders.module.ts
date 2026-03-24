@@ -9,6 +9,7 @@ import { ProductsTbl } from '../products/entity/products.tbl';
 import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
 import { NotificationsModule } from '../../general/notifications/notifications.module';
 import { AuthModule } from '../../general/auth/auth.module';
+import { PaymongoModule } from '../../general/paymongo/paymongo.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from '../../general/auth/auth.module';
     InvoicesModule,
     NotificationsModule,
     AuthModule,
+    PaymongoModule,
   ],
   providers: [OrdersResolver, OrdersService],
   controllers: [PaymentProofController],

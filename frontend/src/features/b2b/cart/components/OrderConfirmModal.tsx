@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CartItem, Company, DeliveryDetails } from "../types";
 import { CART_COLORS, CART_CONFIG } from "../constants/cartConstants";
 import { ModalHeader } from "./OrderConfirmModal/ModalHeader";
@@ -26,6 +26,8 @@ interface OrderConfirmModalProps {
   onDeliveryChange: (field: keyof DeliveryDetails, value: string | boolean) => void;
   onConfirmedChange: (value: boolean) => void;
   onPlaceOrder: (paymentMethod: "e-payment" | "manual_transfer") => void;
+  orderId?: number;
+  orderNumber?: string;
 }
 
 export function OrderConfirmModal({
@@ -43,8 +45,12 @@ export function OrderConfirmModal({
   onDeliveryChange,
   onConfirmedChange,
   onPlaceOrder,
+  orderId,
+  orderNumber,
 }: OrderConfirmModalProps) {
-  const { RED, RED_LIGHT } = CART_COLORS;
+  console.log("[OrderConfirmModal] Component rendered");
+
+  const { RED } = CART_COLORS;
   const { FREE_DELIVERY_THRESHOLD, DELIVERY_FEE } = CART_CONFIG;
   const [minDeliveryDate] = useState(() => {
     const tomorrow = new Date();
@@ -54,6 +60,20 @@ export function OrderConfirmModal({
   const [paymentMethod, setPaymentMethod] = useState<"e-payment" | "manual_transfer">(
     "e-payment",
   );
+  // Log incoming props to debug
+  useEffect(() => {
+    console.log("[OrderConfirmModal] Props updated:", {
+      isOpen,
+      orderId,
+      orderNumber,
+      paymentMethod,
+    });
+  }, [isOpen, orderId, orderNumber, paymentMethod]);
+
+  // Specifically log when orderId changes
+  useEffect(() => {
+    console.log("[OrderConfirmModal] ⚡ orderId CHANGED to:", orderId);
+  }, [orderId]);
 
   if (!isOpen) return null;
 

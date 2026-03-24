@@ -10,6 +10,7 @@ import { TransitionOrderStatusDto } from './dto/transition.order-status';
 import { RejectPaymentProofDto } from './dto/reject-payment-proof';
 import { PlaceOrderDto } from './dto/place-order';
 import { PlaceOrderResponse } from './entity/place-order-response';
+import { PaymongoCheckoutResponse } from './entity/paymongo-checkout-response';
 
 @Resolver()
 export class OrdersResolver {
@@ -114,5 +115,30 @@ export class OrdersResolver {
         };
         
         return await this.ordersService.placeOrder(orderInput);
+    }
+
+    @Mutation(() => PaymongoCheckoutResponse, { name: 'initiatePaymongoCheckout' })
+    @UseGuards(JwtAuthGuard)
+    async initiatePaymongoCheckout(
+        @Args('orderId', { type: () => Int }) orderId: number,
+        @Context() context: any
+    ) {
+        const userId = context.req?.user?.userId || context.user?.userId;
+        if (!userId) throw new ForbiddenException('Not authenticated');
+
+        // Verify order belongs to user or user is admin
+        const order = await this.ordersService.orderDetails(orderId);
+        if (!order) throw new ForbiddenException('Order not found');
+        
+        const userRole = context.req?.user?.role || context.user?.role;
+        if (order.userId !== userId && userRole !== 'admin') {
+            throw new ForbiddenException('You can only pay for your own orders');
+        }
+
+        const result = await this.ordersService.initiatePaymongoCheckout(orderId);
+        return {
+            success: true,
+            ...result,
+        };
     }
 }

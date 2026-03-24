@@ -18,10 +18,10 @@ export function PaymentMethod({ selectedMethod, onMethodChange }: PaymentMethodP
       </div>
 
       <div className="space-y-2">
-        <label className="flex items-center gap-3 p-3 border rounded-xl cursor-not-allowed opacity-50"
+        <label className="flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all hover:bg-blue-50"
           style={{
-            borderColor: "#e5e7eb",
-            backgroundColor: "#fafafa",
+            borderColor: selectedMethod === "e-payment" ? "#3b82f6" : "#e5e7eb",
+            backgroundColor: selectedMethod === "e-payment" ? "#eff6ff" : "#fafafa",
           }}
         >
           <input
@@ -30,17 +30,18 @@ export function PaymentMethod({ selectedMethod, onMethodChange }: PaymentMethodP
             value="e-payment"
             checked={selectedMethod === "e-payment"}
             onChange={(e) => onMethodChange(e.target.value as "e-payment" | "manual_transfer")}
-            className="accent-red-600"
-            disabled
+            className="accent-blue-600"
           />
-          <CreditCard size={16} className="text-gray-400" />
+          <CreditCard size={16} style={{ color: selectedMethod === "e-payment" ? "#3b82f6" : "#6b7280" }} />
           <div className="flex-1">
-            <span className="text-xs font-medium text-gray-500 block">E-Payment</span>
-            <span className="text-xs text-gray-400">Credit/Debit Card, Online Banking</span>
+            <span className="text-xs font-medium" style={{ color: selectedMethod === "e-payment" ? "#1e40af" : "#374151" }}>E-Payment (PayMongo)</span>
+            <span className="text-xs" style={{ color: selectedMethod === "e-payment" ? "#1e40af" : "#6b7280" }}>Credit/Debit Card, E-Wallets</span>
           </div>
-          <span className="text-xs font-semibold px-2 py-1 bg-yellow-100 text-yellow-700 rounded-md">
-            Coming Soon
-          </span>
+          {selectedMethod === "e-payment" && (
+            <span className="text-xs font-semibold px-2 py-1 bg-green-100 text-green-700 rounded-md">
+              Active
+            </span>
+          )}
         </label>
 
         <div className="space-y-2">
