@@ -63,8 +63,8 @@ export function CartSummary({
           <div className="flex justify-between items-center">
             <span className="text-gray-900 font-semibold">Grand Total</span>
             <span
-              className="font-bold text-xl"
-              style={{ fontFamily: "'Playfair Display', serif", color: RED }}
+              className="font-extrabold text-xl"
+              style={{ fontFamily: "'Playfair Display', serif",}}
             >
               ₱{grandTotal.toLocaleString()}
             </span>
@@ -75,10 +75,10 @@ export function CartSummary({
         <button
           onClick={onProceed}
           disabled={!hasSelectedItems}
-          className="w-full py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-          style={{ backgroundColor: RED }}
+          className="w-full py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 bg-blue-600"
+          
         >
-          {hasSelectedItems ? "Proceed to Order" : "Select Items to Order"} <ArrowRight size={15} />
+          {hasSelectedItems ? "Proceed Checkout" : "Select Items to Order"} <ArrowRight size={15} />
         </button>
         {!hasSelectedItems && (
           <p className="mt-2 text-xs text-gray-400">
