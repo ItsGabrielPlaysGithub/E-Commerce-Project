@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-const RED = "#bf262f";
+const BLUE = "#3b82f6";
 
 export function OrderSuccessActions() {
   return (
@@ -15,7 +15,7 @@ export function OrderSuccessActions() {
       <Link
         href="/b2b/products"
         className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition-opacity"
-        style={{ backgroundColor: RED }}
+        style={{ backgroundColor: BLUE }}
       >
         Order More <ArrowRight size={14} />
       </Link>
