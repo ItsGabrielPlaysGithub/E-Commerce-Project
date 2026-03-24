@@ -110,9 +110,16 @@ export function Cart() {
         errors={errors}
         confirmed={confirmed}
         placing={placing}
-        onDeliveryChange={(field, value) =>
-          setDelivery((prev) => ({ ...prev, [field]: value }))
-        }
+        onDeliveryChange={(field, value) => {
+          setDelivery((prev) => {
+            const updated = { ...prev, [field]: value };
+            // Auto-update address when toggling usePrimaryAddress
+            if (field === "usePrimaryAddress" && value) {
+              updated.address = company.address || "";
+            }
+            return updated;
+          });
+        }}
         onConfirmedChange={(value) => {
           setConfirmed(value);
           setErrors((prev) => ({ ...prev, notes: undefined }));

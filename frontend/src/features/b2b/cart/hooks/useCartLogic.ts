@@ -6,6 +6,7 @@ import { useSelectedItems } from "./useSelectedItems";
 import { useMoqWarnings, useSelectedMoqWarnings } from "./useMoqWarnings";
 import { useDeliveryForm } from "./useDeliveryForm";
 import { useOrderPlacement } from "./useOrderPlacement";
+import { useEnrichedCompanyProfile } from "./useEnrichedCompanyProfile";
 import { normalizeCompany, CartAuthCompany } from "./useCompany";
 
 /**
@@ -14,8 +15,9 @@ import { normalizeCompany, CartAuthCompany } from "./useCompany";
  */
 export function useCartLogic() {
   const { isLoggedIn, company: authCompany } = useAuth();
+  const { company: enrichedCompany } = useEnrichedCompanyProfile();
   const { items, updateQty, removeItem, removeItems, subtotal, itemCount } = useCart();
-  const currentCompany = authCompany as CartAuthCompany | null;
+  const currentCompany = enrichedCompany as CartAuthCompany | null;
 
   const company = normalizeCompany(currentCompany);
 

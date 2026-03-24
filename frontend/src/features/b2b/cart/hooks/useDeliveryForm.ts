@@ -13,6 +13,7 @@ export const useDeliveryForm = (company: Company, currentCompany: CartAuthCompan
     contactNumber: currentCompany?.phoneNumber || "",
     deliveryDate: "",
     notes: "",
+    usePrimaryAddress: true,
   });
 
   const [errors, setErrors] = useState<Partial<DeliveryDetails>>({});

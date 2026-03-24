@@ -30,7 +30,7 @@ export function ConfirmCheckbox({
         type="checkbox"
         checked={confirmed}
         onChange={(e) => onConfirmedChange(e.target.checked)}
-        className="h-5 w-5 shrink-0 accent-red-600 cursor-pointer"
+        className="h-3 w-3 shrink-0 accent-red-600 cursor-pointer flex item-center justify-center mt-[3%]"
       />
       <span className="text-xs text-gray-600 leading-relaxed">
         I confirm this order is correct. I understand the pricing tier, MOQ requirements,

@@ -88,6 +88,7 @@ export function OrderConfirmModal({
             errors={errors}
             minDeliveryDate={minDeliveryDate}
             redColor={RED}
+            primaryAddress={company.address}
             onDeliveryChange={onDeliveryChange}
           />
 
