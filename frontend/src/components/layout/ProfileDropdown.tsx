@@ -80,13 +80,9 @@ export function ProfileDropdown({
       {profileOpen && (
         <div className="absolute top-full right-0 pt-1 z-50 w-56">
           <div className="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden py-1">
-            <Link
-              href="/b2b/sales-agents"
-              onClick={() => setProfileOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <Users size={15} className="text-gray-400" /> My Sales Agents
-            </Link>
+            <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 cursor-not-allowed opacity-50">
+              <Users size={15} className="text-gray-300" /> My Sales Agents
+            </div>
             <Link
               href="/b2b/order-history"
               onClick={() => setProfileOpen(false)}
@@ -94,27 +90,15 @@ export function ProfileDropdown({
             >
               <Package size={15} className="text-gray-400" /> My Orders History
             </Link>
-            <Link
-              href="/b2b/invoices"
-              onClick={() => setProfileOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <FileText size={15} className="text-gray-400" /> My Invoices
-            </Link>
-            <Link
-              href="/b2b/profile"
-              onClick={() => setProfileOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <UserCircle size={15} className="text-gray-400" /> Update Profile
-            </Link>
-            <Link
-              href="/b2b/change-password"
-              onClick={() => setProfileOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              <KeyRound size={15} className="text-gray-400" /> Change Password
-            </Link>
+            <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 cursor-not-allowed opacity-50">
+              <FileText size={15} className="text-gray-300" /> My Invoices
+            </div>
+            <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 cursor-not-allowed opacity-50">
+              <UserCircle size={15} className="text-gray-300" /> Update Profile
+            </div>
+            <div className="flex items-center gap-3 px-4 py-3 text-sm text-gray-300 cursor-not-allowed opacity-50">
+              <KeyRound size={15} className="text-gray-300" /> Change Password
+            </div>
             <div className="border-t border-gray-100 mt-1 pt-1">
               <button
                 onClick={onLogout}

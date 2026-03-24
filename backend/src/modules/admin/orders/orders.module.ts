@@ -19,5 +19,6 @@ import { AuthModule } from '../../general/auth/auth.module';
   ],
   providers: [OrdersResolver, OrdersService],
   controllers: [PaymentProofController],
+  exports: [OrdersService],
 })
 export class OrdersModule {}

@@ -55,6 +55,30 @@ export class OrdersTbl {
     @Field({ nullable: true })
     deliveryStatus?: string;
 
+    @Column({ nullable: true, default: false })
+    @Field({ nullable: true })
+    usePrimaryAddress?: boolean;
+
+    @Column({ type: 'text', nullable: true })
+    @Field({ nullable: true })
+    deliveryAddress?: string;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    contactPerson?: string;
+
+    @Column({ nullable: true })
+    @Field({ nullable: true })
+    contactNumber?: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    @Field({ nullable: true })
+    deliveryDate?: Date;
+
+    @Column({ type: 'text', nullable: true })
+    @Field({ nullable: true })
+    deliveryNotes?: string;
+
     @Column({ nullable: true })
     @Field({ nullable: true })
     paymentMethod?: string;

@@ -23,7 +23,7 @@ interface OrderConfirmModalProps {
   errors: Partial<DeliveryDetails>;
   confirmed: boolean;
   placing: boolean;
-  onDeliveryChange: (field: keyof DeliveryDetails, value: string) => void;
+  onDeliveryChange: (field: keyof DeliveryDetails, value: string | boolean) => void;
   onConfirmedChange: (value: boolean) => void;
   onPlaceOrder: (paymentMethod: "e-payment" | "manual_transfer") => void;
 }
@@ -87,15 +87,12 @@ export function OrderConfirmModal({
             delivery={delivery}
             errors={errors}
             minDeliveryDate={minDeliveryDate}
-            redColor={RED}
             primaryAddress={company.address}
             onDeliveryChange={onDeliveryChange}
           />
 
           <ConfirmCheckbox
             confirmed={confirmed}
-            redColor={RED}
-            redLightColor={RED_LIGHT}
             onConfirmedChange={onConfirmedChange}
           />
         </div>

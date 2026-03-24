@@ -39,7 +39,7 @@ export function OrderDetails({ order, onReUploadClick }: OrderDetailsProps) {
             {order.paymentProofStatus === "rejected" && (
               <div className="mt-2 p-3 rounded-lg bg-red-50 border border-red-300">
                 <div className="flex items-start gap-2 mb-2">
-                  <AlertCircle size={14} className="text-red-600 flex-shrink-0 mt-0.5" />
+                  <AlertCircle size={14} className="text-red-600 shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <div className="text-xs font-semibold text-red-700 mb-1">Payment Proof Rejected</div>
                     <div className="text-xs text-red-600 mb-2">

@@ -5,16 +5,16 @@ interface DeliveryFormProps {
   delivery: DeliveryDetails;
   errors: Partial<DeliveryDetails>;
   minDeliveryDate: string;
-  redColor: string;
   primaryAddress?: string;
   onDeliveryChange: (field: keyof DeliveryDetails, value: string | boolean) => void;
 }
+
+const BLUE_COLOR = "#3b82f6";
 
 export function DeliveryForm({
   delivery,
   errors,
   minDeliveryDate,
-  redColor,
   primaryAddress,
   onDeliveryChange,
 }: DeliveryFormProps) {
@@ -28,14 +28,14 @@ export function DeliveryForm({
       {/* Address Selection - Radio Buttons */}
       <div className="space-y-3">
         {/* Radio 1: Use Registered Address */}
-        <label className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors" style={{ borderColor: delivery.usePrimaryAddress ? redColor : "#e5e7eb" }}>
+        <label className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors" style={{ borderColor: delivery.usePrimaryAddress ? BLUE_COLOR : "#e5e7eb" }}>
           <input
             type="radio"
             name="addressOption"
             checked={delivery.usePrimaryAddress ?? true}
             onChange={() => onDeliveryChange("usePrimaryAddress", true)}
             className="h-3 w-3 mt-0.5 shrink-0 cursor-pointer"
-            style={{ accentColor: redColor }}
+            style={{ accentColor: BLUE_COLOR }}
           />
           <div className="flex-1 min-w-0">
             <div className="text-xs font-medium text-gray-700">Use Registered Address</div>
@@ -48,14 +48,14 @@ export function DeliveryForm({
         </label>
 
         {/* Radio 2: Type an Address */}
-        <label className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors" style={{ borderColor: !delivery.usePrimaryAddress ? redColor : "#e5e7eb" }}>
+        <label className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border cursor-pointer hover:bg-gray-100 transition-colors" style={{ borderColor: !delivery.usePrimaryAddress ? BLUE_COLOR : "#e5e7eb" }}>
           <input
             type="radio"
             name="addressOption"
             checked={!delivery.usePrimaryAddress}
             onChange={() => onDeliveryChange("usePrimaryAddress", false)}
             className="h-3 w-3 mt-0.5 shrink-0 cursor-pointer"
-            style={{ accentColor: redColor }}
+            style={{ accentColor: BLUE_COLOR }}
           />
           <div className="text-xs font-medium text-gray-700">Type a Different Address</div>
         </label>
@@ -84,7 +84,7 @@ export function DeliveryForm({
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="text-xs text-gray-500 block mb-1">
-            Contact Person <span style={{ color: redColor }}>*</span>
+            Contact Person <span style={{ color: "#ef4444" }}>*</span>
           </label>
           <input
             type="text"
@@ -100,7 +100,7 @@ export function DeliveryForm({
         </div>
         <div>
           <label className="text-xs text-gray-500 block mb-1">
-            Contact Number <span style={{ color: redColor }}>*</span>
+            Contact Number <span style={{ color: "#ef4444" }}>*</span>
           </label>
           <input
             type="tel"
@@ -118,7 +118,7 @@ export function DeliveryForm({
 
       <div>
         <label className="text-xs text-gray-500 block mb-1">
-          Preferred Delivery Date <span style={{ color: redColor }}>*</span>
+          Preferred Delivery Date <span style={{ color: "#ef4444" }}>*</span>
         </label>
         <input
           type="date"

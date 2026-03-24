@@ -1,5 +1,5 @@
 const RED = "#bf262f";
-const RED_LIGHT = "#f9e9ea";
+const RED_LIGHT = "#fef3f2";
 
 interface OrderReferenceBoxProps {
   orderNumber: string;

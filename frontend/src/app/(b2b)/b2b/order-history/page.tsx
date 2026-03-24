@@ -10,8 +10,8 @@ import { OrdersLoadingState } from "@/features/b2b/orders/components/OrdersLoadi
 import { OrdersErrorState } from "@/features/b2b/orders/components/OrdersErrorState";
 import { OrdersPaginationControls } from "@/features/b2b/orders/components/OrdersPaginationControls";
 import { BottomBar } from "@/components/layout/bottomBar";
-import  RED  from "@/imports/red-color.json";
 
+const RED = "#bf262f";
 const ITEMS_PER_PAGE = 6;
 
 export default function OrderHistoryPage() {

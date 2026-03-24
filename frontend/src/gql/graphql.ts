@@ -122,11 +122,12 @@ export type CreateUserDto = {
 };
 
 export type DeliveryDetailsInput = {
-  address: Scalars['String']['input'];
-  contactNumber: Scalars['String']['input'];
-  contactPerson: Scalars['String']['input'];
-  deliveryDate: Scalars['DateTime']['input'];
+  address?: InputMaybe<Scalars['String']['input']>;
+  contactNumber?: InputMaybe<Scalars['String']['input']>;
+  contactPerson?: InputMaybe<Scalars['String']['input']>;
+  deliveryDate?: InputMaybe<Scalars['DateTime']['input']>;
   notes?: InputMaybe<Scalars['String']['input']>;
+  usePrimaryAddress?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type InvoicesTbl = {
@@ -322,13 +323,18 @@ export type NotificationsTbl = {
 export type OrderItemInput = {
   productId: Scalars['Int']['input'];
   quantity: Scalars['Int']['input'];
-  unitPrice: Scalars['Float']['input'];
+  unitPrice?: InputMaybe<Scalars['Float']['input']>;
 };
 
 export type OrdersTbl = {
   __typename?: 'OrdersTbl';
+  contactNumber?: Maybe<Scalars['String']['output']>;
+  contactPerson?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  deliveryAddress?: Maybe<Scalars['String']['output']>;
+  deliveryDate?: Maybe<Scalars['DateTime']['output']>;
   deliveryFee?: Maybe<Scalars['Float']['output']>;
+  deliveryNotes?: Maybe<Scalars['String']['output']>;
   deliveryStatus?: Maybe<Scalars['String']['output']>;
   grandTotal?: Maybe<Scalars['Float']['output']>;
   orderId: Scalars['Float']['output'];
@@ -351,6 +357,7 @@ export type OrdersTbl = {
   totalPrice: Scalars['Float']['output'];
   unitPrice: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  usePrimaryAddress?: Maybe<Scalars['Boolean']['output']>;
   userId: Scalars['Float']['output'];
 };
 
