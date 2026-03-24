@@ -18,7 +18,7 @@ export function HomePage() {
       <CategoryShowcase />
       <FeaturedProducts />
       <StatsSection />
-      <OrderTypesSection />
+      {/* <OrderTypesSection /> */}
       <Testimonials />
       <PromoBanners />
       <InquiryCTA />
