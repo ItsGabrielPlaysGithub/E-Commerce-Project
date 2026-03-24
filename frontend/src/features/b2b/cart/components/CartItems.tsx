@@ -60,13 +60,13 @@ export function CartItems({
                     checked={isSelected}
                     onChange={() => onToggleItemSelection(item.product.id)}
                     aria-label={`Select ${item.product.name} for checkout`}
-                    className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                    className="h-3 w-3 shrink-0 accent-red-600 cursor-pointer"
                   />
                   {(item.product.imageUrl || item.product.image) && (
                     <img
                       src={item.product.imageUrl || item.product.image}
                       alt={item.product.name}
-                      className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border border-gray-100"
+                      className="w-14 h-14 rounded-xl object-cover shrink-0 border border-gray-100"
                     />
                   )}
                   <div className="min-w-0">

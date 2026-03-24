@@ -61,10 +61,13 @@ export class CartService {
 
   async addToCart(userId: number, input: AddToCartInput): Promise<CartItem> {
     try {
-      // Coerce unitPrice to number
-      const unitPrice = parseFloat(String(input.unitPrice));
+      console.log('[CartService.addToCart] Starting add to cart', {
+        userId,
+        productId: input.productId,
+        quantity: input.quantity,
+      });
 
-      // Check if product exists
+      // Check if product exists and use its authoritative price from database
       const product = await this.productRepository.findOne({
         where: { productId: input.productId },
       });
@@ -72,6 +75,9 @@ export class CartService {
       if (!product) {
         throw new BadRequestException(`Product with ID ${input.productId} not found`);
       }
+
+      // Use product's authoritative price from database, never from client input
+      const unitPrice = product.productPrice;
 
       // Check if item already exists with same product and options
       const where: any = {
@@ -120,9 +126,15 @@ export class CartService {
       if (!created) {
         throw new NotFoundException('Failed to retrieve created cart item');
       }
+      console.log('[CartService.addToCart] Successfully added item', { id: created.id, productId: input.productId });
       return created;
     } catch (error: any) {
-      console.error('[CartService] addToCart error:', error);
+      console.error('[CartService.addToCart] Error:', {
+        message: error?.message,
+        status: error?.status,
+        response: error?.response,
+        type: error?.constructor?.name,
+      });
       throw error;
     }
   }

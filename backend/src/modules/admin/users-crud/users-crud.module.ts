@@ -3,10 +3,12 @@ import { UsersCrudResolver } from './users-crud.resolver';
 import { UsersCrudService } from './users-crud.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
+import { AuthModule } from '../../general/auth/auth.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UsersTbl]),
+    AuthModule,
   ],
   providers: [UsersCrudResolver, UsersCrudService]
 })

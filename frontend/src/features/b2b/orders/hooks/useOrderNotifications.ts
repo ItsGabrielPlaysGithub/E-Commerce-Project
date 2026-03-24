@@ -26,7 +26,6 @@ export function useOrderNotifications(userId: number | undefined) {
   const { data, loading, refetch } = useQuery<{
     getNotificationsByUserId: Notification[];
   }>(GET_NOTIFICATIONS, {
-    variables: { userId: userId || 0 },
     skip: !userId,
     pollInterval: 30000, // Poll every 30 seconds for new notifications
   });

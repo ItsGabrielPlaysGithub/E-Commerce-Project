@@ -23,5 +23,6 @@ export const normalizeCompany = (authCompany: CartAuthCompany | null): Company =
     email: authCompany?.emailAddress || authCompany?.email || "",
     accountNumber: authCompany?.accountNumber || "",
     contactPerson: authCompany?.contactPerson || authCompany?.fullName || "",
+    address: authCompany?.address || "", // Explicitly map address from UsersTbl
   } as Company;
 };

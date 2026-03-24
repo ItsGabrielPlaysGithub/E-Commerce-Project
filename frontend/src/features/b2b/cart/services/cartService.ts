@@ -6,7 +6,8 @@ import { DeliveryDetails } from "../types";
 export function validateDeliveryDetails(delivery: DeliveryDetails) {
   const errors: Partial<DeliveryDetails> = {};
 
-  if (!delivery.address.trim()) {
+  // Only require custom address if not using primary address
+  if (!delivery.usePrimaryAddress && !delivery.address.trim()) {
     errors.address = "Delivery address is required.";
   }
   if (!delivery.contactPerson.trim()) {

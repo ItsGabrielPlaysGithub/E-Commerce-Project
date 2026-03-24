@@ -1,4 +1,7 @@
 import { Resolver, Query, Mutation, Args, Int, ObjectType, Field } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../../general/auth/guards/jwt-auth.guard';
+import { RolesGuard, Roles } from '../../general/auth/guards/roles.guard';
 import { CategoriesService } from './categories.service';
 import { CategoriesTbl } from './entity/categories.tbl';
 import { CreateCategoryDto } from './dto/create.categories';
@@ -33,11 +36,15 @@ export class CategoriesResolver {
     }
 
     @Mutation(() => CategoriesTbl, { name: 'createCategory' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     async createCategory(@Args('input', { type: () => CreateCategoryDto }) input: CreateCategoryDto) {
         return await this.categoriesService.createCategory(input);
     }
 
     @Mutation(() => CategoriesTbl, { name: 'updateCategory' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     async updateCategory(
       @Args('id', { type: () => Int }) id: number,
       @Args('input', { type: () => UpdateCategoryDto }) input: UpdateCategoryDto
@@ -46,11 +53,15 @@ export class CategoriesResolver {
     }
 
     @Mutation(() => CategoriesTbl, { name: 'deleteCategory' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     async deleteCategory(@Args('categoryId', { type: () => Int }) categoryId: number) {
         return await this.categoriesService.deleteCategory(categoryId);
     }
 
     @Mutation(() => AssignmentResult, { name: 'assignRandomCategoriesToProducts' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     async assignRandomCategoriesToProducts() {
         return await this.categoriesService.assignRandomCategoriesToProducts();
     }

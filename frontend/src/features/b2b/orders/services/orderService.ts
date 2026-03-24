@@ -41,7 +41,6 @@ export async function createOrderFromCart(
           variables: {
             input: {
               productId: item.productId,
-              userId,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
               totalPrice: item.quantity * item.unitPrice,
@@ -69,12 +68,19 @@ export async function fetchCustomerOrders(userId: number): Promise<any[]> {
   try {
     const response = await apolloClient.query<OrdersResponse>({
       query: GET_CLIENT_ORDERS,
-      variables: { userId },
       fetchPolicy: "network-only", // Bypass cache to get fresh data
     });
 
     return response.data?.clientOrders || [];
   } catch (error) {
+    const errorMessage = (error as any)?.message || '';
+    
+    // Suppress "No token provided" errors - user may be logged out or session expired
+    if (errorMessage.includes('No token provided') || errorMessage.includes('Unauthorized')) {
+      console.debug("Token not available for orders fetch, using empty state");
+      return [];
+    }
+    
     console.error("Error fetching customer orders:", error);
     throw error;
   }
@@ -93,6 +99,14 @@ export async function fetchAllOrders(): Promise<any[]> {
 
     return response.data?.allOrders || [];
   } catch (error) {
+    const errorMessage = (error as any)?.message || '';
+    
+    // Suppress "No token provided" errors - user may be logged out or session expired
+    if (errorMessage.includes('No token provided') || errorMessage.includes('Unauthorized')) {
+      console.debug("Token not available for all orders fetch, using empty state");
+      return [];
+    }
+    
     console.error("Error fetching all orders:", error);
     throw error;
   }
@@ -112,6 +126,14 @@ export async function fetchOrderById(orderId: number): Promise<any> {
 
     return response.data?.orderDetails || null;
   } catch (error) {
+    const errorMessage = (error as any)?.message || '';
+    
+    // Suppress "No token provided" errors - user may be logged out or session expired
+    if (errorMessage.includes('No token provided') || errorMessage.includes('Unauthorized')) {
+      console.debug("Token not available for order details fetch");
+      return null;
+    }
+    
     console.error("Error fetching order details:", error);
     throw error;
   }

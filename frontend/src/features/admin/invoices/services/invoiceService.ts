@@ -24,6 +24,14 @@ export const fetchAllInvoices = async (): Promise<Invoice[]> => {
     });
     return data?.allInvoices || [];
   } catch (error) {
+    const errorMessage = (error as any)?.message || '';
+    
+    // Suppress "No token provided" errors - user may be logged out or session expired
+    if (errorMessage.includes('No token provided') || errorMessage.includes('Unauthorized')) {
+      console.debug("Token not available for invoices fetch");
+      return [];
+    }
+
     console.error("Error fetching invoices:", error);
     throw error;
   }
@@ -40,6 +48,14 @@ export const fetchInvoiceById = async (orderId: number): Promise<Invoice | null>
     });
     return data?.invoiceByOrderId || null;
   } catch (error) {
+    const errorMessage = (error as any)?.message || '';
+    
+    // Suppress "No token provided" errors - user may be logged out or session expired
+    if (errorMessage.includes('No token provided') || errorMessage.includes('Unauthorized')) {
+      console.debug(`Token not available for invoice fetch for order ${orderId}`);
+      return null;
+    }
+
     console.error(`Error fetching invoice for order ${orderId}:`, error);
     throw error;
   }

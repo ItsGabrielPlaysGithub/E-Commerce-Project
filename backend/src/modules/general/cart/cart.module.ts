@@ -4,9 +4,10 @@ import { CartItem } from './cart.entity';
 import { CartService } from './cart.service';
 import { CartResolver } from './cart.resolver';
 import { ProductsTbl } from '../../admin/products/entity/products.tbl';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CartItem, ProductsTbl])],
+  imports: [TypeOrmModule.forFeature([CartItem, ProductsTbl]), AuthModule],
   providers: [CartService, CartResolver],
   exports: [CartService],
 })

@@ -31,7 +31,6 @@ export function NotificationPanel({ userId, isOpen, onClose }: NotificationPanel
   const { data, loading } = useQuery<{
     getNotificationsByUserId: Notification[];
   }>(GET_NOTIFICATIONS, {
-    variables: { userId: userId || 0 },
     skip: !userId || !isOpen,
   });
 

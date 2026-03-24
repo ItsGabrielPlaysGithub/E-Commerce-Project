@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const ADD_TO_CART = gql`
-  mutation AddToCart($userId: Int!, $input: AddToCartInput!) {
-    addToCart(userId: $userId, input: $input) {
+  mutation AddToCart($input: AddToCartInput!) {
+    addToCart(input: $input) {
       id
       userId
       productId
@@ -17,8 +17,8 @@ export const ADD_TO_CART = gql`
 `;
 
 export const UPDATE_CART_ITEM = gql`
-  mutation UpdateCartItem($userId: Int!, $input: UpdateCartItemInput!) {
-    updateCartItem(userId: $userId, input: $input) {
+  mutation UpdateCartItem($input: UpdateCartItemInput!) {
+    updateCartItem(input: $input) {
       id
       quantity
       updatedAt
@@ -27,19 +27,19 @@ export const UPDATE_CART_ITEM = gql`
 `;
 
 export const REMOVE_FROM_CART = gql`
-  mutation RemoveFromCart($userId: Int!, $itemId: Int!) {
-    removeFromCart(userId: $userId, itemId: $itemId)
+  mutation RemoveFromCart($itemId: Int!) {
+    removeFromCart(itemId: $itemId)
   }
 `;
 
 export const CLEAR_CART = gql`
-  mutation ClearCart($userId: Int!) {
-    clearCart(userId: $userId)
+  mutation ClearCart {
+    clearCart
   }
 `;
 
 export const REMOVE_CART_ITEM_BY_PRODUCT_ID = gql`
-  mutation RemoveCartItemByProductId($userId: Int!, $productId: Int!) {
-    removeCartItemByProductId(userId: $userId, productId: $productId)
+  mutation RemoveCartItemByProductId($productId: Int!) {
+    removeCartItemByProductId(productId: $productId)
   }
 `;

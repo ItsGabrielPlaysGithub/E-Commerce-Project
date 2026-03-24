@@ -4,6 +4,7 @@ export interface DeliveryDetails {
   contactNumber: string;
   deliveryDate: string;
   notes: string;
+  usePrimaryAddress?: boolean;
 }
 
 export interface CartItem {
