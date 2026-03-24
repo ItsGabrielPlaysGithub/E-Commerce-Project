@@ -5,33 +5,17 @@ import {
 
 export const heroSlides = [
   {
-    tag: "B2B Exclusive",
-    headline: "Your All-Around Partner for Amazing Business",
-    sub: "Premium houseware solutions for retail resellers, wholesalers, and bulk buyers across the Philippines.",
     cta: "Shop Now",
     ctaPath: "../../b2b/products",
-    secondary: "Make Inquiry",
     secondaryPath: "../../b2b/inquiry",
-    image: "https://images.unsplash.com/photo-1696986324692-f4aa0f2f495d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-    accent: "Elizabeth Ceramic Casserole — ₱2,499",
-    badge: "FREE SHIPPING · Min. Spend ₱1,299",
-  },
-  {
-    tag: "Wholesale Ready",
-    headline: "Scale Your Business with Omega Wholesale",
-    sub: "Exclusive tiered pricing for registered wholesale partners with MOQ as low as 12 units.",
-    cta: "View Wholesale",
-    ctaPath: "/wholesale",
-    secondary: "Bulk Orders",
-    secondaryPath: "/bulk-order",
-    image: "https://images.unsplash.com/photo-1769698631158-c1f42e6281cc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1200",
-    accent: "Save up to 35% vs. retail pricing",
-    badge: "WHOLESALE · From 12 Units",
+    image: "/images/OMEGA_BAU_3-_WEB_1365x601.webp",
+    imageMobile: "/images/OMEGA_-_BAU_3_1082x1081.webp",
+    imageDesktop: "/images/OMEGA_BAU_3-_WEB_1365x601.webp",
   },
 ];
 
 export const features = [
-  { icon: Truck,      title: "Same Day Delivery",  desc: "Within Metro Manila." },
+  { icon: Truck,      title: "Same Day Delivery",  desc: "Within Metro Manila. Order before 2PM" },
   { icon: Package,    title: "Bulk Orders",         desc: "Send us a message for a quotation."         },
   { icon: CreditCard, title: "Cash on Delivery",    desc: "Available Nationwide."                     },
   { icon: Headphones, title: "Customer Service",    desc: "inquiry@omegahouseware.com.ph"             },

@@ -25,12 +25,12 @@ export function InquiryCTA() {
           >
             Make an Inquiry <ArrowRight size={17} />
           </Link>
-          <Link
+          {/* <Link
             href="/wholesale"
             className="inline-flex items-center gap-2 border-2 border-gray-800 text-gray-800 px-9 py-3.5 rounded-full font-semibold hover:bg-gray-800 hover:text-white transition-colors"
           >
             Wholesale Terms
-          </Link>
+          </Link> */}
         </div>
       </div>
     </section>
