@@ -251,23 +251,39 @@ export class OrdersService {
             throw new NotFoundException('One or more products not found');
         }
 
+        // Create a map of productId to product for quick lookup
+        const productMap = new Map(products.map(p => [p.productId, p]));
+
         // Create orders for each item
         const createdOrders: OrdersTbl[] = [];
         for (let index = 0; index < placeOrderDto.items.length; index++) {
             const item = placeOrderDto.items[index];
             const isFirstItem = index === 0;
             
+            // Get the product and use its price if unitPrice is not provided
+            const product = productMap.get(item.productId);
+            if (!product) {
+                throw new NotFoundException(`Product ${item.productId} not found`);
+            }
+            const unitPrice = item.unitPrice ?? product.productPrice;
+            
             const order = this.ordersRepository.create({
                 productId: item.productId,
                 quantity: item.quantity,
-                unitPrice: item.unitPrice,
-                totalPrice: item.quantity * item.unitPrice,
+                unitPrice: unitPrice,
+                totalPrice: item.quantity * unitPrice,
                 orderNumber,
                 userId: placeOrderDto.userId,
                 status: OrderStatus.PENDING_APPROVAL,
                 deliveryStatus: 'Pending',
                 paymentMethod: placeOrderDto.paymentMethod,
-                // Store delivery fee and grand total only on the first item
+                // Store delivery details and fees only on the first item
+                usePrimaryAddress: isFirstItem ? placeOrderDto.delivery.usePrimaryAddress : undefined,
+                deliveryAddress: isFirstItem ? placeOrderDto.delivery.address : undefined,
+                contactPerson: isFirstItem ? placeOrderDto.delivery.contactPerson : undefined,
+                contactNumber: isFirstItem ? placeOrderDto.delivery.contactNumber : undefined,
+                deliveryDate: isFirstItem ? placeOrderDto.delivery.deliveryDate : undefined,
+                deliveryNotes: isFirstItem ? placeOrderDto.delivery.notes : undefined,
                 deliveryFee: isFirstItem ? placeOrderDto.deliveryFee : undefined,
                 grandTotal: isFirstItem ? placeOrderDto.grandTotal : undefined,
             });

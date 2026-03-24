@@ -12,36 +12,41 @@ export class OrderItemInput {
   @IsNotEmpty()
   quantity: number;
 
-  @Field(() => Float)
-  @IsNotEmpty()
-  unitPrice: number;
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  unitPrice?: number;
 }
 
 @InputType()
 export class DeliveryDetailsInput {
-  @Field()
-  @IsNotEmpty()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsString()
-  address: string;
+  address?: string;
 
-  @Field()
-  @IsNotEmpty()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsString()
-  contactPerson: string;
+  contactPerson?: string;
 
-  @Field()
-  @IsNotEmpty()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsString()
-  contactNumber: string;
+  contactNumber?: string;
 
-  @Field()
-  @IsNotEmpty()
-  deliveryDate: Date;
+  @Field({ nullable: true })
+  @IsOptional()
+  deliveryDate?: Date;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   notes?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  usePrimaryAddress?: boolean;
 }
 
 @InputType('PlaceOrderInput')

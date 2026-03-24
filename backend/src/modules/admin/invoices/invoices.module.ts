@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { InvoicesTbl } from './entity/invoices.tbl';
 import { InvoicesResolver } from './invoices.resolver';
@@ -13,7 +13,7 @@ import { OrdersModule } from '../orders/orders.module';
   imports: [
     TypeOrmModule.forFeature([InvoicesTbl, OrdersTbl, PaymentsTbl, UsersTbl]),
     AuthModule,
-    OrdersModule,
+    forwardRef(() => OrdersModule),
   ],
   providers: [InvoicesResolver, InvoicesService],
   exports: [InvoicesService],
