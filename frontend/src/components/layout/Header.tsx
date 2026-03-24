@@ -5,8 +5,9 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Menu, X, ShoppingCart, LogOut, Bell } from "lucide-react";
 import { useAuth } from "../../features/auth/hooks/useAuth";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import { LOGOUT_MUTATION } from "@/features/auth/services/mutation";
+import { GET_NOTIFICATIONS } from "@/features/b2b/orders/services/query";
 import { Logo } from "../ui/Logo";
 import { NavLinks } from "./NavLinks";
 import { ProfileDropdown } from "./ProfileDropdown";
@@ -50,6 +51,19 @@ export function Header({ sessionUser }: HeaderProps) {
   const { itemCount, lastAdded } = useCart();
   const { orders } = useFetchOrders(company?.userId, false);
   const [runLogout] = useMutation(LOGOUT_MUTATION);
+
+  // Fetch notifications to show unread count
+  const { data: notificationData } = useQuery<{
+    getNotificationsByUserId: Array<{ notificationId: number; isRead: boolean }>;
+  }>(GET_NOTIFICATIONS, {
+    variables: { userId: company?.userId || 0 },
+    skip: !company?.userId,
+  });
+
+  // Count unread notifications
+  const unreadCount = (notificationData?.getNotificationsByUserId || []).filter(
+    (n) => !n.isRead
+  ).length;
 
   // Count open orders
   const openOrderCount = orders.filter((order) => order.status === "PENDING_APPROVAL" || order.status === "READY_FOR_BILLING").length;
@@ -112,10 +126,14 @@ export function Header({ sessionUser }: HeaderProps) {
                 title="Notifications"
               >
                 <Bell size={17} />
-                <span
-                  className="absolute top-1 right-1 w-2 h-2 rounded-full border-2 border-white"
-                  style={{ backgroundColor: RED }}
-                />
+                {unreadCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center px-1"
+                    style={{ backgroundColor: RED }}
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </button>
 
               {/* Notification Dropdown */}

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useQuery } from "@apollo/client/react";
 import {
   LayoutDashboard, Package, ClipboardList, FileText,
   User, ChevronLeft, ChevronRight, Bell,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
 import { NotificationDropdown } from "@/features/admin/notifications/components/NotificationDropdown";
+import { GET_NOTIFICATIONS } from "@/features/b2b/orders/services/query";
 
 const NAV_SECTIONS = [
   {
@@ -43,11 +45,33 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notificationDropdownOpen, setNotificationDropdownOpen] = useState(false);
   const pathname = usePathname() || "/admin/dashboard";
+  const router = useRouter();
+
+  // Fetch notifications to show unread count
+  const adminUserId = 1; // Main admin user ID
+  const { data: notificationData } = useQuery<{
+    getNotificationsByUserId: Array<{ notificationId: number; isRead: boolean }>;
+  }>(GET_NOTIFICATIONS, {
+    variables: { userId: adminUserId },
+    pollInterval: 5000, // Refresh every 5 seconds
+  });
+
+  // Count unread notifications
+  const unreadCount = (notificationData?.getNotificationsByUserId || []).filter(
+    (n) => !n.isRead
+  ).length;
 
   const isActive = (path: string) =>
     path === "/admin/dashboard"
       ? pathname === "/admin/dashboard"
       : pathname.startsWith(path);
+
+  // Handle opening payment proof for new orders
+  const handleNewOrderClick = (orderId: number) => {
+    // Navigate to sales order page with params to open the payment proof modal
+    router.push(`/admin/sales-order?viewPaymentProof=${orderId}`);
+    setNotificationDropdownOpen(false);
+  };
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full" style={{ fontFamily: "'Inter', sans-serif" }}>
@@ -262,22 +286,30 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
           <div className="flex items-center gap-2 ml-auto">
             <div className="relative">
               <button
-                onClick={() => setNotificationDropdownOpen(!notificationDropdownOpen)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setNotificationDropdownOpen(!notificationDropdownOpen);
+                }}
                 className="relative p-2 rounded-lg transition-colors hover:bg-gray-100"
                 style={{ color: "#6b7280" }}
               >
                 <Bell size={17} />
-                <span
-                  className="absolute top-1 right-1 w-2 h-2 rounded-full border-2 border-white"
-                  style={{ backgroundColor: "#bf262f" }}
-                />
+                {unreadCount > 0 && (
+                  <span
+                    className="absolute -top-1 -right-1 min-w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center px-1"
+                    style={{ backgroundColor: "#bf262f" }}
+                  >
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </button>
 
               {/* Notification Dropdown */}
               <NotificationDropdown
-                userId={1} // Replace with actual admin user ID
+                userId={adminUserId}
                 isOpen={notificationDropdownOpen}
                 onClose={() => setNotificationDropdownOpen(false)}
+                onNewOrderClick={handleNewOrderClick}
               />
             </div>
 

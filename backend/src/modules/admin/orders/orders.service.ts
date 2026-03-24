@@ -82,6 +82,34 @@ export class OrdersService {
         });
         const savedOrder = await this.ordersRepository.save(order);
         this.logger.log(`Order saved: ${JSON.stringify(savedOrder)}`);
+        
+        // Create notifications for admin users
+        try {
+            // Get the customer who placed the order
+            const customer = await this.usersRepository.findOne({
+                where: { userId: createOrderDto.userId },
+            });
+
+            // For now, notify admin user with ID 1 (main admin)
+            const adminUserId = 1; 
+            
+            await this.notificationsService.createNotification({
+                userId: adminUserId,
+                type: 'new_order',
+                title: 'New Order Received',
+                message: `New order placed by ${customer?.companyName || `Customer #${createOrderDto.userId}`}.\n\nProduct: ${product.productName}\nQuantity: ${createOrderDto.quantity}\nTotal: ₱${(createOrderDto.quantity * createOrderDto.unitPrice).toLocaleString()}`,
+                orderId: savedOrder.orderId,
+                metadata: JSON.stringify({ 
+                    customerName: customer?.companyName,
+                    productName: product.productName,
+                    quantity: createOrderDto.quantity,
+                    totalPrice: createOrderDto.quantity * createOrderDto.unitPrice
+                }),
+            });
+        } catch (err) {
+            this.logger.warn(`Failed to create admin notification for new order #${savedOrder.orderId}: ${err instanceof Error ? err.message : String(err)}`);
+        }
+
         // Automatically create invoice for this order
         try {
             const invoice = await this.invoicesService.createInvoiceForOrder(savedOrder);
@@ -281,6 +309,32 @@ export class OrdersService {
                 this.logger.error(`Failed to create invoice for orderId ${savedOrder.orderId}: ${err}`);
             }
             createdOrders.push(savedOrder);
+        }
+
+        // Create notifications for admin when orders are first placed
+        try {
+            const customer = await this.usersRepository.findOne({
+                where: { userId: placeOrderDto.userId },
+            });
+
+            const firstProduct = products[0];
+            const adminUserId = 1; // Main admin
+
+            await this.notificationsService.createNotification({
+                userId: adminUserId,
+                type: 'new_order',
+                title: 'New Order Received',
+                message: `New order placed by ${customer?.companyName || `Customer #${placeOrderDto.userId}`}.\n\nOrder Number: ${orderNumber}\nItems: ${placeOrderDto.items.length}\nTotal: ₱${placeOrderDto.grandTotal?.toLocaleString()}`,
+                orderId: createdOrders[0]?.orderId,
+                metadata: JSON.stringify({
+                    customerName: customer?.companyName,
+                    orderNumber,
+                    itemCount: placeOrderDto.items.length,
+                    totalPrice: placeOrderDto.grandTotal,
+                }),
+            });
+        } catch (err) {
+            this.logger.warn(`Failed to create admin notification for order ${orderNumber}: ${err instanceof Error ? err.message : String(err)}`);
         }
 
         return {
@@ -487,6 +541,12 @@ export class OrdersService {
         // Store the file path and upload timestamp
         order.paymentProofImage = filename;
         order.paymentProofUploadedAt = new Date();
+
+        // Reset payment proof status to pending when re-uploading after rejection
+        if (order.paymentProofStatus === 'rejected') {
+            order.paymentProofStatus = 'pending';
+            order.paymentProofRejectionReason = undefined;
+        }
 
         // Store previous status for reference
         const previousStatus = order.status as OrderStatus;

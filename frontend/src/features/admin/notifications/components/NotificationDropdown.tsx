@@ -7,6 +7,35 @@ import { GET_NOTIFICATIONS, MARK_NOTIFICATION_AS_READ, MARK_ALL_NOTIFICATIONS_AS
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
+// Add animation styles
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes dropdownOpen {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+    
+    @keyframes dropdownClose {
+      from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: scale(0.96) translateY(-8px);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 interface Notification {
   notificationId: number;
   userId: number;
@@ -24,6 +53,7 @@ interface NotificationDropdownProps {
   userId: number | undefined;
   isOpen: boolean;
   onClose: () => void;
+  onNewOrderClick?: (orderId: number) => void;
 }
 
 /**
@@ -31,9 +61,18 @@ interface NotificationDropdownProps {
  * Appears below the bell icon in the navbar
  * Clicking a notification marks it as read and navigates to the order
  */
-export function NotificationDropdown({ userId, isOpen, onClose }: NotificationDropdownProps) {
+export function NotificationDropdown({ userId, isOpen, onClose, onNewOrderClick }: NotificationDropdownProps) {
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleClose = () => {
+    if (dropdownRef.current) {
+      dropdownRef.current.style.animation = "dropdownClose 0.2s ease-out forwards";
+      setTimeout(() => {
+        onClose();
+      }, 200);
+    }
+  };
 
   const { data, loading, refetch } = useQuery<{
     getNotificationsByUserId: Notification[];
@@ -69,7 +108,7 @@ export function NotificationDropdown({ userId, isOpen, onClose }: NotificationDr
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        onClose();
+        handleClose();
       }
     };
 
@@ -77,7 +116,7 @@ export function NotificationDropdown({ userId, isOpen, onClose }: NotificationDr
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   const getNotificationDotColor = (type: string) => {
     switch (type) {
@@ -87,6 +126,8 @@ export function NotificationDropdown({ userId, isOpen, onClose }: NotificationDr
         return "#22c55e"; // green
       case "order_status_change":
         return "#3b82f6"; // blue
+      case "new_order":
+        return "#f59e0b"; // amber for new orders
       default:
         return "#bf262f"; // maroon
     }
@@ -120,9 +161,16 @@ export function NotificationDropdown({ userId, isOpen, onClose }: NotificationDr
         });
       }
 
-      // Navigate to order if orderId exists
+      // Handle new_order notifications with callback (for admin)
+      if (notification.type === 'new_order' && notification.orderId && onNewOrderClick) {
+        handleClose();
+        onNewOrderClick(notification.orderId);
+        return;
+      }
+
+      // Navigate to order if orderId exists (for B2B users)
       if (notification.orderId) {
-        onClose();
+        handleClose();
         router.push(`/b2b/my-orders?expandOrderId=${notification.orderId}`);
       }
     } catch (error) {
@@ -150,12 +198,15 @@ export function NotificationDropdown({ userId, isOpen, onClose }: NotificationDr
     <div
       ref={dropdownRef}
       className="absolute right-0 top-full mt-2 z-50 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden w-96"
+      style={{
+        animation: "dropdownOpen 0.2s ease-out"
+      }}
     >
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between bg-gray-50">
         <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="text-gray-400 hover:text-gray-600 transition-colors"
         >
           <X className="h-4 w-4" />

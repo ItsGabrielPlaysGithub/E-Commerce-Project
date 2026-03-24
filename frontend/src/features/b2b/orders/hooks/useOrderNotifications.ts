@@ -40,29 +40,8 @@ export function useOrderNotifications(userId: number | undefined) {
     );
 
     notifications.forEach((notification) => {
-      if (notification.type === "payment_proof_rejected") {
-        toast.error(`${notification.title}\n${notification.message}`, {
-          description: notification.orderId
-            ? `Order #${notification.orderId}`
-            : undefined,
-          duration: 5000,
-        });
-      } else if (notification.type === "payment_proof_approved") {
-        toast.success(`${notification.title}\n${notification.message}`, {
-          description: notification.orderId
-            ? `Order #${notification.orderId}`
-            : undefined,
-          duration: 5000,
-        });
-      } else {
-        toast.info(`${notification.title}\n${notification.message}`, {
-          description: notification.orderId
-            ? `Order #${notification.orderId}`
-            : undefined,
-          duration: 5000,
-        });
-      }
-
+      // Toast notifications removed - using dropdown notifications instead
+      // Mark as shown to avoid showing duplicates
       setShownNotifications((prev) => {
         const updated = new Set(prev);
         updated.add(notification.notificationId);

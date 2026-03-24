@@ -11,7 +11,7 @@ export class CreateNotificationDto {
   @Field()
   @IsNotEmpty()
   @IsString()
-  type: 'payment_proof_rejected' | 'payment_proof_approved' | 'order_status_change' | 'general';
+  type: 'payment_proof_rejected' | 'payment_proof_approved' | 'order_status_change' | 'new_order' | 'general';
 
   @Field()
   @IsNotEmpty()

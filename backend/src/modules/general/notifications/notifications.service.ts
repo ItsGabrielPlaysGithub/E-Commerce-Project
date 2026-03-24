@@ -15,7 +15,7 @@ export class NotificationsService {
     data: CreateNotificationDto,
   ): Promise<NotificationsTbl> {
     // Validate notification type
-    const validTypes = ['payment_proof_rejected', 'payment_proof_approved', 'order_status_change', 'general'];
+    const validTypes = ['payment_proof_rejected', 'payment_proof_approved', 'order_status_change', 'new_order', 'general'];
     if (!validTypes.includes(data.type)) {
       throw new Error(`Invalid notification type: ${data.type}`);
     }

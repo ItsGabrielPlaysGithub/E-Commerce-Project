@@ -13,7 +13,6 @@ import { OrdersSummary } from "./components/OrdersSummary";
 import { OrdersLoadingState } from "./components/OrdersLoadingState";
 import { OrdersErrorState } from "./components/OrdersErrorState";
 import { OrdersMainContent } from "./components/OrdersMainContent";
-import { NotificationBar } from "./components/NotificationBar";
 import { BottomBar } from "@/components/layout/bottomBar";
 
 const ITEMS_PER_PAGE = 6;
@@ -76,8 +75,7 @@ export function MyOrdersPage() {
         ordersCount={counts.All || orders.length}
       />
 
-      {/* Notification Bar - displays payment proof rejections/approvals at the top */}
-      <NotificationBar userId={company?.userId} />
+      {/* Notification Bar removed - using dropdown notifications instead */}
 
       <div className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

@@ -19,7 +19,7 @@ export class NotificationsTbl {
 
   @Column({ type: 'varchar', length: 50 })
   @Field()
-  type: 'payment_proof_rejected' | 'payment_proof_approved' | 'order_status_change' | 'general';
+  type: 'payment_proof_rejected' | 'payment_proof_approved' | 'order_status_change' | 'new_order' | 'general';
 
   @Column({ type: 'varchar', length: 255 })
   @Field()

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useProducts } from "../hooks/service-hooks/use-products";
-import { AddProductModal, type ProductFormData } from "@/features/admin/products/components/AddProductModal";
+import { AddProductModal } from "@/features/admin/products/components/AddProductModal";
+import { type ProductFormData } from "@/features/admin/products/utils/validation";
 import { toast } from "sonner";
 
 export interface Product {
@@ -50,19 +51,31 @@ export function useProductsPage() {
     productPrice: number;
   }
 
-  const products: Product[] = (data?.getProducts || []).map((product: BackendProduct) => ({
-    id: product.productId.toString(),
-    sku: product.sku || `SKU-${product.productId}`,
-    name: product.productName,
-    category: product.category?.categoryName || "Uncategorized",
-    categoryId: product.categoryId,
-    available: product.available || 0,
-    inTransit: product.inTransit || 0,
-    blocked: product.blocked || 0,
-    reorderPoint: product.reorderPoint || 50,
-    status: "Active" as const,
-    price: product.productPrice,
-  }));
+  const products: Product[] = (data?.getProducts || []).map((product: BackendProduct) => {
+    const available = product.available || 0;
+    const reorderPoint = product.reorderPoint || 50;
+    let status = "Active";
+    
+    if (available === 0) {
+      status = "Out of Stock";
+    } else if (available <= reorderPoint) {
+      status = "Low Stock";
+    }
+
+    return {
+      id: product.productId.toString(),
+      sku: product.sku || `SKU-${product.productId}`,
+      name: product.productName,
+      category: product.category?.categoryName || "Uncategorized",
+      categoryId: product.categoryId,
+      available,
+      inTransit: product.inTransit || 0,
+      blocked: product.blocked || 0,
+      reorderPoint,
+      status,
+      price: product.productPrice,
+    };
+  });
 
   const totalItems = products.length;
   const totalUnits = products.reduce((sum, p) => sum + p.available, 0);
@@ -99,6 +112,8 @@ export function useProductsPage() {
       price: product.price,
       reorderPoint: product.reorderPoint,
       available: product.available,
+      productDescription: "",
+      image: null,
       productId: parseInt(product.id),
     });
     setShowAddProductModal(true);

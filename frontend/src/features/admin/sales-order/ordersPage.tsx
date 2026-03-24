@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Download, Plus, Search, Filter } from "lucide-react";
 import { SalesOrdersTable } from "@/features/admin/sales-order/components/SalesOrdersTable";
 import { PaymentProofModal } from "@/features/admin/sales-order/components/PaymentProofModal";
@@ -15,6 +16,11 @@ import { SalesOrder } from "../../../types/types";
 import { toast } from "sonner";
 
 export default function SalesOrdersPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const viewPaymentProofParam = searchParams?.get("viewPaymentProof");
+  const processedRef = useRef<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [showFilterDropdown, setShowFilterDropdown] = useState(false);
@@ -58,6 +64,21 @@ export default function SalesOrdersPage() {
     createdAt: order.createdAt || "",
     updatedAt: order.updatedAt || "",
   }));
+
+  // Auto-open payment proof modal if coming from notification
+  useEffect(() => {
+    if (viewPaymentProofParam && ordersData.length > 0 && processedRef.current !== viewPaymentProofParam) {
+      const orderId = parseInt(viewPaymentProofParam, 10);
+      const orderToView = ordersData.find(o => parseInt(o.orderId, 10) === orderId);
+      if (orderToView) {
+        setPaymentProofOrder(orderToView);
+        processedRef.current = viewPaymentProofParam;
+      }
+    } else if (!viewPaymentProofParam) {
+      // Reset processedRef when URL param is cleared (modal closed)
+      processedRef.current = null;
+    }
+  }, [viewPaymentProofParam, ordersData]);
 
   if (loading) {
     return (
@@ -130,6 +151,12 @@ export default function SalesOrdersPage() {
     setPaymentProofOrder(order);
   };
 
+  const handleClosePaymentProofModal = () => {
+    setPaymentProofOrder(null);
+    // Clear the URL parameter
+    router.push('/admin/sales-order');
+  };
+
   const handleApprovePayment = async (order: SalesOrder) => {
     setPaymentProofLoading(true);
     try {
@@ -145,7 +172,7 @@ export default function SalesOrdersPage() {
         },
       });
       toast.success("Payment approved successfully!");
-      setPaymentProofOrder(null);
+      handleClosePaymentProofModal();
     } catch (error) {
       console.error("Failed to approve payment:", error);
       toast.error("Failed to approve payment");
@@ -173,7 +200,7 @@ export default function SalesOrdersPage() {
       });
       toast.success("Payment proof rejected successfully");
       console.log("✅ Payment rejected with reason:", reason);
-      setPaymentProofOrder(null);
+      handleClosePaymentProofModal();
     } catch (error) {
       console.error("Failed to reject payment:", error);
       toast.error("Failed to reject payment");
@@ -416,7 +443,7 @@ export default function SalesOrdersPage() {
         <PaymentProofModal
           isOpen={!!paymentProofOrder}
           order={paymentProofOrder}
-          onClose={() => setPaymentProofOrder(null)}
+          onClose={handleClosePaymentProofModal}
           onApprove={() => handleApprovePayment(paymentProofOrder)}
           onReject={(order, reason) => handleRejectPayment(order, reason)}
           isLoading={paymentProofLoading}

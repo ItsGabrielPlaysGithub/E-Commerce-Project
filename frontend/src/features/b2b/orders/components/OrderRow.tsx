@@ -52,7 +52,14 @@ export function OrderRow({
       }
 
       toast.success("Payment proof uploaded successfully!");
-      if (onUploadSuccess) onUploadSuccess();
+      
+      // Give the backend a moment to process the file, then refetch
+      // This ensures the new image and status updates are reflected
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : "Failed to process payment proof";
       toast.error(errorMsg);
