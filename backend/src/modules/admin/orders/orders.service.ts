@@ -161,6 +161,12 @@ export class OrdersService {
         }
 
         const currentStatus = order.status as OrderStatus;
+
+        // No-op transition: avoid throwing when client resubmits the same status.
+        if (currentStatus === transitionDto.nextStatus) {
+            return order;
+        }
+
         this.assertTransitionAllowed(currentStatus, transitionDto.nextStatus);
 
         order.status = transitionDto.nextStatus;

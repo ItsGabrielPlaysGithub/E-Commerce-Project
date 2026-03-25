@@ -7,7 +7,7 @@ export const heroSlides = [
   {
     cta: "Shop Now",
     ctaPath: "../../b2b/products",
-    secondaryPath: "../../b2b/inquiry",
+    secondaryPath: "/b2b/inquiry",
     image: "/images/OMEGA_BAU_3-_WEB_1365x601.webp",
     imageMobile: "/images/OMEGA_-_BAU_3_1082x1081.webp",
     imageDesktop: "/images/OMEGA_BAU_3-_WEB_1365x601.webp",

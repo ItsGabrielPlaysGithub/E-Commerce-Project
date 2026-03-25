@@ -9,6 +9,10 @@ import type { Order } from "../types/order";
  * Map backend order response to frontend Order interface
  */
 function mapBackendOrderToOrder(backendOrder: any): Order {
+  const derivedStatus = backendOrder.paymentProofStatus === "rejected"
+    ? "REJECTED"
+    : mapOrderStatus(backendOrder.status);
+
   return {
     id: backendOrder.orderId?.toString() || backendOrder.orderNumber || "",
     sapSo: backendOrder.orderNumber || "",
@@ -19,7 +23,7 @@ function mapBackendOrderToOrder(backendOrder: any): Order {
     vat: 0,
     // Use grandTotal if available (from first item in group with delivery fee), otherwise use totalPrice
     total: backendOrder.grandTotal || backendOrder.totalPrice || 0,
-    status: mapOrderStatus(backendOrder.status),
+    status: derivedStatus,
     paymentStatus: "Pending",
     deliveryMethod: backendOrder.deliveryStatus || "Standard",
   };
@@ -71,7 +75,10 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
       subtotal: subtotal,
       vat: 0,
       total: total,
-      status: mapOrderStatus(firstOrder.status),
+      status:
+        firstOrder.paymentProofStatus === "rejected"
+          ? "REJECTED"
+          : mapOrderStatus(firstOrder.status),
       paymentStatus: "Pending",
       deliveryMethod: firstOrder.deliveryStatus || "Standard",
       deliveryFee: deliveryFee, // Store delivery fee for display

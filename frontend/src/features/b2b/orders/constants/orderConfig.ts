@@ -20,6 +20,7 @@ export const STATUS_CONFIG: Record<string, { color: string; bg: string; icon: Re
   // Backend enum values
   PENDING_APPROVAL: { color: "#6b7280", bg: "#f9fafb", icon: Package },
   READY_FOR_BILLING: { color: "#6b7280", bg: "#f9fafb", icon: Package },
+  ACCEPT: { color: "#16a34a", bg: "#dcfce7", icon: CheckCircle },
   APPROVED: { color: "#f59e0b", bg: "#fffbeb", icon: Clock },
   ORDERED_FROM_SUPPLIER: { color: "#f59e0b", bg: "#fffbeb", icon: Clock },
   AWAITING_PAYMENT_VERIFICATION: { color: "#f59e0b", bg: "#fffbeb", icon: Clock },

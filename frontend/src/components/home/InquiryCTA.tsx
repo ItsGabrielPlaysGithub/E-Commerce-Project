@@ -19,7 +19,7 @@ export function InquiryCTA() {
         </p>
         <div className="mt-9 flex gap-4 justify-center flex-wrap">
           <Link
-            href="/inquiry"
+            href="/b2b/inquiry"
             className="inline-flex items-center gap-2 text-white px-9 py-3.5 rounded-full font-semibold hover:opacity-90 transition-all shadow-lg"
             style={{ backgroundColor: "#bf262f" }}
           >
