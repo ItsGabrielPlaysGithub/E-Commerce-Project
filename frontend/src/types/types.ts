@@ -1,6 +1,15 @@
 export interface SalesOrder {
   orderId: string;
   orderNumber: string;
+  rawOrderIds?: string[];
+  lineItemCount?: number;
+  orderedProducts?: Array<{
+    productId: number;
+    productName?: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }>;
   userId: number;
   productId: number;
   orderType?: string;

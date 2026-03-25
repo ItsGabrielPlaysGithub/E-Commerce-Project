@@ -4,25 +4,11 @@ import { X, ShoppingCart, User, DollarSign, Calendar, Truck } from "lucide-react
 import { useState, useEffect } from "react";
 import { getStatusLabel } from "@/utils/statusMapper";
 import { formatDateLong } from "@/utils/dateFormatter";
+import type { SalesOrder } from "@/types/types";
 
 interface OrderDetailsModalProps {
   isOpen: boolean;
-  order: {
-    orderId: string;
-    orderNumber: string;
-    userId: number;
-    productId: number;
-    orderType?: string;
-    quantity: number;
-    unitPrice: number;
-    totalPrice: number;
-    status: string;
-    deliveryStatus?: string;
-    paymentMethod?: string;
-    paymentProofImage?: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  order: SalesOrder;
   onClose: () => void;
 }
 
@@ -57,6 +43,18 @@ export function OrderDetailsModal({
   };
 
   const statusColor = getStatusColor(order.status);
+  const orderedProducts =
+    order.orderedProducts && order.orderedProducts.length > 0
+      ? order.orderedProducts
+      : [{
+          productId: order.productId,
+          productName: "",
+          quantity: order.quantity,
+          unitPrice: order.unitPrice,
+          totalPrice: order.totalPrice,
+        }];
+  const totalQuantity = orderedProducts.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const productNames = [...new Set(orderedProducts.map((item) => item.productName).filter(Boolean))].join(", ");
 
   return (
     <>
@@ -147,7 +145,7 @@ export function OrderDetailsModal({
             {/* Order Header */}
             <div className="flex items-start gap-4">
               <div
-                className="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
+                className="w-16 h-16 rounded-xl flex items-center justify-center shrink-0"
                 style={{ backgroundColor: "#fdf2f2" }}
               >
                 <ShoppingCart size={28} style={{ color: "#bf262f" }} />
@@ -221,18 +219,28 @@ export function OrderDetailsModal({
               </h3>
               <div className="space-y-3 p-4 rounded-lg" style={{ backgroundColor: "#f8fafc" }}>
                 <div className="flex items-center justify-between">
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Product ID</span>
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>{order.productId}</span>
+                  
                 </div>
                 <div className="flex items-center justify-between">
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Quantity</span>
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>{order.quantity} units</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Total Quantity</span>
+                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>{totalQuantity} units</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Unit Price</span>
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>
-                    ₱{order.unitPrice.toLocaleString()}
-                  </span>
+                <div>
+                  <p style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563", marginBottom: "8px" }}>
+                    Products Ordered
+                  </p>
+                  <div className="space-y-2">
+                    {orderedProducts.map((item, idx) => (
+                      <div key={`${item.productId}-${idx}`} className="flex items-center justify-between rounded-md bg-white px-3 py-2">
+                        <span style={{ fontSize: "13px", color: "#0f172a", fontWeight: 600 }}>
+                          {item.productName || `Product #${item.productId}`}
+                        </span>
+                        <span style={{ fontSize: "12px", color: "#64748b" }}>
+                          Qty {item.quantity} · ₱{(item.totalPrice || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Download, Plus, Search, Filter } from "lucide-react";
 import { SalesOrdersTable } from "@/features/admin/sales-order/components/SalesOrdersTable";
@@ -39,39 +39,85 @@ export default function SalesOrdersPage() {
   const [rejectPaymentProof] = useRejectPaymentProof();
   const { cancelOrder: cancelOrderMutation } = useCancelOrder();
 
-  // Transform GraphQL data to match SalesOrder interface
-  const ordersData: SalesOrder[] = (data?.allOrders || []).map((order: any) => ({
-    orderId: order.orderId?.toString() || "",
-    orderNumber: order.orderNumber || "",
-    userId: order.userId || 0,
-    productId: order.productId || 0,
-    orderType: order.orderType || "",
-    quantity: order.quantity || 0,
-    unitPrice: order.unitPrice || 0,
-    totalPrice: order.totalPrice || 0,
-    status: order.status || "PENDING_APPROVAL",
-    deliveryStatus: order.deliveryStatus || "",
-    paymentMethod: order.paymentMethod || "",
-    paymentProofImage: order.paymentProofImage 
-      ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${order.paymentProofImage}`
-      : "",
-    paymentProofUploadedAt: order.paymentProofUploadedAt || "",
-    paymentProofStatus: order.paymentProofStatus || "",
-    paymentProofRejectionReason: order.paymentProofRejectionReason || "",
-    paymentProofAttempts: order.paymentProofAttempts || 0,
-    paymongoTransactionId: order.paymongoTransactionId || "",
-    paymongoAmount: order.paymongoAmount || 0,
-    paymongoPaymentMethod: order.paymongoPaymentMethod || "",
-    paymongoTimestamp: order.paymongoTimestamp || "",
-    createdAt: order.createdAt || "",
-    updatedAt: order.updatedAt || "",
-  }));
+  // Group line items by orderNumber so admin table shows one row per sales order.
+  const ordersData: SalesOrder[] = useMemo(() => {
+    const source = data?.allOrders || [];
+    const groupedByOrderNumber = new Map<string, any[]>();
+
+    for (const order of source) {
+      const orderNumber = order.orderNumber || order.orderId?.toString() || "";
+      if (!groupedByOrderNumber.has(orderNumber)) {
+        groupedByOrderNumber.set(orderNumber, []);
+      }
+      groupedByOrderNumber.get(orderNumber)!.push(order);
+    }
+
+    const groupedOrders: SalesOrder[] = [];
+
+    for (const [orderNumber, orders] of groupedByOrderNumber) {
+      const sortedOrders = [...orders].sort((a, b) => (a.orderId || 0) - (b.orderId || 0));
+      const primaryOrder = sortedOrders[0];
+      const latestProofOrder =
+        [...sortedOrders]
+          .filter((o) => Boolean(o.paymentProofImage))
+          .sort(
+            (a, b) =>
+              new Date(b.paymentProofUploadedAt || b.updatedAt || b.createdAt || 0).getTime() -
+              new Date(a.paymentProofUploadedAt || a.updatedAt || a.createdAt || 0).getTime()
+          )[0] || primaryOrder;
+
+      groupedOrders.push({
+        orderId: primaryOrder.orderId?.toString() || "",
+        rawOrderIds: sortedOrders
+          .map((o) => o.orderId?.toString())
+          .filter((id): id is string => Boolean(id)),
+        lineItemCount: sortedOrders.length,
+        orderedProducts: sortedOrders.map((o) => ({
+          productId: o.productId || 0,
+          productName: o.productName || o.product?.name || "",
+          quantity: o.quantity || 0,
+          unitPrice: o.unitPrice || 0,
+          totalPrice: o.totalPrice || 0,
+        })),
+        orderNumber,
+        userId: primaryOrder.userId || 0,
+        productId: primaryOrder.productId || 0,
+        orderType: primaryOrder.orderType || "",
+        quantity: sortedOrders.reduce((sum, o) => sum + (o.quantity || 0), 0),
+        unitPrice: primaryOrder.unitPrice || 0,
+        totalPrice: sortedOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0),
+        status: primaryOrder.status || "PENDING_APPROVAL",
+        deliveryStatus: primaryOrder.deliveryStatus || "",
+        paymentMethod: primaryOrder.paymentMethod || "",
+        paymentProofImage: latestProofOrder?.paymentProofImage
+          ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${latestProofOrder.paymentProofImage}`
+          : "",
+        paymentProofUploadedAt: latestProofOrder?.paymentProofUploadedAt || "",
+        paymentProofStatus: latestProofOrder?.paymentProofStatus || primaryOrder.paymentProofStatus || "",
+        paymentProofRejectionReason:
+          latestProofOrder?.paymentProofRejectionReason || primaryOrder.paymentProofRejectionReason || "",
+        paymentProofAttempts: latestProofOrder?.paymentProofAttempts || primaryOrder.paymentProofAttempts || 0,
+        paymongoTransactionId: primaryOrder.paymongoTransactionId || "",
+        paymongoAmount: primaryOrder.paymongoAmount || 0,
+        paymongoPaymentMethod: primaryOrder.paymongoPaymentMethod || "",
+        paymongoTimestamp: primaryOrder.paymongoTimestamp || "",
+        createdAt: primaryOrder.createdAt || "",
+        updatedAt: primaryOrder.updatedAt || "",
+      });
+    }
+
+    return groupedOrders.sort(
+      (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    );
+  }, [data?.allOrders]);
 
   // Auto-open payment proof modal if coming from notification
   useEffect(() => {
     if (viewPaymentProofParam && ordersData.length > 0 && processedRef.current !== viewPaymentProofParam) {
       const orderId = parseInt(viewPaymentProofParam, 10);
-      const orderToView = ordersData.find(o => parseInt(o.orderId, 10) === orderId);
+      const orderToView = ordersData.find((o) =>
+        o.rawOrderIds?.some((id) => parseInt(id, 10) === orderId) || parseInt(o.orderId, 10) === orderId
+      );
       if (orderToView) {
         setPaymentProofOrder(orderToView);
         processedRef.current = viewPaymentProofParam;

@@ -31,16 +31,16 @@ const STATUS_FLOW = {
 const STATUS_LABELS: Record<string, string> = {
   PENDING_APPROVAL: "Pending Approval",
   ACCEPT: "Accept",
-  REJECTED: "Rejected",
+  REJECTED: "Reject",
   PACKING: "Packing",
   AWAITING_PAYMENT_VERIFICATION: "Awaiting Payment Verification",
   IN_TRANSIT: "In Transit",
-  DELIVERED: "Delivered",
-  ORDERED_FROM_SUPPLIER: "Ordered from Supplier",
+  DELIVERED: "Deliver",
+  ORDERED_FROM_SUPPLIER: "Order from Supplier",
   READY_FOR_BILLING: "Ready for Billing",
   READY_FOR_DELIVERY: "Ready for Delivery",
-  PAID: "Paid",
-  CANCELLED: "Cancelled",
+  PAID: "Pay",
+  CANCELLED: "Cancel",
 };
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -91,7 +91,7 @@ export function UpdateOrderStatusModal({
 
     try {
       await onUpdate(selectedStatus);
-      toast.success(`Order updated to ${STATUS_LABELS[selectedStatus]}`);
+      toast.success(`Order now in ${STATUS_LABELS[selectedStatus]} status`);
       onClose();
     } catch (err) {
       toast.error("Failed to update order status");

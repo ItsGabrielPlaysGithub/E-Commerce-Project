@@ -19,6 +19,9 @@ export class OrdersTbl {
     @Field()
     productId: number;
 
+    @Field({ nullable: true })
+    productName?: string;
+
     @Column()
     @Field()
     userId: number
