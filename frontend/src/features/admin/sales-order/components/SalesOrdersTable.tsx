@@ -449,7 +449,7 @@ export function SalesOrdersTable({
                     <StatusBadge status={order.deliveryStatus || ""} />
                   </td>
                   <td className="px-5 py-3.5 font-semibold text-gray-800 whitespace-nowrap">
-                    ₱{(order.totalPrice || 0).toLocaleString('en-PH')}
+                    ₱{(order.payableTotal ?? order.grandTotal ?? order.totalPrice ?? 0).toLocaleString('en-PH')}
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <StatusBadge status={order.status} />

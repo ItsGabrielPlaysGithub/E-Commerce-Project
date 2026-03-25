@@ -16,6 +16,13 @@ import { getStatusLabel, getStatusColor } from "@/utils/statusMapper";
 import { SalesOrder } from "../../../types/types";
 import { toast } from "sonner";
 
+const getDiscountRate = (itemCount: number) => {
+  if (itemCount <= 0) return 0;
+  if (itemCount <= 10) return 0.1;
+  if (itemCount <= 20) return 0.2;
+  return 0.3;
+};
+
 export default function SalesOrdersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -66,6 +73,14 @@ export default function SalesOrdersPage() {
               new Date(a.paymentProofUploadedAt || a.updatedAt || a.createdAt || 0).getTime()
           )[0] || primaryOrder;
 
+      const totalQuantity = sortedOrders.reduce((sum, o) => sum + (o.quantity || 0), 0);
+      const subtotalBeforeDiscount = sortedOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+      const discountRate = getDiscountRate(totalQuantity);
+      const discountAmount = Math.round(subtotalBeforeDiscount * discountRate);
+      const discountedSubtotal = subtotalBeforeDiscount - discountAmount;
+      const deliveryFee = primaryOrder.deliveryFee ?? (subtotalBeforeDiscount >= 1500 ? 0 : 350);
+      const grandTotal = primaryOrder.grandTotal ?? (discountedSubtotal + deliveryFee);
+
       groupedOrders.push({
         orderId: primaryOrder.orderId?.toString() || "",
         rawOrderIds: sortedOrders
@@ -83,9 +98,16 @@ export default function SalesOrdersPage() {
         userId: primaryOrder.userId || 0,
         productId: primaryOrder.productId || 0,
         orderType: primaryOrder.orderType || "",
-        quantity: sortedOrders.reduce((sum, o) => sum + (o.quantity || 0), 0),
+        quantity: totalQuantity,
         unitPrice: primaryOrder.unitPrice || 0,
-        totalPrice: sortedOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0),
+        totalPrice: subtotalBeforeDiscount,
+        subtotalBeforeDiscount,
+        discountRate,
+        discountAmount,
+        discountedSubtotal,
+        deliveryFee,
+        grandTotal,
+        payableTotal: grandTotal,
         status: primaryOrder.status || "PENDING_APPROVAL",
         deliveryStatus: primaryOrder.deliveryStatus || "",
         paymentMethod: primaryOrder.paymentMethod || "",
@@ -156,28 +178,28 @@ export default function SalesOrdersPage() {
 
   // Calculate stats
   const totalOrders = ordersData.length;
-  const totalAmount = ordersData.reduce((sum, o) => sum + o.totalPrice, 0);
+  const totalAmount = ordersData.reduce((sum, o) => sum + (o.payableTotal ?? o.totalPrice), 0);
 
   const statusCards = [
     {
       label: "PENDING_APPROVAL",
       count: ordersData.filter((o) => o.status === "PENDING_APPROVAL").length,
-      amount: ordersData.filter((o) => o.status === "PENDING_APPROVAL").reduce((s, o) => s + o.totalPrice, 0),
+      amount: ordersData.filter((o) => o.status === "PENDING_APPROVAL").reduce((s, o) => s + (o.payableTotal ?? o.totalPrice), 0),
     },
     {
       label: "ACCEPT",
       count: ordersData.filter((o) => o.status === "ACCEPT").length,
-      amount: ordersData.filter((o) => o.status === "ACCEPT").reduce((s, o) => s + o.totalPrice, 0),
+      amount: ordersData.filter((o) => o.status === "ACCEPT").reduce((s, o) => s + (o.payableTotal ?? o.totalPrice), 0),
     },
     {
       label: "IN_TRANSIT",
       count: ordersData.filter((o) => o.status === "IN_TRANSIT").length,
-      amount: ordersData.filter((o) => o.status === "IN_TRANSIT").reduce((s, o) => s + o.totalPrice, 0),
+      amount: ordersData.filter((o) => o.status === "IN_TRANSIT").reduce((s, o) => s + (o.payableTotal ?? o.totalPrice), 0),
     },
     {
       label: "DELIVERED",
       count: ordersData.filter((o) => o.status === "DELIVERED").length,
-      amount: ordersData.filter((o) => o.status === "DELIVERED").reduce((s, o) => s + o.totalPrice, 0),
+      amount: ordersData.filter((o) => o.status === "DELIVERED").reduce((s, o) => s + (o.payableTotal ?? o.totalPrice), 0),
     },
   ];
 
@@ -206,16 +228,18 @@ export default function SalesOrdersPage() {
   };
 
   const handleApprovePayment = async (order: SalesOrder) => {
+    if (order.status !== "AWAITING_PAYMENT_VERIFICATION") {
+      toast.error(`Cannot approve payment proof for status: ${getStatusLabel(order.status)}`);
+      return;
+    }
+
     setPaymentProofLoading(true);
     try {
-      // Determine next status based on current status
-      const nextStatus = order.status === "AWAITING_PAYMENT_VERIFICATION" ? "ACCEPT" : "ACCEPT";
-      
       await transitionOrderStatus({
         variables: {
           input: {
             orderId: parseInt(order.orderId),
-            nextStatus: nextStatus,
+            nextStatus: "ACCEPT",
           },
         },
       });

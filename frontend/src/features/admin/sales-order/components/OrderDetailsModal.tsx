@@ -54,7 +54,13 @@ export function OrderDetailsModal({
           totalPrice: order.totalPrice,
         }];
   const totalQuantity = orderedProducts.reduce((sum, item) => sum + (item.quantity || 0), 0);
-  const productNames = [...new Set(orderedProducts.map((item) => item.productName).filter(Boolean))].join(", ");
+  const subtotalBeforeDiscount =
+    order.subtotalBeforeDiscount ?? orderedProducts.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+  const discountRate = order.discountRate ?? 0;
+  const discountAmount = order.discountAmount ?? Math.round(subtotalBeforeDiscount * discountRate);
+  const discountedSubtotal = order.discountedSubtotal ?? (subtotalBeforeDiscount - discountAmount);
+  const deliveryFee = order.deliveryFee ?? 0;
+  const payableTotal = order.payableTotal ?? order.grandTotal ?? order.totalPrice;
 
   return (
     <>
@@ -73,13 +79,14 @@ export function OrderDetailsModal({
       {/* Dialog */}
       <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 pointer-events-none" style={{ maxHeight: "100vh", maxWidth: "100vw" }}>
         <div
-          className="rounded-2xl overflow-hidden w-full max-w-2xl pointer-events-auto"
+          className="rounded-2xl overflow-hidden w-full max-w-2xl pointer-events-auto flex flex-col"
           style={{
             background: "white",
             boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
             animation: isOpen
               ? "slideUp 0.3s ease-out"
               : "slideDown 0.2s ease-out forwards",
+            maxHeight: "90vh",
           }}
           onAnimationEnd={() => {
             if (!isOpen) setIsAnimating(false);
@@ -141,7 +148,7 @@ export function OrderDetailsModal({
           </div>
 
           {/* Content */}
-          <div className="px-6 py-6 space-y-6">
+          <div className="px-6 py-6 space-y-6 overflow-y-auto flex-1">
             {/* Order Header */}
             <div className="flex items-start gap-4">
               <div
@@ -219,9 +226,6 @@ export function OrderDetailsModal({
               </h3>
               <div className="space-y-3 p-4 rounded-lg" style={{ backgroundColor: "#f8fafc" }}>
                 <div className="flex items-center justify-between">
-                  
-                </div>
-                <div className="flex items-center justify-between">
                   <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Total Quantity</span>
                   <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>{totalQuantity} units</span>
                 </div>
@@ -257,11 +261,43 @@ export function OrderDetailsModal({
                   borderLeft: "3px solid #2563eb",
                 }}
               >
+                <div className="space-y-2" style={{ marginBottom: "12px" }}>
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Subtotal</span>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#0f172a" }}>
+                      ₱{subtotalBeforeDiscount.toLocaleString('en-PH')}
+                    </span>
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>
+                        Discount ({Math.round(discountRate * 100)}%)
+                      </span>
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#16a34a" }}>
+                        -₱{discountAmount.toLocaleString('en-PH')}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>After Discount</span>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#0f172a" }}>
+                      ₱{discountedSubtotal.toLocaleString('en-PH')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Delivery Fee</span>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: deliveryFee === 0 ? "#16a34a" : "#0f172a" }}>
+                      {deliveryFee === 0 ? "FREE" : `₱${deliveryFee.toLocaleString('en-PH')}`}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ borderTop: "1px solid #bfdbfe", paddingTop: "10px" }}>
                 <div className="flex items-center justify-between">
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#4b5563" }}>Total Amount</span>
+                  <span style={{ fontSize: "14px", fontWeight: 700, color: "#4b5563" }}>Total Payable</span>
                   <span style={{ fontSize: "18px", fontWeight: 700, color: "#2563eb" }}>
-                    ₱{order.totalPrice.toLocaleString()}
+                    ₱{payableTotal.toLocaleString('en-PH')}
                   </span>
+                </div>
                 </div>
               </div>
             </div>
