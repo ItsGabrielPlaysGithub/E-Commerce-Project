@@ -39,7 +39,7 @@ export function useOrdersFromCart() {
       subtotal,
       vat,
       total,
-      status: "Open" as const,
+      status: "PENDING_APPROVAL" as const,
       paymentStatus: "Pending" as const,
       deliveryMethod: "—",
       notes: "Order created from cart",

@@ -9,12 +9,12 @@ const REDIRECT_DELAY_SECONDS = 5;
 export default function B2BCheckoutSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | undefined>(undefined);
   const [countdown, setCountdown] = useState(REDIRECT_DELAY_SECONDS);
 
   useEffect(() => {
     const id = searchParams.get('orderId');
-    setOrderId(id);
+    setOrderId(id ?? undefined);
   }, [searchParams]);
 
   useEffect(() => {

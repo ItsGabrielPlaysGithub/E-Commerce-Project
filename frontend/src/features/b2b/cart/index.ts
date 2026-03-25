@@ -11,7 +11,7 @@ export {
 } from "./components";
 
 // Services
-export { placeOrder, validateDeliveryDetails } from "./services";
+export { usePlaceOrder, validateDeliveryDetails } from "./services";
 
 // Types
 export type { DeliveryDetails, CartItem, Company } from "./types";

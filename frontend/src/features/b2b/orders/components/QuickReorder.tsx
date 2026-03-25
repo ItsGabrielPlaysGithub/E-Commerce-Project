@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useCart } from "@/features/b2b/cart/hooks/useCart";
-import type { Product } from "@/data/products";
+import type { Product } from "@/features/b2b/cart/hooks/useCart";
 import { QuickReorderHeader } from "./QuickReorderHeader";
 import { QuickReorderItemCard } from "./QuickReorderItemCard";
 
@@ -33,12 +33,8 @@ export function QuickReorder({ items }: QuickReorderProps) {
         name: item.name,
         price: item.price,
         retailPrice: item.price,
-        wholesalePrice: item.price,
-        bulkPrice: item.price,
-        minWholesale: 1,
-        minBulk: 1,
         image: "",
-        category: "",
+        category: "Quick Reorder",
         rating: 0,
       };
       addItem(product, quantity);
