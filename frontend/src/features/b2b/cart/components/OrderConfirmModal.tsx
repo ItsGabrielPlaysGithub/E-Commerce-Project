@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CartItem, Company, DeliveryDetails } from "../types";
-import { CART_COLORS, CART_CONFIG } from "../constants/cartConstants";
+import { CART_COLORS, CART_CONFIG, getDiscountLabel, getDiscountRate } from "../constants/cartConstants";
 import { ModalHeader } from "./OrderConfirmModal/ModalHeader";
 import { ItemsSummary } from "./OrderConfirmModal/ItemsSummary";
 import { CostBreakdown } from "./OrderConfirmModal/CostBreakdown";
@@ -54,11 +54,24 @@ export function OrderConfirmModal({
   const [paymentMethod, setPaymentMethod] = useState<"e-payment" | "manual_transfer">(
     "e-payment",
   );
+  const [showConfirmError, setShowConfirmError] = useState(false);
+
+  const handlePlaceOrder = (method: "e-payment" | "manual_transfer") => {
+    if (!confirmed) {
+      setShowConfirmError(true);
+      return;
+    }
+    onPlaceOrder(method);
+  };
 
   if (!isOpen) return null;
 
+  const discountRate = getDiscountRate(itemCount);
+  const discountAmount = Math.round(subtotal * discountRate);
+  const discountLabel = getDiscountLabel(itemCount);
+  const discountedSubtotal = subtotal - discountAmount;
   const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
-  const grandTotal = subtotal + deliveryFee;
+  const grandTotal = discountedSubtotal + deliveryFee;
 
   return (
     <div
@@ -75,6 +88,8 @@ export function OrderConfirmModal({
           <ItemsSummary items={items} itemCount={itemCount} />
           <CostBreakdown
             subtotal={subtotal}
+            discountAmount={discountAmount}
+            discountLabel={discountLabel}
             deliveryFee={deliveryFee}
             grandTotal={grandTotal}
             redColor={RED}
@@ -93,13 +108,17 @@ export function OrderConfirmModal({
 
           <ConfirmCheckbox
             confirmed={confirmed}
-            onConfirmedChange={onConfirmedChange}
+            onConfirmedChange={(value) => {
+              onConfirmedChange(value);
+              if (value) setShowConfirmError(false);
+            }}
+            showError={showConfirmError}
           />
         </div>
 
         <ModalFooter
           onClose={onClose}
-          onPlaceOrder={() => onPlaceOrder(paymentMethod)}
+          onPlaceOrder={() => handlePlaceOrder(paymentMethod)}
           placing={placing}
           redColor={RED}
         />
