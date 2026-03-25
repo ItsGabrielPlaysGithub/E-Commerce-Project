@@ -159,9 +159,11 @@ export class OrdersTbl {
 
   @ManyToOne(() => ProductsTbl)
   @JoinColumn({ name: 'productId' })
-  product: ProductsTbl;
+  @Field(() => ProductsTbl, { nullable: true })
+  product?: ProductsTbl;
 
   @ManyToOne(() => UsersTbl)
   @JoinColumn({ name: 'userId' })
-  user: UsersTbl;
+  @Field(() => UsersTbl, { nullable: true })
+  user?: UsersTbl;
 }

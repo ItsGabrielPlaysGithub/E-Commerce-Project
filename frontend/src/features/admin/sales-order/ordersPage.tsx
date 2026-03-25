@@ -89,7 +89,7 @@ export default function SalesOrdersPage() {
         lineItemCount: sortedOrders.length,
         orderedProducts: sortedOrders.map((o) => ({
           productId: o.productId || 0,
-          productName: o.productName || o.product?.name || "",
+          productName: o.productName || o.product?.productName || "",
           quantity: o.quantity || 0,
           unitPrice: o.unitPrice || 0,
           totalPrice: o.totalPrice || 0,
