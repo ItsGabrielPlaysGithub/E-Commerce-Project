@@ -11,6 +11,15 @@ interface OrderRowInfoProps {
 
 export function OrderRowInfo({ order }: OrderRowInfoProps) {
   const StatusIcon = STATUS_CONFIG[order.status]?.icon;
+  const showPaymentStatusBadge = !(
+    (
+      order.status === "ACCEPT" ||
+      order.status === "DELIVERED" ||
+      order.status === "REJECTED" ||
+      order.status === "CANCELLED"
+    ) &&
+    order.paymentStatus === "Pending"
+  );
 
   return (
     <div className="flex-1 min-w-0">
@@ -34,15 +43,28 @@ export function OrderRowInfo({ order }: OrderRowInfoProps) {
           {StatusIcon && <StatusIcon size={10} />}
           {getStatusLabel(order.status)}
         </span>
-        <span
-          className="text-xs px-2 py-0.5 rounded-full font-medium"
-          style={{
-            backgroundColor: PAY_CONFIG[order.paymentStatus]?.bg,
-            color: PAY_CONFIG[order.paymentStatus]?.color,
-          }}
-        >
-          {order.paymentStatus}
-        </span>
+        {order.status === "ACCEPT" && (
+          <span
+            className="text-xs px-2 py-0.5 rounded-full font-medium animate-pulse"
+            style={{
+              backgroundColor: "#dbeafe",
+              color: "#0284c7",
+            }}
+          >
+            ⚙️ Processing
+          </span>
+        )}
+        {showPaymentStatusBadge && (
+          <span
+            className="text-xs px-2 py-0.5 rounded-full font-medium"
+            style={{
+              backgroundColor: PAY_CONFIG[order.paymentStatus]?.bg,
+              color: PAY_CONFIG[order.paymentStatus]?.color,
+            }}
+          >
+            {order.paymentStatus}
+          </span>
+        )}
       </div>
       <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-1.5">
         <span className="text-xs text-gray-500">Ordered: {formatDateWithTime2DigitYear(order.date)}</span>

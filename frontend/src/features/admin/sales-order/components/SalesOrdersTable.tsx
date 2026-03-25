@@ -420,7 +420,7 @@ export function SalesOrdersTable({
             {paginatedOrders.length > 0 ? (
               paginatedOrders.map((order) => (
                 <tr
-                  key={order.orderNumber || order.orderId}
+                  key={order.orderId}
                   className="hover:bg-gray-50/50 transition-colors"
                 >
                   <td className="px-5 py-3.5 font-mono text-xs text-gray-600 whitespace-nowrap">

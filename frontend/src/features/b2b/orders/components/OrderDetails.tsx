@@ -64,7 +64,7 @@ export function OrderDetails({ order, onReUploadClick }: OrderDetailsProps) {
                 </div>
               </div>
             )}
-            {order.paymentProofImage && (order.status === "AWAITING_PAYMENT_VERIFICATION" || order.status === "PAID") && (
+            {order.paymentProofImage && (
               <div className="mt-4 pt-4 border-t border-slate-200">
                 <div className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">
                   Payment Proof

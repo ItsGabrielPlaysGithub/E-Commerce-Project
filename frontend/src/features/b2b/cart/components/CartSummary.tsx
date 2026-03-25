@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { CartItem, Company } from "../types";
-import { CART_COLORS, CART_CONFIG } from "../constants/cartConstants";
+import { CART_COLORS, CART_CONFIG, getDiscountLabel, getDiscountRate } from "../constants/cartConstants";
 
 interface CartSummaryProps {
   items: CartItem[];
@@ -25,10 +25,18 @@ export function CartSummary({
   const { RED, RED_LIGHT } = CART_COLORS;
   const { FREE_DELIVERY_THRESHOLD, DELIVERY_FEE } = CART_CONFIG;
 
+<<<<<<< HEAD
   const fullRetailTotal = items.reduce((s, i) => s + i.qty * (i.product.retailPrice ?? 0), 0);
+=======
+  const fullRetailTotal = items.reduce((s, i) => s + i.qty * i.product.retailPrice, 0);
+  const discountRate = getDiscountRate(itemCount);
+  const discountAmount = Math.round(subtotal * discountRate);
+  const discountLabel = getDiscountLabel(itemCount);
+>>>>>>> c99b77f998a03eb0b088f6c2f1fa59889fb63dfd
   // Show 0 delivery fee if no items are selected, otherwise calculate based on subtotal
   const deliveryFee = itemCount === 0 ? 0 : (subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE);
-  const grandTotal = subtotal + deliveryFee;
+  const discountedSubtotal = subtotal - discountAmount;
+  const grandTotal = discountedSubtotal + deliveryFee;
 
   return (
     <div className="space-y-4">
@@ -46,6 +54,12 @@ export function CartSummary({
             <span className="text-gray-500">Selected subtotal ({itemCount} items)</span>
             <span className="text-gray-900 font-medium">₱{subtotal.toLocaleString()}</span>
           </div>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-500">Discount ({discountLabel})</span>
+              <span className="text-green-600 font-medium">-₱{discountAmount.toLocaleString()}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm">
             <span className="text-gray-500">Delivery fee</span>
             <span className="text-gray-900 font-medium">

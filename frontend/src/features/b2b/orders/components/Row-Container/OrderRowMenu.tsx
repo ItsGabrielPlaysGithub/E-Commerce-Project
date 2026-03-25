@@ -42,13 +42,18 @@ export function OrderRowMenu({
 
   if (!isOpen) return null;
 
-  // For cancelled orders, only show View Details option
-  const isCancelled = order.status === "CANCELLED";
+  // Allow cancel only before processing begins.
+  const cancellableStatuses = [
+    "PENDING_APPROVAL",
+    "READY_FOR_BILLING",
+    "AWAITING_PAYMENT_VERIFICATION",
+  ];
+  const canCancel = cancellableStatuses.includes(order.status);
 
   return (
     <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50" ref={menuRef}>
       <div className="py-1">
-        {!isCancelled && (
+        {canCancel && (
           <>
             <button
               onClick={() => {

@@ -11,6 +11,7 @@ import { UpdateOrderStatusModal } from "@/features/admin/sales-order/components/
 import { useOrders } from "@/features/admin/sales-order/hooks";
 import { useTransitionOrderStatus } from "@/features/admin/sales-order/hooks/use-transitionorderstatus";
 import { useRejectPaymentProof } from "@/features/admin/sales-order/hooks/use-reject-payment-proof";
+import { useCancelOrder } from "@/features/admin/sales-order/hooks/use-cancel-order";
 import { getStatusLabel, getStatusColor } from "@/utils/statusMapper";
 import { SalesOrder } from "../../../types/types";
 import { toast } from "sonner";
@@ -36,6 +37,7 @@ export default function SalesOrdersPage() {
   const { data, loading, error } = useOrders();
   const [transitionOrderStatus] = useTransitionOrderStatus();
   const [rejectPaymentProof] = useRejectPaymentProof();
+  const { cancelOrder: cancelOrderMutation } = useCancelOrder();
 
   // Transform GraphQL data to match SalesOrder interface
   const ordersData: SalesOrder[] = (data?.allOrders || []).map((order: any) => ({
@@ -260,8 +262,14 @@ export default function SalesOrdersPage() {
     console.log("View invoice:", order);
   };
 
-  const handleCancelOrder = (order: SalesOrder) => {
-    console.log("Cancel order:", order);
+  const handleCancelOrder = async (order: SalesOrder) => {
+    try {
+      await cancelOrderMutation(parseInt(order.orderId));
+      toast.success("Order cancelled successfully");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order");
+    }
   };
 
   const handleAdjustDelivery = (order: SalesOrder) => {

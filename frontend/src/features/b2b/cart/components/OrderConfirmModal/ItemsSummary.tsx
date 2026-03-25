@@ -20,13 +20,13 @@ export function ItemsSummary({ items, itemCount }: ItemsSummaryProps) {
               <img
                 src={item.product.imageUrl || item.product.image}
                 alt={item.product.name}
-                className="w-8 h-8 rounded-lg object-cover flex-shrink-0"
+                className="w-8 h-8 rounded-lg object-cover shrink-0"
               />
               <span className="text-gray-700 line-clamp-1 font-medium">
                 {item.product.name.split("—")[0].trim()}
               </span>
             </div>
-            <div className="flex items-center gap-3 flex-shrink-0 ml-2">
+            <div className="flex items-center gap-3 shrink-0 ml-2">
               <span className="text-gray-400">×{item.qty}</span>
               <span className="text-gray-900 font-semibold">
                 ₱{(item.qty * item.unitPrice).toLocaleString()}

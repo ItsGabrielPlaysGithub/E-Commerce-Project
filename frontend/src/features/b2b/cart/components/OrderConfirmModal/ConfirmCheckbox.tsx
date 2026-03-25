@@ -8,23 +8,28 @@ const BLUE_LIGHT = "rgba(59, 130, 246, 0.1)";
 interface ConfirmCheckboxProps {
   confirmed: boolean;
   onConfirmedChange: (value: boolean) => void;
+  showError?: boolean;
 }
 
 export function ConfirmCheckbox({
   confirmed,
   onConfirmedChange,
+  showError = false,
 }: ConfirmCheckboxProps) {
   const { company } = useAuth();
   const companyName = company?.companyName || company?.fullName || "your company";
+  
+  const isError = showError && !confirmed;
 
   return (
-    <label
-      className="flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all"
-      style={{
-        borderColor: confirmed ? BLUE_COLOR : "#e5e7eb",
-        backgroundColor: confirmed ? BLUE_LIGHT : "#fafafa",
-      }}
-    >
+    <div>
+      <label
+        className="flex items-start gap-3 p-4 rounded-xl border cursor-pointer transition-all"
+        style={{
+          borderColor: isError ? "#ef4444" : confirmed ? BLUE_COLOR : "#e5e7eb",
+          backgroundColor: isError ? "rgba(239, 68, 68, 0.05)" : confirmed ? BLUE_LIGHT : "#fafafa",
+        }}
+      >
       <input
         type="checkbox"
         checked={confirmed}
@@ -36,5 +41,11 @@ export function ConfirmCheckbox({
         and delivery terms for <strong>{companyName}</strong>.
       </span>
     </label>
+    {isError && (
+      <p className="text-xs text-red-600 mt-2 font-medium">
+        This field is required
+      </p>
+    )}
+    </div>
   );
 }

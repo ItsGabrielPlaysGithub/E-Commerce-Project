@@ -4,7 +4,7 @@ import { OrdersTbl } from './entity/orders.tbl';
 import { CreateOrderDto } from './dto/create.order';
 import { Repository, In } from 'typeorm';
 import { UpdateOrderDto } from './dto/update.order';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { OrderStatus } from './entity/order-status.enum';
 import { TransitionOrderStatusDto } from './dto/transition.order-status';
 import { PlaceOrderDto } from './dto/place-order';
@@ -84,20 +84,25 @@ export class OrdersService {
 
   // ADMIN SIDE ORDER FUNCTIONS
 
-  // for admin to view all orders
-  async allOrders() {
-    return await this.ordersRepository.find();
-  }
+    // for admin to view all orders
+    async allOrders(){
+        return await this.ordersRepository.find({
+            order: { createdAt: 'DESC', orderId: 'ASC' },
+        });
+    }
 
   async orderDetails(orderId: number) {
     return await this.ordersRepository.findOne({ where: { orderId } });
   }
 
-  // CLIENTS SIDE ORDER FUNCTIONS
-  // for clients to view their own orders
-  async clientOrders(userId: number) {
-    return await this.ordersRepository.find({ where: { userId } });
-  }
+    // CLIENTS SIDE ORDER FUNCTIONS
+    // for clients to view their own orders
+    async clientOrders(userId: number){
+        return await this.ordersRepository.find({
+            where: { userId },
+            order: { createdAt: 'DESC', orderId: 'ASC' },
+        });
+    }
 
   async createOrder(createOrderDto: CreateOrderDto) {
     const product = await this.productsRepository.findOne({
@@ -199,96 +204,88 @@ export class OrdersService {
     return savedOrder;
   }
 
-  async transitionOrderStatus(transitionDto: TransitionOrderStatusDto) {
-    const order = await this.ordersRepository.findOne({
-      where: { orderId: transitionDto.orderId },
-    });
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
+    async transitionOrderStatus(transitionDto: TransitionOrderStatusDto) {
+        const { targetOrder, groupedOrders } = await this.getOrderGroupFromOrderId(transitionDto.orderId);
+        const previousStatus = targetOrder.status as OrderStatus;
 
-    const currentStatus = order.status as OrderStatus;
-    this.assertTransitionAllowed(currentStatus, transitionDto.nextStatus);
+        // No-op transition: avoid throwing when client resubmits the same status.
+        if (groupedOrders.every((o) => (o.status as OrderStatus) === transitionDto.nextStatus)) {
+            return targetOrder;
+        }
 
-    order.status = transitionDto.nextStatus;
+        for (const groupedOrder of groupedOrders) {
+            const currentStatus = groupedOrder.status as OrderStatus;
+            if (currentStatus !== transitionDto.nextStatus) {
+                this.assertTransitionAllowed(currentStatus, transitionDto.nextStatus);
+            }
 
-    // Store rejection reason if transitioning to REJECTED
-    if (
-      transitionDto.nextStatus === OrderStatus.REJECTED &&
-      transitionDto.rejectionReason
-    ) {
-      order.rejectionReason = transitionDto.rejectionReason;
-    }
+            groupedOrder.status = transitionDto.nextStatus;
 
-    const updatedOrder = await this.ordersRepository.save(order);
+            // Store rejection reason if transitioning to REJECTED
+            if (transitionDto.nextStatus === OrderStatus.REJECTED && transitionDto.rejectionReason) {
+                groupedOrder.rejectionReason = transitionDto.rejectionReason;
+            }
+        }
 
-    void this.sendOrderStatusNotificationEmail(
-      updatedOrder,
-      currentStatus,
-      null,
-    ).catch((error: unknown) => {
-      this.logger.error(
-        `Order status email dispatch failed for order #${updatedOrder.orderId}`,
-        error instanceof Error ? error.stack : String(error),
-      );
-    });
+        const updatedOrders = await this.ordersRepository.save(groupedOrders);
+        const updatedOrder = updatedOrders.find((o) => o.orderId === targetOrder.orderId) ?? updatedOrders[0];
+
+        void this.sendOrderStatusNotificationEmail(
+            updatedOrder,
+            previousStatus,
+            null,
+        ).catch((error: unknown) => {
+            this.logger.error(
+                `Order status email dispatch failed for order #${updatedOrder.orderId}`,
+                error instanceof Error ? error.stack : String(error),
+            );
+        });
 
     return updatedOrder;
   }
 
-  /**
-   * Reject payment proof with attempt tracking
-   * If attempts reach 3, auto-transitions order to REJECTED
-   * Otherwise, keeps order in AWAITING_PAYMENT_VERIFICATION
-   */
-  async rejectPaymentProof(
-    orderId: number,
-    rejectionReason: string,
-  ): Promise<OrdersTbl> {
-    const order = await this.ordersRepository.findOne({ where: { orderId } });
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-    const user = await this.usersRepository.findOne({
-      where: { userId: order.userId },
-    });
-
-    // Increment payment proof attempt count
-    order.paymentProofAttempts = (order.paymentProofAttempts || 0) + 1;
-    order.paymentProofStatus = 'rejected';
-    order.paymentProofRejectionReason = rejectionReason;
-
-    // If 3 or more rejection attempts, auto-reject the entire order
-    if (order.paymentProofAttempts >= 3) {
-      order.status = OrderStatus.REJECTED;
-      order.rejectionReason = `Payment proof rejected after ${order.paymentProofAttempts} attempts. Last reason: ${rejectionReason}`;
-    }
-    // Otherwise, keep status as AWAITING_PAYMENT_VERIFICATION for re-upload
-
-    const updatedOrder = await this.ordersRepository.save(order);
-
-    // Create in-app notification
-    if (user) {
-      const attemptsLeft = Math.max(0, 3 - order.paymentProofAttempts);
-      try {
-        await this.notificationsService.createNotification({
-          userId: order.userId,
-          type: 'payment_proof_rejected',
-          title: 'Payment Proof Rejected',
-          message: `Your payment proof for order ${order.orderNumber} has been rejected.\n\nReason: ${rejectionReason}\n\n${attemptsLeft > 0 ? `Please upload a valid proof. Attempts left: ${attemptsLeft}` : 'Maximum upload attempts reached. Please contact support.'}`,
-          orderId: orderId,
-          metadata: JSON.stringify({
-            rejectionReason,
-            attemptNumber: order.paymentProofAttempts,
-            attemptsLeft,
-          }),
+    /**
+     * Reject payment proof with attempt tracking
+     * If attempts reach 3, auto-transitions order to REJECTED
+     * Otherwise, keeps order in AWAITING_PAYMENT_VERIFICATION
+     */
+    async rejectPaymentProof(orderId: number, rejectionReason: string): Promise<OrdersTbl> {
+        const { targetOrder, groupedOrders } = await this.getOrderGroupFromOrderId(orderId);
+        const user = await this.usersRepository.findOne({
+            where: { userId: targetOrder.userId },
         });
-      } catch (err) {
-        this.logger.error(
-          `Failed to create notification for order #${orderId}:`,
-          err,
-        );
-      }
+
+        for (const groupedOrder of groupedOrders) {
+            // Increment payment proof attempt count
+            groupedOrder.paymentProofAttempts = (groupedOrder.paymentProofAttempts || 0) + 1;
+            groupedOrder.paymentProofStatus = 'rejected';
+            groupedOrder.paymentProofRejectionReason = rejectionReason;
+
+            // If 3 or more rejection attempts, auto-reject the entire order item
+            if (groupedOrder.paymentProofAttempts >= 3) {
+                groupedOrder.status = OrderStatus.REJECTED;
+                groupedOrder.rejectionReason = `Payment proof rejected after ${groupedOrder.paymentProofAttempts} attempts. Last reason: ${rejectionReason}`;
+            }
+        }
+
+        const updatedOrders = await this.ordersRepository.save(groupedOrders);
+        const updatedOrder = updatedOrders.find((o) => o.orderId === targetOrder.orderId) ?? updatedOrders[0];
+
+        // Create in-app notification
+        if (user) {
+            const attemptsLeft = Math.max(0, 3 - updatedOrder.paymentProofAttempts);
+            try {
+                await this.notificationsService.createNotification({
+                    userId: targetOrder.userId,
+                    type: 'payment_proof_rejected',
+                    title: 'Payment Proof Rejected',
+                    message: `Your payment proof for order ${targetOrder.orderNumber} has been rejected.\n\nReason: ${rejectionReason}\n\n${attemptsLeft > 0 ? `Please upload a valid proof. Attempts left: ${attemptsLeft}` : 'Maximum upload attempts reached. Please contact support.'}`,
+                    orderId: orderId,
+                    metadata: JSON.stringify({ rejectionReason, attemptNumber: updatedOrder.paymentProofAttempts, attemptsLeft }),
+                });
+            } catch (err) {
+                this.logger.error(`Failed to create notification for order #${orderId}:`, err);
+            }
 
       // Send email notification about rejection
       void this.sendPaymentProofRejectedEmail(updatedOrder).catch(
@@ -304,30 +301,55 @@ export class OrdersService {
     return updatedOrder;
   }
 
-  /**
-   * Approve payment proof
-   */
-  async approvePaymentProof(orderId: number): Promise<OrdersTbl> {
-    const order = await this.ordersRepository.findOne({ where: { orderId } });
-    if (!order) {
-      throw new NotFoundException('Order not found');
+    /**
+     * Approve payment proof
+     */
+    async approvePaymentProof(orderId: number): Promise<OrdersTbl> {
+        const { targetOrder, groupedOrders } = await this.getOrderGroupFromOrderId(orderId);
+
+        for (const groupedOrder of groupedOrders) {
+            groupedOrder.paymentProofStatus = 'approved';
+            groupedOrder.status = OrderStatus.PACKING;
+        }
+
+        const updatedOrders = await this.ordersRepository.save(groupedOrders);
+        const updatedOrder = updatedOrders.find((o) => o.orderId === targetOrder.orderId) ?? updatedOrders[0];
+
+        void this.sendOrderStatusNotificationEmail(updatedOrder, OrderStatus.AWAITING_PAYMENT_VERIFICATION, null).catch(
+            (error: unknown) => {
+                this.logger.error(`Payment approved email failed for order #${orderId}`, error instanceof Error ? error.stack : String(error));
+            },
+        );
+
+        return updatedOrder;
     }
 
-    order.paymentProofStatus = 'approved';
-    order.status = OrderStatus.PACKING;
+    /**
+     * Cancel an order by client user (ownership verified at resolver level)
+     */
+    async cancelOrder(orderId: number, userId: number): Promise<OrdersTbl> {
+        const order = await this.ordersRepository.findOne({ where: { orderId } });
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
 
-    const updatedOrder = await this.ordersRepository.save(order);
+        // Verify ownership
+        if (order.userId !== userId) {
+            throw new ForbiddenException('You can only cancel your own orders');
+        }
 
-    void this.sendOrderStatusNotificationEmail(
-      updatedOrder,
-      OrderStatus.AWAITING_PAYMENT_VERIFICATION,
-      null,
-    ).catch((error: unknown) => {
-      this.logger.error(
-        `Payment approved email failed for order #${orderId}`,
-        error instanceof Error ? error.stack : String(error),
-      );
-    });
+        const currentStatus = order.status as OrderStatus;
+        
+        // Cancellation is allowed from any status as per assertTransitionAllowed
+        order.status = OrderStatus.CANCELLED;
+        const updatedOrder = await this.ordersRepository.save(order);
+
+        void this.sendOrderStatusNotificationEmail(updatedOrder, currentStatus, null).catch((error: unknown) => {
+            this.logger.error(
+                `Order cancellation email failed for order #${orderId}`,
+                error instanceof Error ? error.stack : String(error),
+            );
+        });
 
     return updatedOrder;
   }
@@ -626,14 +648,40 @@ export class OrdersService {
 </html>`;
   }
 
-  private escapeHtml(value: string) {
-    return value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
+    private escapeHtml(value: string) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    private async getOrderGroupFromOrderId(orderId: number): Promise<{ targetOrder: OrdersTbl; groupedOrders: OrdersTbl[] }> {
+        const targetOrder = await this.ordersRepository.findOne({ where: { orderId } });
+        if (!targetOrder) {
+            throw new NotFoundException('Order not found');
+        }
+
+        const groupedOrders = await this.getOrdersInGroup(targetOrder);
+        return {
+            targetOrder,
+            groupedOrders,
+        };
+    }
+
+    private async getOrdersInGroup(targetOrder: OrdersTbl): Promise<OrdersTbl[]> {
+        if (!targetOrder.orderNumber) {
+            return [targetOrder];
+        }
+
+        const groupedOrders = await this.ordersRepository.find({
+            where: { orderNumber: targetOrder.orderNumber },
+            order: { orderId: 'ASC' },
+        });
+
+        return groupedOrders.length > 0 ? groupedOrders : [targetOrder];
+    }
 
   /**
    * Save payment proof for an order
@@ -653,29 +701,31 @@ export class OrdersService {
       throw new NotFoundException(`Order #${orderId} not found`);
     }
 
-    // Store the file path and upload timestamp
-    order.paymentProofImage = filename;
-    order.paymentProofUploadedAt = new Date();
+        const groupedOrders = await this.getOrdersInGroup(order);
 
-    // Reset payment proof status to pending when re-uploading after rejection
-    if (order.paymentProofStatus === 'rejected') {
-      order.paymentProofStatus = 'pending';
-      order.paymentProofRejectionReason = undefined;
-    }
+        for (const groupedOrder of groupedOrders) {
+            // Store the file path and upload timestamp
+            groupedOrder.paymentProofImage = filename;
+            groupedOrder.paymentProofUploadedAt = new Date();
 
-    // Store previous status for reference
-    const previousStatus = order.status as OrderStatus;
+            // Reset payment proof status to pending when re-uploading after rejection
+            if (groupedOrder.paymentProofStatus === 'rejected') {
+                groupedOrder.paymentProofStatus = 'pending';
+                groupedOrder.paymentProofRejectionReason = undefined;
+            }
 
-    // Transition to AWAITING_PAYMENT_VERIFICATION if currently PENDING_APPROVAL or READY_FOR_BILLING
-    // If already under review or in a different status, keep the current status
-    if (
-      previousStatus === OrderStatus.READY_FOR_BILLING ||
-      previousStatus === OrderStatus.PENDING_APPROVAL
-    ) {
-      order.status = OrderStatus.AWAITING_PAYMENT_VERIFICATION;
-    }
+            // Transition to AWAITING_PAYMENT_VERIFICATION if currently PENDING_APPROVAL or READY_FOR_BILLING
+            // If already under review or in a different status, keep the current status
+            const status = groupedOrder.status as OrderStatus;
+            if (status === OrderStatus.READY_FOR_BILLING || status === OrderStatus.PENDING_APPROVAL) {
+                groupedOrder.status = OrderStatus.AWAITING_PAYMENT_VERIFICATION;
+            }
+        }
 
-    const updatedOrder = await this.ordersRepository.save(order);
+        // Store previous status for reference
+        const previousStatus = order.status as OrderStatus;
+        const updatedOrders = await this.ordersRepository.save(groupedOrders);
+        const updatedOrder = updatedOrders.find((o) => o.orderId === order.orderId) ?? updatedOrders[0];
 
     // Create invoice for this order if not already done
     let invoice: InvoicesTbl | null = null;
@@ -690,16 +740,13 @@ export class OrdersService {
       }
     }
 
-    // Send notification email about payment proof submission
-    void this.sendPaymentProofReceivedEmail(
-      updatedOrder,
-      invoice || undefined,
-    ).catch((error: unknown) => {
-      this.logger.error(
-        `Payment proof notification email failed for order #${orderId}`,
-        error instanceof Error ? error.stack : String(error),
-      );
-    });
+        // Send notification email about payment proof submission
+        void this.sendPaymentProofReceivedEmail({ ...updatedOrder, user: order.user }, invoice || undefined).catch((error: unknown) => {
+            this.logger.error(
+                `Payment proof notification email failed for order #${orderId}`,
+                error instanceof Error ? error.stack : String(error),
+            );
+        });
 
     return updatedOrder;
   }

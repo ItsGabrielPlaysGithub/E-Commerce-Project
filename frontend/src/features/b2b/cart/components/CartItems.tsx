@@ -37,9 +37,9 @@ export function CartItems({
       {/* Items list */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         {/* Column headers */}
-        <div className="grid grid-cols-12 gap-3 px-5 py-3 border-b border-gray-50">
+        <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-3 border-b border-gray-50">
           <div className="col-span-6 text-xs font-semibold text-gray-400 uppercase tracking-wider">Product</div>
-          <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center hidden sm:block">Price</div>
+          <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Price</div>
           <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Qty</div>
           <div className="col-span-2 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Total</div>
         </div>
@@ -52,9 +52,9 @@ export function CartItems({
               key={item.product.id}
               className="border-b border-gray-50 last:border-0"
             >
-              <div className="grid grid-cols-12 gap-3 px-5 py-4 items-center">
+              <div className="grid grid-cols-12 gap-3 px-4 sm:px-5 py-4 items-center">
                 {/* Product info */}
-                <div className="col-span-6 flex items-center gap-3">
+                <div className="col-span-12 sm:col-span-6 flex items-center gap-3">
                   <input
                     type="checkbox"
                     checked={isSelected}
@@ -87,7 +87,8 @@ export function CartItems({
                 </div>
 
                 {/* Unit price */}
-                <div className="col-span-2 text-center hidden sm:block">
+                <div className="col-span-4 sm:col-span-2 text-left sm:text-center">
+                  <div className="text-[10px] uppercase tracking-wide text-gray-400 mb-0.5 sm:hidden">Price</div>
                   <div className="text-gray-900 text-sm font-medium">₱{item.unitPrice.toLocaleString()}</div>
                   {item.unitPrice < (item.product.retailPrice ?? 0) && (
                     <div className="text-gray-300 text-xs line-through">₱{(item.product.retailPrice ?? 0).toLocaleString()}</div>
@@ -95,7 +96,9 @@ export function CartItems({
                 </div>
 
                 {/* Qty stepper */}
-                <div className="col-span-2 flex items-center justify-center">
+                <div className="col-span-4 sm:col-span-2 flex items-center justify-start sm:justify-center">
+                  <div>
+                    <div className="text-[10px] uppercase tracking-wide text-gray-400 mb-1 sm:hidden">Qty</div>
                   <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                     <button
                       onClick={(e) => {
@@ -119,16 +122,20 @@ export function CartItems({
                       <Plus size={12} />
                     </button>
                   </div>
+                  </div>
                 </div>
 
                 {/* Line total + remove */}
-                <div className="col-span-2 flex items-center justify-end gap-2">
-                  <span className="text-gray-900 font-bold text-sm">
-                    ₱{(item.qty * item.unitPrice).toLocaleString()}
-                  </span>
+                <div className="col-span-4 sm:col-span-2 flex items-center justify-end gap-2">
+                  <div className="text-right">
+                    <div className="text-[10px] uppercase tracking-wide text-gray-400 mb-0.5 sm:hidden">Total</div>
+                    <span className="text-gray-900 font-bold text-sm whitespace-nowrap">
+                      ₱{(item.qty * item.unitPrice).toLocaleString()}
+                    </span>
+                  </div>
                   <button
                     onClick={() => onRemoveItem(item.product.id)}
-                    className="text-gray-300 hover:text-red-400 transition-colors ml-1"
+                    className="text-gray-300 hover:text-red-400 transition-colors ml-1 shrink-0"
                   >
                     <Trash2 size={14} />
                   </button>

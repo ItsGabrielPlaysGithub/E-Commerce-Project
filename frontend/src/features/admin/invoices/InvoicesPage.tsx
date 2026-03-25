@@ -11,7 +11,9 @@ import {
 } from ".";
 import { InvoiceDetailsModal } from "./components/InvoiceDetailsModal";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const INVOICES_PER_PAGE = 6;
 
 export function InvoicesPage() {
   // Fetch invoices from backend
@@ -19,6 +21,21 @@ export function InvoicesPage() {
 
   // Manage filtering and search
   const { search, setSearch, filtered } = useInvoices(invoicesData || []);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / INVOICES_PER_PAGE));
+  const startIndex = (currentPage - 1) * INVOICES_PER_PAGE;
+  const paginatedInvoices = filtered.slice(startIndex, startIndex + INVOICES_PER_PAGE);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   // Calculate stats
   const totalInvoices = invoicesData?.length || 0;
@@ -154,12 +171,43 @@ export function InvoicesPage() {
 
       {/* Invoices List */}
       {!loading && !error && (
-        <InvoicesList
-          invoices={filtered}
-          emptyMessage="No invoices found matching your filters"
-          onViewDetails={handleViewDetails}
-          onApprovePayment={handleApprovePayment}
-        />
+        <>
+          <InvoicesList
+            invoices={paginatedInvoices}
+            emptyMessage="No invoices found matching your filters"
+            onViewDetails={handleViewDetails}
+            onApprovePayment={handleApprovePayment}
+          />
+
+          {filtered.length > 0 && (
+            <div className="flex items-center justify-between mt-4">
+              <p className="text-xs text-gray-500">
+                Showing {startIndex + 1}-{Math.min(startIndex + INVOICES_PER_PAGE, filtered.length)} of {filtered.length} invoices
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                <span className="text-xs text-gray-600">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

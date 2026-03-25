@@ -7,7 +7,7 @@ import { OrderDetails } from "./OrderDetails";
 import { OrderRowInfo } from "./Row-Container/OrderRowInfo";
 import { OrderRowActions } from "./Row-Container/OrderRowActions";
 import { PaymentProofUploadModal } from "../../../../components/modals/Payment-Proof";
-import { useUpdateOrderStatus } from "../hooks/use-update-order-status";
+import { useCancelOrder } from "../hooks/use-cancel-order";
 import { Upload, Eye, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
 
 interface OrderRowProps {
@@ -28,7 +28,10 @@ export function OrderRow({
   onUploadSuccess,
 }: OrderRowProps) {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [transitionOrderStatus] = useUpdateOrderStatus();
+  const { cancelOrder: cancelOrderMutation } = useCancelOrder();
+
+  const cancellableStatuses = ["PENDING_APPROVAL", "READY_FOR_BILLING", "AWAITING_PAYMENT_VERIFICATION"];
+  const canCancel = cancellableStatuses.includes(order.status);
 
   const handleUploadPaymentProof = async (file: File): Promise<void> => {
     try {
@@ -68,19 +71,16 @@ export function OrderRow({
   };
 
   const handleCancelOrder = async () => {
+    if (!canCancel) {
+      toast.error("This order can no longer be cancelled.");
+      return;
+    }
+
     try {
       const orderId =
         typeof order.id === "string" ? parseInt(order.id, 10) : order.id;
 
-      await transitionOrderStatus({
-        variables: {
-          input: {
-            orderId,
-            nextStatus: "CANCELLED",
-            rejectionReason: "Order cancelled by B2B customer",
-          },
-        },
-      });
+      await cancelOrderMutation(orderId);
 
       toast.success("Order cancelled successfully!");
       if (onUploadSuccess) {

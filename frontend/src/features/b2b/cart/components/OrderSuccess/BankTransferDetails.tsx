@@ -101,7 +101,7 @@ export function BankTransferDetails({
           <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
             Proof of Order
           </div>
-          <div className="text-sm font-medium text-gray-800">Upload Proof of Payment or the Product Order</div>
+          <div className="text-sm font-medium text-gray-800">Upload Proof of Payment or the Purchase Order</div>
         </div>
 
         {resolvedOrderId ? (
