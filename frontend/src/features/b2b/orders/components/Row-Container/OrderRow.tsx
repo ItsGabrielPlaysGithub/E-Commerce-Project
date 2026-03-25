@@ -31,8 +31,16 @@ export function OrderRow({
 
   const cancellableStatuses = ["PENDING_APPROVAL", "READY_FOR_BILLING", "AWAITING_PAYMENT_VERIFICATION"];
   const canCancel = cancellableStatuses.includes(order.status);
+  const isPendingVerification =
+    order.status === "AWAITING_PAYMENT_VERIFICATION" &&
+    order.paymentProofStatus !== "rejected";
 
   const handleUploadPaymentProof = async (file: File): Promise<void> => {
+    if (isPendingVerification) {
+      toast.error("Payment proof is already under verification.");
+      return;
+    }
+
     try {
       const orderId =
         typeof order.id === "string" ? parseInt(order.id, 10) : order.id;
@@ -98,7 +106,13 @@ export function OrderRow({
             isExpanded={isExpanded}
             onExpand={onExpand}
             onCancelOrder={handleCancelOrder}
-            onUploadPayment={() => setIsUploadModalOpen(true)}
+            onUploadPayment={() => {
+              if (isPendingVerification) {
+                toast.error("Payment proof is already under verification.");
+                return;
+              }
+              setIsUploadModalOpen(true);
+            }}
           />
         </div>
 

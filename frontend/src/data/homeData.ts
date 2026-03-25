@@ -33,7 +33,7 @@ export const categories = [
 export const stats = [
   { value: "500+",   label: "Products Available"   },
   { value: "1,200+", label: "Active B2B Partners"  },
-  { value: "35%",    label: "Max Bulk Savings"     },
+  { value: "30%",    label: "Max Bulk Savings"     },
   { value: "24h",    label: "Support Response Time"},
 ];
 

@@ -49,6 +49,9 @@ export function OrderRowMenu({
     "AWAITING_PAYMENT_VERIFICATION",
   ];
   const canCancel = cancellableStatuses.includes(order.status);
+  const canUploadPayment =
+    order.status === "PENDING_APPROVAL" ||
+    order.status === "READY_FOR_BILLING";
 
   return (
     <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50" ref={menuRef}>
@@ -65,12 +68,14 @@ export function OrderRowMenu({
               Cancel Order
             </button>
 
-            <button
-              onClick={onUploadPayment}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-            >
-              Upload Payment Proof
-            </button>
+            {canUploadPayment && (
+              <button
+                onClick={onUploadPayment}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
+                Upload Payment Proof
+              </button>
+            )}
           </>
         )}
 
