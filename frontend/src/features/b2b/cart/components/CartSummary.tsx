@@ -8,7 +8,7 @@ import { CART_COLORS, CART_CONFIG, getDiscountLabel, getDiscountRate } from "../
 interface CartSummaryProps {
   items: CartItem[];
   company: Company;
-  subtotal: number;
+  subtotal: number; 
   itemCount: number;
   hasSelectedItems: boolean;
   onProceed: () => void;
@@ -25,14 +25,10 @@ export function CartSummary({
   const { RED, RED_LIGHT } = CART_COLORS;
   const { FREE_DELIVERY_THRESHOLD, DELIVERY_FEE } = CART_CONFIG;
 
-<<<<<<< HEAD
   const fullRetailTotal = items.reduce((s, i) => s + i.qty * (i.product.retailPrice ?? 0), 0);
-=======
-  const fullRetailTotal = items.reduce((s, i) => s + i.qty * i.product.retailPrice, 0);
   const discountRate = getDiscountRate(itemCount);
   const discountAmount = Math.round(subtotal * discountRate);
   const discountLabel = getDiscountLabel(itemCount);
->>>>>>> c99b77f998a03eb0b088f6c2f1fa59889fb63dfd
   // Show 0 delivery fee if no items are selected, otherwise calculate based on subtotal
   const deliveryFee = itemCount === 0 ? 0 : (subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE);
   const discountedSubtotal = subtotal - discountAmount;

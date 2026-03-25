@@ -2,11 +2,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { usePlaceOrder } from "../services";
 import { CartItem, DeliveryDetails } from "../types";
-<<<<<<< HEAD
-import { toast } from "sonner";
-=======
 import { getDiscountRate } from "../constants/cartConstants";
->>>>>>> c99b77f998a03eb0b088f6c2f1fa59889fb63dfd
 
 export type CartAuthCompany = {
   userId?: number;
@@ -68,15 +64,9 @@ export const useOrderPlacement = (
             unitPrice: parseFloat(String(item.unitPrice)),
           })),
           delivery,
-<<<<<<< HEAD
-          subtotal: parseFloat(String(selectedSubtotal)),
-          deliveryFee: parseFloat(String(deliveryFeeValue)),
-          grandTotal: parseFloat(String(grandTotalValue)),
-=======
           subtotal: parseFloat(String(discountedSubtotal)),
           deliveryFee: parseFloat(String(deliveryFee)),
           grandTotal: parseFloat(String(grandTotal)),
->>>>>>> c99b77f998a03eb0b088f6c2f1fa59889fb63dfd
           userId: currentCompany?.userId || 0,
           companyId: currentCompany?.userId?.toString(),
           paymentMethod,
@@ -102,47 +92,9 @@ export const useOrderPlacement = (
 
         const { placeOrder } = responseData;
         removeItems(selectedItems.map((item) => item.product.id));
-<<<<<<< HEAD
-        const grandTotal = grandTotalValue;
-
-        // Store orderId and orderNumber for PayMongo modal
-        console.log("[useOrderPlacement] Order placed successfully:", {
-          orderId: placeOrder.orderId,
-          orderNumber: placeOrder.orderNumber,
-          paymentMethod,
-        });
-
-        setOrderId(placeOrder.orderId);
-        setOrderNumber(placeOrder.orderNumber);
-
-        // For e-payment, DON'T CLOSE modal - keep it open so PayMongo modal can appear
-        // For manual_transfer, redirect to order success page
-        if (paymentMethod === "manual_transfer") {
-          console.log("[useOrderPlacement] Manual transfer - closing modal and redirecting to success page");
-          setShowModal(false); // Close modal for manual transfer
-          router.push(
-            `/b2b/order-success?orderNumber=${placeOrder.orderNumber}&orderId=${placeOrder.orderId}&grandTotal=${grandTotal}`
-          );
-        } else {
-          // e-payment: Close and immediately re-open modal to force component refresh
-          console.log("[useOrderPlacement] E-payment selected - triggering modal refresh");
-          setShowModal(false);
-          // Use setTimeout to ensure state updates
-          setTimeout(() => {
-            setPaymentTrigger({
-              orderId: placeOrder.orderId,
-              orderNumber: placeOrder.orderNumber,
-              orderAmount: grandTotal,
-            });
-            setShowModal(true);
-          }, 100);
-          toast.success("Order created successfully! Please complete payment.");
-        }
-=======
         router.push(
           `/b2b/order-success?orderNumber=${placeOrder.orderNumber}&orderId=${placeOrder.orderId}&grandTotal=${grandTotal}`
         );
->>>>>>> c99b77f998a03eb0b088f6c2f1fa59889fb63dfd
       } catch (error) {
         let errorMessage = "Failed to place order";
 

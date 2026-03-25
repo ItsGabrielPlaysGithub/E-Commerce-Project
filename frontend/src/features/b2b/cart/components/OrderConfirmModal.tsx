@@ -60,22 +60,6 @@ export function OrderConfirmModal({
   const [paymentMethod, setPaymentMethod] = useState<"e-payment" | "manual_transfer">(
     "e-payment",
   );
-<<<<<<< HEAD
-  // Log incoming props to debug
-  useEffect(() => {
-    console.log("[OrderConfirmModal] Props updated:", {
-      isOpen,
-      orderId,
-      orderNumber,
-      paymentMethod,
-    });
-  }, [isOpen, orderId, orderNumber, paymentMethod]);
-
-  // Specifically log when orderId changes
-  useEffect(() => {
-    console.log("[OrderConfirmModal] ⚡ orderId CHANGED to:", orderId);
-  }, [orderId]);
-=======
   const [showConfirmError, setShowConfirmError] = useState(false);
 
   const handlePlaceOrder = (method: "e-payment" | "manual_transfer") => {
@@ -85,7 +69,6 @@ export function OrderConfirmModal({
     }
     onPlaceOrder(method);
   };
->>>>>>> c99b77f998a03eb0b088f6c2f1fa59889fb63dfd
 
   if (!isOpen) return null;
 
