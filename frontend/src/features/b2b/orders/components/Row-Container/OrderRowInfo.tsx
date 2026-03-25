@@ -43,6 +43,17 @@ export function OrderRowInfo({ order }: OrderRowInfoProps) {
           {StatusIcon && <StatusIcon size={10} />}
           {getStatusLabel(order.status)}
         </span>
+        {order.status === "ACCEPT" && (
+          <span
+            className="text-xs px-2 py-0.5 rounded-full font-medium animate-pulse"
+            style={{
+              backgroundColor: "#dbeafe",
+              color: "#0284c7",
+            }}
+          >
+            ⚙️ Processing
+          </span>
+        )}
         {showPaymentStatusBadge && (
           <span
             className="text-xs px-2 py-0.5 rounded-full font-medium"
