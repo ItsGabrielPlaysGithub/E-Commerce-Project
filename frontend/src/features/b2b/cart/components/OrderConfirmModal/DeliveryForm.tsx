@@ -1,4 +1,5 @@
 import { MapPin, AlertCircle } from "lucide-react";
+import type { KeyboardEvent } from "react";
 import { DeliveryDetails } from "../../types";
 
 interface DeliveryFormProps {
@@ -18,6 +19,50 @@ export function DeliveryForm({
   primaryAddress,
   onDeliveryChange,
 }: DeliveryFormProps) {
+  const handleContactNumberChange = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "").slice(0, 11);
+
+    if (digitsOnly.length === 1 && digitsOnly !== "0") return;
+    if (digitsOnly.length === 2 && digitsOnly !== "09") return;
+    if (digitsOnly.length > 2 && !digitsOnly.startsWith("09")) return;
+
+    onDeliveryChange("contactNumber", digitsOnly);
+  };
+
+  const handleDeliveryDateChange = (value: string) => {
+    if (!value) {
+      onDeliveryChange("deliveryDate", value);
+      return;
+    }
+
+    if (value < minDeliveryDate) {
+      onDeliveryChange("deliveryDate", minDeliveryDate);
+      return;
+    }
+
+    onDeliveryChange("deliveryDate", value);
+  };
+
+  const handleDeliveryDateKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    const allowedKeys = [
+      "Tab",
+      "Escape",
+      "Enter",
+      "Backspace",
+      "Delete",
+      "ArrowLeft",
+      "ArrowRight",
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+    ];
+
+    if (allowedKeys.includes(event.key)) return;
+
+    event.preventDefault();
+  };
+
   return (
     <div className="space-y-3">
       <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
@@ -105,8 +150,10 @@ export function DeliveryForm({
           <input
             type="tel"
             value={delivery.contactNumber}
-            onChange={(e) => onDeliveryChange("contactNumber", e.target.value)}
+            onChange={(e) => handleContactNumberChange(e.target.value)}
             placeholder="+63 9XX XXX XXXX"
+            inputMode="numeric"
+            maxLength={11}
             className="w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none"
             style={{ borderColor: errors.contactNumber ? "#ef4444" : "#e5e7eb" }}
           />
@@ -123,7 +170,8 @@ export function DeliveryForm({
         <input
           type="date"
           value={delivery.deliveryDate}
-          onChange={(e) => onDeliveryChange("deliveryDate", e.target.value)}
+          onChange={(e) => handleDeliveryDateChange(e.target.value)}
+          onKeyDown={handleDeliveryDateKeyDown}
           min={minDeliveryDate}
           className="w-full px-3 py-2.5 border rounded-xl text-sm focus:outline-none"
           style={{ borderColor: errors.deliveryDate ? "#ef4444" : "#e5e7eb" }}

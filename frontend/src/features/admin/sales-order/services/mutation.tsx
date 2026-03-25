@@ -41,11 +41,47 @@ export const TRANSITION_ADMIN_ORDER_STATUS = gql`
       quantity
       unitPrice
       totalPrice
+      deliveryFee
+      grandTotal
       status
       deliveryStatus
       paymentMethod
       paymentProofImage
       paymentProofUploadedAt
+      paymentProofStatus
+      paymentProofAttempts
+      paymentProofRejectionReason
+      paymongoTransactionId
+      paymongoAmount
+      paymongoPaymentMethod
+      paymongoTimestamp
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const CANCEL_ORDER = gql`
+  mutation CancelAdminOrder($input: CancelOrderDto!) {
+    cancelOrder(input: $input) {
+      orderId
+      orderNumber
+      userId
+      productId
+      orderType
+      quantity
+      unitPrice
+      totalPrice
+      deliveryFee
+      grandTotal
+      status
+      deliveryStatus
+      paymentMethod
+      paymentProofImage
+      paymentProofUploadedAt
+      paymentProofStatus
+      paymentProofAttempts
+      paymentProofRejectionReason
       paymongoTransactionId
       paymongoAmount
       paymongoPaymentMethod

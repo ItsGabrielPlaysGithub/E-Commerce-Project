@@ -54,13 +54,14 @@ function OrderTypeBadge({ type }: { type: string }) {
 }
 
 function PaymentMethodBadge({ method }: { method: string }) {
+  const normalizedMethod = method === "e-payment" ? "paymongo" : method;
   const methodColors: Record<string, { bg: string; color: string }> = {
     paymongo: { bg: "#ecfdf5", color: "#059669" },
     manual_transfer: { bg: "#fef3c7", color: "#d97706" },
   };
 
-  const style = methodColors[method] || methodColors["paymongo"];
-  const label = method === "paymongo" ? "PayMongo" : "Bank Transfer";
+  const style = methodColors[normalizedMethod] || methodColors.paymongo;
+  const label = normalizedMethod === "paymongo" ? "PayMongo" : "Bank Transfer";
 
   return (
     <span
@@ -82,7 +83,6 @@ function ActionsMenu({
   onApprovePayment,
   onRejectPayment,
   onViewPaymongoDetails,
-  onMarkAsReadyForDelivery,
   onReportDiscrepancy,
   onViewInvoice,
   onCancelOrder,
@@ -96,7 +96,6 @@ function ActionsMenu({
   onApprovePayment?: (order: SalesOrder) => void;
   onRejectPayment?: (order: SalesOrder) => void;
   onViewPaymongoDetails?: (order: SalesOrder) => void;
-  onMarkAsReadyForDelivery?: (order: SalesOrder) => void;
   onReportDiscrepancy?: (order: SalesOrder) => void;
   onViewInvoice?: (order: SalesOrder) => void;
   onCancelOrder?: (order: SalesOrder) => void;
@@ -112,8 +111,9 @@ function ActionsMenu({
 
   // Determine if verification action should be shown
   const needsVerification = order.status === "PENDING_APPROVAL" || order.status === "AWAITING_PAYMENT_VERIFICATION";
+  const isPaymongoMethod = order.paymentMethod === "paymongo" || order.paymentMethod === "e-payment";
   const hasManualPaymentVerification = order.paymentMethod === "manual_transfer" && needsVerification;
-  const hasPaymongoVerification = order.paymentMethod === "paymongo" && needsVerification;
+  const hasPaymongoVerification = isPaymongoMethod && needsVerification;
 
   // Determine if update status button should show (after payment approved)
   const canUpdateStatus = order.status === "ACCEPT" || order.status === "PACKING" || order.status === "IN_TRANSIT";
@@ -354,7 +354,6 @@ interface SalesOrdersTableProps {
   onApprovePayment?: (order: SalesOrder) => void;
   onRejectPayment?: (order: SalesOrder) => void;
   onViewPaymongoDetails?: (order: SalesOrder) => void;
-  onMarkAsReadyForDelivery?: (order: SalesOrder) => void;
   onReportDiscrepancy?: (order: SalesOrder) => void;
   onViewInvoice?: (order: SalesOrder) => void;
   onCancelOrder?: (order: SalesOrder) => void;
@@ -371,7 +370,6 @@ export function SalesOrdersTable({
   onApprovePayment,
   onRejectPayment,
   onViewPaymongoDetails,
-  onMarkAsReadyForDelivery,
   onReportDiscrepancy,
   onViewInvoice,
   onCancelOrder,
@@ -420,7 +418,7 @@ export function SalesOrdersTable({
             {paginatedOrders.length > 0 ? (
               paginatedOrders.map((order) => (
                 <tr
-                  key={order.orderNumber || order.orderId}
+                  key={order.orderId}
                   className="hover:bg-gray-50/50 transition-colors"
                 >
                   <td className="px-5 py-3.5 font-mono text-xs text-gray-600 whitespace-nowrap">
@@ -430,7 +428,11 @@ export function SalesOrdersTable({
                     <div className="font-medium text-gray-800 whitespace-nowrap">
                       Customer #{order.userId}
                     </div>
-                    <div className="text-xs text-gray-400">Product #{order.productId}</div>
+                    <div className="text-xs text-gray-400">
+                      {order.lineItemCount && order.lineItemCount > 1
+                        ? `${order.lineItemCount} products`
+                        : `Product #${order.productId}`}
+                    </div>
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <OrderTypeBadge type={order.orderType || "Retail"} />
@@ -445,7 +447,7 @@ export function SalesOrdersTable({
                     <StatusBadge status={order.deliveryStatus || ""} />
                   </td>
                   <td className="px-5 py-3.5 font-semibold text-gray-800 whitespace-nowrap">
-                    ₱{(order.totalPrice || 0).toLocaleString('en-PH')}
+                    ₱{(order.payableTotal ?? order.grandTotal ?? order.totalPrice ?? 0).toLocaleString('en-PH')}
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <StatusBadge status={order.status} />
@@ -459,7 +461,6 @@ export function SalesOrdersTable({
                         onApprovePayment={onApprovePayment}
                         onRejectPayment={onRejectPayment}
                         onViewPaymongoDetails={onViewPaymongoDetails}
-                        onMarkAsReadyForDelivery={onMarkAsReadyForDelivery}
                         onReportDiscrepancy={onReportDiscrepancy}
                         onViewInvoice={onViewInvoice}
                         onCancelOrder={onCancelOrder}

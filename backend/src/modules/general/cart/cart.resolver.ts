@@ -1,8 +1,22 @@
-import { Resolver, Query, Mutation, Args, Int, ResolveField, Parent, Context } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Int,
+  ResolveField,
+  Parent,
+  Context,
+} from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../../general/auth/guards/jwt-auth.guard';
 import { CartService } from './cart.service';
-import { CartItem, AddToCartInput, UpdateCartItemInput, CartResponse } from './cart.entity';
+import {
+  CartItem,
+  AddToCartInput,
+  UpdateCartItemInput,
+  CartResponse,
+} from './cart.entity';
 import { ProductsTbl } from '../../admin/products/entity/products.tbl';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -31,7 +45,8 @@ export class CartResolver {
   async getCart(@Context() context: any) {
     try {
       const userId = context.req?.user?.userId || context.user?.userId;
-      if (!userId) throw new Error('Unauthorized: User ID not found in request');
+      if (!userId)
+        throw new Error('Unauthorized: User ID not found in request');
       return await this.cartService.getCart(userId);
     } catch (error) {
       console.error('[CartResolver] getCart error:', error);
@@ -47,7 +62,8 @@ export class CartResolver {
   ) {
     try {
       const userId = context.req?.user?.userId || context.user?.userId;
-      if (!userId) throw new Error('Unauthorized: User ID not found in request');
+      if (!userId)
+        throw new Error('Unauthorized: User ID not found in request');
       return await this.cartService.addToCart(userId, input);
     } catch (error: any) {
       console.error('[CartResolver] addToCart error:', {
@@ -64,11 +80,13 @@ export class CartResolver {
   @UseGuards(JwtAuthGuard)
   async updateCartItem(
     @Context() context: any,
-    @Args('input', { type: () => UpdateCartItemInput }) input: UpdateCartItemInput,
+    @Args('input', { type: () => UpdateCartItemInput })
+    input: UpdateCartItemInput,
   ) {
     try {
       const userId = context.req?.user?.userId || context.user?.userId;
-      if (!userId) throw new Error('Unauthorized: User ID not found in request');
+      if (!userId)
+        throw new Error('Unauthorized: User ID not found in request');
       return await this.cartService.updateCartItem(userId, input);
     } catch (error) {
       console.error('[CartResolver] updateCartItem error:', error);
@@ -84,7 +102,8 @@ export class CartResolver {
   ) {
     try {
       const userId = context.req?.user?.userId || context.user?.userId;
-      if (!userId) throw new Error('Unauthorized: User ID not found in request');
+      if (!userId)
+        throw new Error('Unauthorized: User ID not found in request');
       await this.cartService.removeFromCart(userId, itemId);
       return true;
     } catch (error) {
@@ -98,7 +117,8 @@ export class CartResolver {
   async clearCart(@Context() context: any) {
     try {
       const userId = context.req?.user?.userId || context.user?.userId;
-      if (!userId) throw new Error('Unauthorized: User ID not found in request');
+      if (!userId)
+        throw new Error('Unauthorized: User ID not found in request');
       await this.cartService.clearCart(userId);
       return true;
     } catch (error) {
@@ -115,7 +135,8 @@ export class CartResolver {
   ) {
     try {
       const userId = context.req?.user?.userId || context.user?.userId;
-      if (!userId) throw new Error('Unauthorized: User ID not found in request');
+      if (!userId)
+        throw new Error('Unauthorized: User ID not found in request');
       await this.cartService.removeByProductId(userId, productId);
       return true;
     } catch (error) {

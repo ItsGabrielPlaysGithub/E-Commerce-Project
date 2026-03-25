@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { InvoicesTbl } from './entity/invoices.tbl';
@@ -57,7 +62,9 @@ export class InvoicesService {
   }
 
   async payInvoiceByOrderId(orderId: number) {
-    const invoice = await this.invoicesRepository.findOne({ where: { orderId } });
+    const invoice = await this.invoicesRepository.findOne({
+      where: { orderId },
+    });
     if (!invoice) {
       throw new NotFoundException(`Invoice for order ${orderId} not found`);
     }
@@ -83,12 +90,14 @@ export class InvoicesService {
     });
     await this.paymentsRepository.save(payment);
 
-    void this.sendPaymentConfirmationEmail(order, savedInvoice).catch((error: unknown) => {
-      this.logger.error(
-        `Payment confirmation email failed for order #${order.orderId}`,
-        error instanceof Error ? error.stack : String(error),
-      );
-    });
+    void this.sendPaymentConfirmationEmail(order, savedInvoice).catch(
+      (error: unknown) => {
+        this.logger.error(
+          `Payment confirmation email failed for order #${order.orderId}`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      },
+    );
 
     return savedInvoice;
   }
@@ -103,8 +112,13 @@ export class InvoicesService {
     return `PAY-${orderId}-${timestamp}`;
   }
 
-  private async sendPaymentConfirmationEmail(order: OrdersTbl, invoice: InvoicesTbl) {
-    const user = await this.usersRepository.findOne({ where: { userId: order.userId } });
+  private async sendPaymentConfirmationEmail(
+    order: OrdersTbl,
+    invoice: InvoicesTbl,
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: { userId: order.userId },
+    });
     if (!user?.emailAddress) {
       return;
     }

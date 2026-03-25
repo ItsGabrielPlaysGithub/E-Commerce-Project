@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useGetProductByNameQuery } from "@/features/admin/products/hooks/service-hooks/use-product-name";
 // import { ProductDetailContainer } from "@/features/products/products-details";
-import type { Product } from "@/data/products";
+import type { Product } from "@/features/b2b/cart/hooks/useCart";
 
 /**
  * Product Detail Page

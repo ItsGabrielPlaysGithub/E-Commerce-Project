@@ -17,7 +17,11 @@ async function bootstrap() {
   );
 
   const isProduction = process.env.NODE_ENV === 'production';
-  const allowedOrigins = (process.env.FRONTEND_ORIGINS ?? process.env.FRONTEND_ORIGIN ?? 'http://localhost:3000')
+  const allowedOrigins = (
+    process.env.FRONTEND_ORIGINS ??
+    process.env.FRONTEND_ORIGIN ??
+    'http://localhost:3000'
+  )
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
@@ -33,12 +37,16 @@ async function bootstrap() {
     },
     credentials: true,
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Apollo-Require-Preflight'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Apollo-Require-Preflight',
+    ],
   });
 
   // Add cookie parser middleware to parse cookies from request headers
   app.use(cookieParser());
-  
+
   // Add middleware to ensure CORS headers are applied to all responses
   app.use((req, res, next) => {
     const origin = req.get('origin');

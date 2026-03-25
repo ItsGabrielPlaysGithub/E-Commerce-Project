@@ -1,5 +1,12 @@
 import { Field, Float, InputType, Int } from '@nestjs/graphql';
-import { IsArray, IsNotEmpty, IsString, IsNumber, IsOptional, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 @InputType()
@@ -85,7 +92,7 @@ export class PlaceOrderDto {
   companyId?: string;
 
   @Field()
-  @IsNotEmpty()  
+  @IsNotEmpty()
   @IsString()
   paymentMethod: string;
 }

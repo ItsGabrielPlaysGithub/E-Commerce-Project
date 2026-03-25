@@ -1,5 +1,12 @@
 import { Field, ObjectType, Int } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { UsersTbl } from '../../auth/entity/users.tbl';
 
 @Entity('notifications_tbl')
@@ -19,7 +26,12 @@ export class NotificationsTbl {
 
   @Column({ type: 'varchar', length: 50 })
   @Field()
-  type: 'payment_proof_rejected' | 'payment_proof_approved' | 'order_status_change' | 'new_order' | 'general';
+  type:
+    | 'payment_proof_rejected'
+    | 'payment_proof_approved'
+    | 'order_status_change'
+    | 'new_order'
+    | 'general';
 
   @Column({ type: 'varchar', length: 255 })
   @Field()

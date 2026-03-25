@@ -7,10 +7,7 @@ import { ProductsTbl } from '../products/entity/products.tbl';
 import { AuthModule } from '../../general/auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([CategoriesTbl, ProductsTbl]),
-    AuthModule,
-  ],
-  providers: [CategoriesResolver, CategoriesService]
+  imports: [TypeOrmModule.forFeature([CategoriesTbl, ProductsTbl]), AuthModule],
+  providers: [CategoriesResolver, CategoriesService],
 })
 export class CategoriesModule {}

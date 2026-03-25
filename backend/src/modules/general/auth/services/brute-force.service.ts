@@ -44,8 +44,15 @@ export class BruteForceService {
   /**
    * Record a failed login attempt
    */
-  recordFailure(key: string): { locked: boolean; delay: number; remainingMs?: number } {
-    const record = this.failedAttempts.get(key) || { count: 0, lastAttempt: Date.now() };
+  recordFailure(key: string): {
+    locked: boolean;
+    delay: number;
+    remainingMs?: number;
+  } {
+    const record = this.failedAttempts.get(key) || {
+      count: 0,
+      lastAttempt: Date.now(),
+    };
     const now = Date.now();
 
     // Reset if window has passed
@@ -57,7 +64,10 @@ export class BruteForceService {
     record.lastAttempt = now;
 
     // Calculate progressive delay
-    const delayIndex = Math.min(record.count - 1, this.progressiveDelayMs.length - 1);
+    const delayIndex = Math.min(
+      record.count - 1,
+      this.progressiveDelayMs.length - 1,
+    );
     const delay = this.progressiveDelayMs[delayIndex];
 
     // Lock after max attempts
@@ -100,7 +110,10 @@ export class BruteForceService {
   cleanup(): void {
     const now = Date.now();
     for (const [key, record] of this.failedAttempts.entries()) {
-      if (now - record.lastAttempt > this.resetWindowMs && (!record.lockoutUntil || now > record.lockoutUntil)) {
+      if (
+        now - record.lastAttempt > this.resetWindowMs &&
+        (!record.lockoutUntil || now > record.lockoutUntil)
+      ) {
         this.failedAttempts.delete(key);
       }
     }

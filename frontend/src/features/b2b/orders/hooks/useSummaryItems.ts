@@ -15,10 +15,19 @@ interface SummaryItem {
  */
 export function useSummaryItems(orders: Order[]): SummaryItem[] {
   return useMemo(() => {
-    const processingOrders = orders.filter((o) => o.status === "Processing" || o.status === "Shipped").length;
-    const totalOrdered = orders.reduce((sum, o) => sum + o.total, 0);
+    const processingOrders = orders.filter((o) => 
+      ["PACKING", "READY_FOR_DELIVERY", "IN_TRANSIT", "AWAITING_PAYMENT_VERIFICATION"].includes(o.status)
+    ).length;
+    const totalPaid = orders
+      .filter((o) => o.status === "DELIVERED")
+      .reduce((sum, o) => sum + o.total, 0);
     const pendingPayment = orders
-      .filter((o) => o.paymentStatus === "Pending")
+      .filter(
+        (o) =>
+          o.paymentStatus === "Pending" &&
+          o.status !== "DELIVERED" &&
+          o.status !== "CANCELLED"
+      )
       .reduce((sum, o) => sum + o.total, 0);
 
     return [
@@ -35,8 +44,8 @@ export function useSummaryItems(orders: Order[]): SummaryItem[] {
         bg: "#fffbeb",
       },
       {
-        label: "Total Ordered",
-        value: `₱${totalOrdered.toLocaleString("en-PH")}`,
+        label: "Total Paid",
+        value: `₱${totalPaid.toLocaleString("en-PH")}`,
         color: "#3b82f6",
         bg: "#eff6ff",
       },

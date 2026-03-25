@@ -8,11 +8,8 @@ import { CategoriesTbl } from '../categories/entity/categories.tbl';
 import { AuthModule } from '../../general/auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([ProductsTbl, CategoriesTbl]),
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([ProductsTbl, CategoriesTbl]), AuthModule],
   controllers: [ProductImageController],
-  providers: [ProductsResolver, ProductsService]
+  providers: [ProductsResolver, ProductsService],
 })
 export class ProductsModule {}

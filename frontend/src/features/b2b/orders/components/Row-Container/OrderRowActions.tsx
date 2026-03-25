@@ -11,6 +11,7 @@ interface OrderRowActionsProps {
   onExpand: (orderId: string | null) => void;
   onCancelOrder: () => void;
   onUploadPayment: () => void;
+  onPayNow: () => void;
 }
 
 export function OrderRowActions({
@@ -19,6 +20,7 @@ export function OrderRowActions({
   onExpand,
   onCancelOrder,
   onUploadPayment,
+  onPayNow,
 }: OrderRowActionsProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
@@ -66,6 +68,10 @@ export function OrderRowActions({
             }}
             onUploadPayment={() => {
               onUploadPayment();
+              setIsMenuOpen(false);
+            }}
+            onPayNow={() => {
+              onPayNow();
               setIsMenuOpen(false);
             }}
             onViewDetails={() => {

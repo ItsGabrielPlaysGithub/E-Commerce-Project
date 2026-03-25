@@ -49,8 +49,37 @@ export const TRANSITION_ORDER_STATUS = gql`
       quantity
       unitPrice
       totalPrice
+      deliveryFee
+      grandTotal
       status
       deliveryStatus
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+export const CANCEL_ORDER = gql`
+  mutation CancelOrder($input: CancelOrderDto!) {
+    cancelOrder(input: $input) {
+      orderId
+      orderNumber
+      productId
+      userId
+      orderType
+      quantity
+      unitPrice
+      totalPrice
+      deliveryFee
+      grandTotal
+      status
+      deliveryStatus
+      paymentMethod
+      paymentProofImage
+      paymentProofUploadedAt
+      paymentProofStatus
+      paymentProofAttempts
+      paymentProofRejectionReason
       createdAt
       updatedAt
     }

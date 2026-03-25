@@ -40,6 +40,12 @@ const NAV_SECTIONS = [
   },
 ];
 
+const ADMIN_NAV_BG = "linear-gradient(180deg, #ffffff 0%, #f9e9ea 100%)";
+const ADMIN_NAV_BORDER = "rgba(191, 38, 47, 0.15)";
+const ADMIN_NAV_TEXT = "#334155";
+const ADMIN_NAV_MUTED = "#64748b";
+const ADMIN_NAV_SECTION = "#94a3b8";
+
 export default function AdminNav({ children }: { children?: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -78,7 +84,10 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
       {/* Logo */}
       <div
         className="flex items-center gap-3 px-4 py-5 flex-shrink-0"
-        style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+        style={{
+          backgroundColor: "#ffffff",
+          borderBottom: "1px solid #e5e7eb",
+        }}
       >
         {sidebarOpen && (
           <Image 
@@ -103,15 +112,15 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
         )}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="ml-auto flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-md transition-colors hover:bg-white/10 lg:flex hidden"
-          style={{ color: "rgba(255,255,255,0.4)" }}
+          className="ml-auto flex-shrink-0 w-6 h-6 items-center justify-center rounded-md transition-colors hover:bg-slate-100 hidden lg:inline-flex"
+          style={{ color: "#64748b" }}
         >
           {sidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
         </button>
         <button
           onClick={() => setMobileOpen(false)}
           className="ml-auto flex-shrink-0 lg:hidden"
-          style={{ color: "rgba(255,255,255,0.4)" }}
+          style={{ color: "#64748b" }}
         >
           <X size={18} />
         </button>
@@ -134,7 +143,7 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
               AD
             </div>
             <div className="min-w-0">
-              <div className="text-white text-xs font-semibold truncate">Admin Account</div>
+              <div className="text-xs font-semibold truncate" style={{ color: "#1f2937" }}>Admin Account</div>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span
                   className="text-xs px-1.5 py-0.5 rounded font-bold tracking-wide"
@@ -142,7 +151,7 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
                 >
                   ADMIN
                 </span>
-                <span className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>
+                <span className="text-xs" style={{ color: ADMIN_NAV_MUTED }}>
                   System Admin
                 </span>
               </div>
@@ -169,7 +178,7 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
             {sidebarOpen && (
               <div
                 className="text-xs font-semibold uppercase tracking-widest mb-2 px-3"
-                style={{ color: "rgba(255,255,255,0.25)" }}
+                style={{ color: ADMIN_NAV_SECTION }}
               >
                 {section.label}
               </div>
@@ -185,7 +194,7 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 group"
                     style={{
                       backgroundColor: active ? "#bf262f" : "transparent",
-                      color: active ? "#fff" : "rgba(255,255,255,0.5)",
+                      color: active ? "#fff" : ADMIN_NAV_TEXT,
                     }}
                     title={!sidebarOpen ? label : undefined}
                   >
@@ -207,12 +216,12 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
       {/* Bottom */}
       <div
         className="px-3 pb-4 space-y-0.5 flex-shrink-0"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: "12px" }}
+        style={{ borderTop: `1px solid ${ADMIN_NAV_BORDER}`, paddingTop: "12px" }}
       >
         <Link
           href="/"
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors"
-          style={{ color: "rgba(255,255,255,0.35)" }}
+          style={{ color: ADMIN_NAV_MUTED }}
           title={!sidebarOpen ? "Logout" : undefined}
         >
           <LogOut size={17} className="flex-shrink-0" />
@@ -221,7 +230,7 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
         {sidebarOpen && (
           <div
             className="mx-3 mt-2 flex items-center gap-1.5 text-xs"
-            style={{ color: "rgba(255,255,255,0.2)" }}
+            style={{ color: ADMIN_NAV_MUTED }}
           >
             <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             OHW_PRD · Live
@@ -241,8 +250,9 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
         className="fixed top-0 left-0 h-full z-40 hidden lg:flex flex-col transition-all duration-300"
         style={{
           width: sidebarOpen ? "240px" : "68px",
-          backgroundColor: "#1a0608",
-          boxShadow: "4px 0 24px rgba(0,0,0,0.15)",
+          background: ADMIN_NAV_BG,
+          borderRight: `1px solid ${ADMIN_NAV_BORDER}`,
+          boxShadow: "4px 0 24px rgba(15, 23, 42, 0.08)",
         }}
       >
         <SidebarContent />
@@ -257,7 +267,10 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
           />
           <aside
             className="absolute top-0 left-0 h-full w-64 flex flex-col"
-            style={{ backgroundColor: "#1a0608" }}
+            style={{
+              background: ADMIN_NAV_BG,
+              borderRight: `1px solid ${ADMIN_NAV_BORDER}`,
+            }}
           >
             <SidebarContent />
           </aside>
@@ -335,7 +348,6 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
                   <span className="text-gray-400" style={{ fontSize: "0.7rem" }}>System</span>
                 </div>
               </div>
-              <ChevronDown size={13} className="text-gray-400 hidden sm:block" />
             </div>
           </div>
         </header>

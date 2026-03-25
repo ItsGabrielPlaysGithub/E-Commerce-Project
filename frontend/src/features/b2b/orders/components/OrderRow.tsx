@@ -7,8 +7,9 @@ import { OrderDetails } from "./OrderDetails";
 import { OrderRowInfo } from "./Row-Container/OrderRowInfo";
 import { OrderRowActions } from "./Row-Container/OrderRowActions";
 import { PaymentProofUploadModal } from "../../../../components/modals/Payment-Proof";
-import { useUpdateOrderStatus } from "../hooks/use-update-order-status";
-import { Upload, Eye, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
+import { PaymongoCheckoutModal } from "@/features/b2b/checkout";
+import { useCancelOrder } from "../hooks/use-cancel-order";
+import { Upload, Eye, ChevronUp, ChevronDown, RotateCcw, CreditCard } from 'lucide-react';
 
 interface OrderRowProps {
   order: Order;
@@ -28,7 +29,11 @@ export function OrderRow({
   onUploadSuccess,
 }: OrderRowProps) {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [transitionOrderStatus] = useUpdateOrderStatus();
+  const [isPaymongoModalOpen, setIsPaymongoModalOpen] = useState(false);
+  const { cancelOrder: cancelOrderMutation } = useCancelOrder();
+
+  const cancellableStatuses = ["PENDING_APPROVAL", "READY_FOR_BILLING", "AWAITING_PAYMENT_VERIFICATION"];
+  const canCancel = cancellableStatuses.includes(order.status);
 
   const handleUploadPaymentProof = async (file: File): Promise<void> => {
     try {
@@ -68,19 +73,16 @@ export function OrderRow({
   };
 
   const handleCancelOrder = async () => {
+    if (!canCancel) {
+      toast.error("This order can no longer be cancelled.");
+      return;
+    }
+
     try {
       const orderId =
         typeof order.id === "string" ? parseInt(order.id, 10) : order.id;
 
-      await transitionOrderStatus({
-        variables: {
-          input: {
-            orderId,
-            nextStatus: "CANCELLED",
-            rejectionReason: "Order cancelled by B2B customer",
-          },
-        },
-      });
+      await cancelOrderMutation(orderId);
 
       toast.success("Order cancelled successfully!");
       if (onUploadSuccess) {
@@ -129,13 +131,22 @@ export function OrderRow({
               </button>
             )}
             {(order.status === "PENDING_APPROVAL" || order.status === "READY_FOR_BILLING" || order.status === "AWAITING_PAYMENT_VERIFICATION") && (
-              <button
-                onClick={() => setIsUploadModalOpen(true)}
-                className="p-2 rounded-lg border transition-colors hover:bg-blue-50 hover:text-blue-600 hover:border-blue-500 text-gray-500 border-gray-500"
-                title="Upload Payment Proof"
-              >
-                <Upload size={13} />
-              </button>
+              <>
+                <button
+                  onClick={() => setIsPaymongoModalOpen(true)}
+                  className="p-2 rounded-lg border transition-colors hover:bg-green-50 hover:text-green-600 hover:border-green-500 text-gray-500 border-gray-500"
+                  title="Pay Now with PayMongo"
+                >
+                  <CreditCard size={13} />
+                </button>
+                <button
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="p-2 rounded-lg border transition-colors hover:bg-blue-50 hover:text-blue-600 hover:border-blue-500 text-gray-500 border-gray-500"
+                  title="Upload Payment Proof"
+                >
+                  <Upload size={13} />
+                </button>
+              </>
             )}
             <button
               onClick={() => onExpand(isExpanded ? null : order.id)}
@@ -156,6 +167,15 @@ export function OrderRow({
         attemptsRemaining={3 - (order.paymentProofAttempts || 0)}
         onClose={() => setIsUploadModalOpen(false)}
         onSubmit={handleUploadPaymentProof}
+      />
+
+      <PaymongoCheckoutModal
+        isOpen={isPaymongoModalOpen}
+        orderId={typeof order.id === "string" ? parseInt(order.id, 10) : order.id}
+        orderAmount={order.total}
+        orderNumber={order.sapSo}
+        onClose={() => setIsPaymongoModalOpen(false)}
+        onSuccess={onUploadSuccess}
       />
     </>
   );

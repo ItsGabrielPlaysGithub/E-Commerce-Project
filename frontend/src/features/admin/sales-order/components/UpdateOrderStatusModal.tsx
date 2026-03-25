@@ -3,6 +3,11 @@
 import { X, Package } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import {
+  STATUS_FLOW,
+  STATUS_LABELS,
+  STATUS_COLORS,
+} from "@/features/admin/sales-order/constants/statusFlow";
 
 interface UpdateOrderStatusModalProps {
   isOpen: boolean;
@@ -13,50 +18,7 @@ interface UpdateOrderStatusModalProps {
   isLoading?: boolean;
 }
 
-const STATUS_FLOW = {
-  PENDING_APPROVAL: ["AWAITING_PAYMENT_VERIFICATION", "REJECTED", "CANCELLED"],
-  AWAITING_PAYMENT_VERIFICATION: ["ACCEPT", "REJECTED", "CANCELLED"],
-  ACCEPT: ["PACKING", "REJECTED", "CANCELLED"],
-  PACKING: ["IN_TRANSIT", "REJECTED", "CANCELLED"],
-  IN_TRANSIT: ["DELIVERED", "REJECTED", "CANCELLED"],
-  DELIVERED: ["CANCELLED"],
-  REJECTED: [],
-  CANCELLED: [],
-  ORDERED_FROM_SUPPLIER: ["READY_FOR_DELIVERY", "REJECTED", "CANCELLED"],
-  READY_FOR_DELIVERY: ["PACKING", "REJECTED", "CANCELLED"],
-  READY_FOR_BILLING: ["PAID", "REJECTED", "CANCELLED"],
-  PAID: ["DELIVERED", "CANCELLED"],
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  PENDING_APPROVAL: "Pending Approval",
-  ACCEPT: "Accept",
-  REJECTED: "Rejected",
-  PACKING: "Packing",
-  AWAITING_PAYMENT_VERIFICATION: "Awaiting Payment Verification",
-  IN_TRANSIT: "In Transit",
-  DELIVERED: "Delivered",
-  ORDERED_FROM_SUPPLIER: "Ordered from Supplier",
-  READY_FOR_BILLING: "Ready for Billing",
-  READY_FOR_DELIVERY: "Ready for Delivery",
-  PAID: "Paid",
-  CANCELLED: "Cancelled",
-};
-
-const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
-  PENDING_APPROVAL: { bg: "#fffbeb", color: "#d97706" },
-  ACCEPT: { bg: "#dcfce7", color: "#16a34a" },
-  REJECTED: { bg: "#fee2e2", color: "#dc2626" },
-  PACKING: { bg: "#faf5ff", color: "#9333ea" },
-  AWAITING_PAYMENT_VERIFICATION: { bg: "#e0e7ff", color: "#4f46e5" },
-  IN_TRANSIT: { bg: "#fef3c7", color: "#ca8a04" },
-  DELIVERED: { bg: "#ecfdf5", color: "#16a34a" },
-  ORDERED_FROM_SUPPLIER: { bg: "#f0f9ff", color: "#0369a1" },
-  READY_FOR_BILLING: { bg: "#fef08a", color: "#ca8a04" },
-  READY_FOR_DELIVERY: { bg: "#fbf8f3", color: "#78350f" },
-  PAID: { bg: "#dcfce7", color: "#16a34a" },
-  CANCELLED: { bg: "#f3f4f6", color: "#6b7280" },
-};
+const FALLBACK_COLOR = { bg: "#f3f4f6", color: "#6b7280" };
 
 export function UpdateOrderStatusModal({
   isOpen,
@@ -91,7 +53,7 @@ export function UpdateOrderStatusModal({
 
     try {
       await onUpdate(selectedStatus);
-      toast.success(`Order updated to ${STATUS_LABELS[selectedStatus]}`);
+      toast.success(`Order now in ${STATUS_LABELS[selectedStatus]} status`);
       onClose();
     } catch (err) {
       toast.error("Failed to update order status");
@@ -197,7 +159,7 @@ export function UpdateOrderStatusModal({
               <p className="text-sm font-semibold text-gray-700 mb-2">Current Status</p>
               <div
                 className="px-3 py-2.5 rounded-lg text-sm font-semibold text-center"
-                style={STATUS_COLORS[currentStatus] || { bg: "#f3f4f6", color: "#6b7280" }}
+                style={STATUS_COLORS[currentStatus] || FALLBACK_COLOR}
               >
                 {STATUS_LABELS[currentStatus] || currentStatus}
               </div>
@@ -215,12 +177,12 @@ export function UpdateOrderStatusModal({
                       disabled={loading}
                       className="w-full px-4 py-3 rounded-lg border-2 text-sm font-semibold transition-all text-left"
                       style={{
-                        borderColor: selectedStatus === status ? STATUS_COLORS[status].color : "#e5e7eb",
+                        borderColor: selectedStatus === status ? (STATUS_COLORS[status]?.color || FALLBACK_COLOR.color) : "#e5e7eb",
                         backgroundColor:
                           selectedStatus === status
-                            ? STATUS_COLORS[status].bg
+                            ? STATUS_COLORS[status]?.bg || FALLBACK_COLOR.bg
                             : "white",
-                        color: selectedStatus === status ? STATUS_COLORS[status].color : "#6b7280",
+                        color: selectedStatus === status ? (STATUS_COLORS[status]?.color || FALLBACK_COLOR.color) : "#6b7280",
                         cursor: loading ? "not-allowed" : "pointer",
                         opacity: loading ? 0.6 : 1,
                       }}

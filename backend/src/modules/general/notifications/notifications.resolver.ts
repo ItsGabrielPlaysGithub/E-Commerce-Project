@@ -16,17 +16,21 @@ export class NotificationsResolver {
     @Context() context: any,
   ): Promise<NotificationsTbl[]> {
     const userId = context.req?.user?.userId || context.user?.userId;
-    if (!userId) throw new ForbiddenException('Unauthorized: User ID not found in request');
+    if (!userId)
+      throw new ForbiddenException(
+        'Unauthorized: User ID not found in request',
+      );
     return await this.notificationsService.getNotificationsByUserId(userId);
   }
 
   @Query(() => Int)
   @UseGuards(JwtAuthGuard)
-  async getUnreadNotificationCount(
-    @Context() context: any,
-  ): Promise<number> {
+  async getUnreadNotificationCount(@Context() context: any): Promise<number> {
     const userId = context.req?.user?.userId || context.user?.userId;
-    if (!userId) throw new ForbiddenException('Unauthorized: User ID not found in request');
+    if (!userId)
+      throw new ForbiddenException(
+        'Unauthorized: User ID not found in request',
+      );
     return await this.notificationsService.getUnreadCount(userId);
   }
 
@@ -37,11 +41,17 @@ export class NotificationsResolver {
     @Context() context: any,
   ): Promise<NotificationsTbl> {
     const userId = context.req?.user?.userId || context.user?.userId;
-    if (!userId) throw new ForbiddenException('Unauthorized: User ID not found in request');
+    if (!userId)
+      throw new ForbiddenException(
+        'Unauthorized: User ID not found in request',
+      );
     // Verify the notification belongs to this user
-    const notification = await this.notificationsService.getNotificationById(notificationId);
+    const notification =
+      await this.notificationsService.getNotificationById(notificationId);
     if (notification.userId !== userId) {
-      throw new ForbiddenException('Unauthorized: Cannot access this notification');
+      throw new ForbiddenException(
+        'Unauthorized: Cannot access this notification',
+      );
     }
     return notification;
   }
@@ -63,11 +73,17 @@ export class NotificationsResolver {
     @Context() context: any,
   ): Promise<NotificationsTbl> {
     const userId = context.req?.user?.userId || context.user?.userId;
-    if (!userId) throw new ForbiddenException('Unauthorized: User ID not found in request');
+    if (!userId)
+      throw new ForbiddenException(
+        'Unauthorized: User ID not found in request',
+      );
     // Verify the notification belongs to this user
-    const notification = await this.notificationsService.getNotificationById(notificationId);
+    const notification =
+      await this.notificationsService.getNotificationById(notificationId);
     if (notification.userId !== userId) {
-      throw new ForbiddenException('Unauthorized: Cannot modify this notification');
+      throw new ForbiddenException(
+        'Unauthorized: Cannot modify this notification',
+      );
     }
     return await this.notificationsService.markAsRead(notificationId);
   }
@@ -78,7 +94,10 @@ export class NotificationsResolver {
     @Context() context: any,
   ): Promise<NotificationsTbl[]> {
     const userId = context.req?.user?.userId || context.user?.userId;
-    if (!userId) throw new ForbiddenException('Unauthorized: User ID not found in request');
+    if (!userId)
+      throw new ForbiddenException(
+        'Unauthorized: User ID not found in request',
+      );
     return await this.notificationsService.markAllAsRead(userId);
   }
 
@@ -89,11 +108,17 @@ export class NotificationsResolver {
     @Context() context: any,
   ): Promise<boolean> {
     const userId = context.req?.user?.userId || context.user?.userId;
-    if (!userId) throw new ForbiddenException('Unauthorized: User ID not found in request');
+    if (!userId)
+      throw new ForbiddenException(
+        'Unauthorized: User ID not found in request',
+      );
     // Verify the notification belongs to this user
-    const notification = await this.notificationsService.getNotificationById(notificationId);
+    const notification =
+      await this.notificationsService.getNotificationById(notificationId);
     if (notification.userId !== userId) {
-      throw new ForbiddenException('Unauthorized: Cannot delete this notification');
+      throw new ForbiddenException(
+        'Unauthorized: Cannot delete this notification',
+      );
     }
     await this.notificationsService.deleteNotification(notificationId);
     return true;

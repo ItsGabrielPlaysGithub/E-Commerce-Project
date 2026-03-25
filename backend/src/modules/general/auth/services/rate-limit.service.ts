@@ -19,7 +19,11 @@ export class RateLimitService {
    * Check if a request is allowed under rate limiting.
    * Returns { allowed: boolean, remaining: number, retryAfter?: number }
    */
-  check(key: string, limit: number, windowMs: number): { allowed: boolean; remaining: number; retryAfter?: number } {
+  check(
+    key: string,
+    limit: number,
+    windowMs: number,
+  ): { allowed: boolean; remaining: number; retryAfter?: number } {
     const now = Date.now();
     const record = this.store.get(key);
 

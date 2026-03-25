@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -28,7 +33,10 @@ export class JwtAuthGuard implements CanActivate {
       ctx.user = payload;
       return true;
     } catch (error) {
-      console.error('[JwtAuthGuard] Token verification failed:', error instanceof Error ? error.message : error);
+      console.error(
+        '[JwtAuthGuard] Token verification failed:',
+        error instanceof Error ? error.message : error,
+      );
       throw new UnauthorizedException('Invalid token');
     }
   }

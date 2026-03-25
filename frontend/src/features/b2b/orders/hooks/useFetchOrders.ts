@@ -9,6 +9,10 @@ import type { Order } from "../types/order";
  * Map backend order response to frontend Order interface
  */
 function mapBackendOrderToOrder(backendOrder: any): Order {
+  const derivedStatus = backendOrder.paymentProofStatus === "rejected"
+    ? "REJECTED"
+    : mapOrderStatus(backendOrder.status);
+
   return {
     id: backendOrder.orderId?.toString() || backendOrder.orderNumber || "",
     sapSo: backendOrder.orderNumber || "",
@@ -19,7 +23,7 @@ function mapBackendOrderToOrder(backendOrder: any): Order {
     vat: 0,
     // Use grandTotal if available (from first item in group with delivery fee), otherwise use totalPrice
     total: backendOrder.grandTotal || backendOrder.totalPrice || 0,
-    status: mapOrderStatus(backendOrder.status),
+    status: derivedStatus,
     paymentStatus: "Pending",
     deliveryMethod: backendOrder.deliveryStatus || "Standard",
   };
@@ -43,23 +47,33 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
   // Transform each group into a single Order object
   const mappedOrders: Order[] = [];
   for (const [orderNumber, orders] of groupedByOrderNumber) {
-    const firstOrder = orders[0];
+    const sortedOrders = [...orders].sort((a, b) => (a.orderId || 0) - (b.orderId || 0));
+    const primaryOrder =
+      sortedOrders.find((o) => o.deliveryFee !== undefined || o.grandTotal !== undefined) || sortedOrders[0];
+    const latestProofOrder =
+      [...sortedOrders]
+        .filter((o) => Boolean(o.paymentProofImage))
+        .sort(
+          (a, b) =>
+            new Date(b.paymentProofUploadedAt || b.updatedAt || b.createdAt || 0).getTime() -
+            new Date(a.paymentProofUploadedAt || a.updatedAt || a.createdAt || 0).getTime()
+        )[0] || null;
     
     // Calculate subtotal (sum of all items)
     const subtotal = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
     
     // Determine delivery fee (1500 threshold)
-    const deliveryFee = firstOrder.deliveryFee !== undefined && firstOrder.deliveryFee !== null 
-      ? firstOrder.deliveryFee 
+    const deliveryFee = primaryOrder.deliveryFee !== undefined && primaryOrder.deliveryFee !== null 
+      ? primaryOrder.deliveryFee 
       : (subtotal >= 1500 ? 0 : 350);
     
     // Use grandTotal from first item if available, otherwise calculate from subtotal + delivery fee
-    const total = firstOrder.grandTotal || (subtotal + deliveryFee);
+    const total = primaryOrder.grandTotal || (subtotal + deliveryFee);
     
     const mappedOrder = {
-      id: firstOrder.orderId?.toString() || orderNumber,
+      id: primaryOrder.orderId?.toString() || orderNumber,
       sapSo: orderNumber,
-      date: firstOrder.createdAt || new Date().toLocaleDateString(),
+      date: primaryOrder.createdAt || new Date().toLocaleDateString(),
       customer: "",
       items: orders.map(o => ({
         sku: o.productId?.toString() || "",
@@ -71,16 +85,19 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
       subtotal: subtotal,
       vat: 0,
       total: total,
-      status: mapOrderStatus(firstOrder.status),
+      status:
+        primaryOrder.paymentProofStatus === "rejected"
+          ? "REJECTED"
+          : mapOrderStatus(primaryOrder.status),
       paymentStatus: "Pending",
-      deliveryMethod: firstOrder.deliveryStatus || "Standard",
+      deliveryMethod: primaryOrder.deliveryStatus || "Standard",
       deliveryFee: deliveryFee, // Store delivery fee for display
-      paymentProofImage: firstOrder.paymentProofImage 
-        ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${firstOrder.paymentProofImage}`
+      paymentProofImage: latestProofOrder?.paymentProofImage
+        ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${latestProofOrder.paymentProofImage}`
         : undefined,
-      paymentProofStatus: firstOrder.paymentProofStatus || "pending",
-      paymentProofRejectionReason: firstOrder.paymentProofRejectionReason || "",
-      paymentProofAttempts: firstOrder.paymentProofAttempts || 0,
+      paymentProofStatus: latestProofOrder?.paymentProofStatus || primaryOrder.paymentProofStatus || "pending",
+      paymentProofRejectionReason: latestProofOrder?.paymentProofRejectionReason || primaryOrder.paymentProofRejectionReason || "",
+      paymentProofAttempts: latestProofOrder?.paymentProofAttempts || primaryOrder.paymentProofAttempts || 0,
     } as any;
     
     mappedOrders.push(mappedOrder);

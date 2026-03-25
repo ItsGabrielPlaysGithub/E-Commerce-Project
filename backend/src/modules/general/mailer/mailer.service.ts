@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import nodemailer, { SendMailOptions, Transporter } from 'nodemailer';
 
@@ -44,7 +48,9 @@ export class MailerService {
 
   async sendMail(payload: MailPayload): Promise<MailResult> {
     if (!this.enabled) {
-      this.logger.warn('Mailer is disabled. Set MAIL_ENABLED=true to send emails.');
+      this.logger.warn(
+        'Mailer is disabled. Set MAIL_ENABLED=true to send emails.',
+      );
       return { success: false, skipped: true };
     }
 

@@ -17,6 +17,9 @@ export interface Review {
   rating: number;
   avatar: string;
   color: string;
+  role?: string;
+  company?: string;
+  date?: string;
 }
 
 // Featured products for homepage display

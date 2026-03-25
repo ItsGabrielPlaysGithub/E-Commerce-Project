@@ -7,10 +7,13 @@ export const GET_ALL_ORDERS = gql`
       orderNumber
       userId
       productId
+      productName
       orderType
       quantity
       unitPrice
       totalPrice
+      deliveryFee
+      grandTotal
       status
       deliveryStatus
       paymentMethod
@@ -40,6 +43,8 @@ export const GET_ORDER_DETAILS = gql`
       quantity
       unitPrice
       totalPrice
+      deliveryFee
+      grandTotal
       status
       deliveryStatus
       paymentMethod
@@ -69,6 +74,8 @@ export const GET_CLIENT_ORDERS = gql`
       quantity
       unitPrice
       totalPrice
+      deliveryFee
+      grandTotal
       status
       deliveryStatus
       paymentMethod

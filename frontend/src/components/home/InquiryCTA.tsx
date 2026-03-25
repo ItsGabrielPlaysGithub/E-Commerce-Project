@@ -19,18 +19,18 @@ export function InquiryCTA() {
         </p>
         <div className="mt-9 flex gap-4 justify-center flex-wrap">
           <Link
-            href="/inquiry"
+            href="/b2b/inquiry"
             className="inline-flex items-center gap-2 text-white px-9 py-3.5 rounded-full font-semibold hover:opacity-90 transition-all shadow-lg"
             style={{ backgroundColor: "#bf262f" }}
           >
             Make an Inquiry <ArrowRight size={17} />
           </Link>
-          <Link
+          {/* <Link
             href="/wholesale"
             className="inline-flex items-center gap-2 border-2 border-gray-800 text-gray-800 px-9 py-3.5 rounded-full font-semibold hover:bg-gray-800 hover:text-white transition-colors"
           >
             Wholesale Terms
-          </Link>
+          </Link> */}
         </div>
       </div>
     </section>

@@ -32,7 +32,8 @@ import { PaymongoModule } from './modules/general/paymongo/paymongo.module';
       driver: ApolloDriver,
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        const isProduction =
+          configService.get<string>('NODE_ENV') === 'production';
         return {
           autoSchemaFile: true,
           playground: !isProduction,
@@ -52,7 +53,7 @@ import { PaymongoModule } from './modules/general/paymongo/paymongo.module';
     OrdersModule,
     InvoicesModule,
     NotificationsModule,
-    PaymongoModule
+    PaymongoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

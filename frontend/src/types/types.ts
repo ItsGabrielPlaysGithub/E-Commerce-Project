@@ -1,12 +1,30 @@
 export interface SalesOrder {
   orderId: string;
   orderNumber: string;
+  rawOrderIds?: string[];
+  lineItemCount?: number;
+  subtotalBeforeDiscount?: number;
+  discountRate?: number;
+  discountAmount?: number;
+  discountedSubtotal?: number;
+  deliveryFee?: number;
+  grandTotal?: number;
+  payableTotal?: number;
+  orderedProducts?: Array<{
+    productId: number;
+    productName?: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }>;
   userId: number;
   productId: number;
   orderType?: string;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  deliveryFee?: number;
+  grandTotal?: number;
   status: string;
   deliveryStatus?: string;
   paymentMethod?: string;

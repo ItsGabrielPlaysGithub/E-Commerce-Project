@@ -5,6 +5,7 @@ import { useMutation, useQuery as apolloUseQuery } from "@apollo/client/react";
 import { useAuth } from "@/features/auth";
 import { GET_CART } from "../services/query";
 import { ADD_TO_CART, UPDATE_CART_ITEM, REMOVE_FROM_CART, CLEAR_CART, REMOVE_CART_ITEM_BY_PRODUCT_ID } from "../services/cartMutation";
+import { CartItem } from "../types/index";
 
 // Product type built from dynamic data
 export interface Product {
@@ -24,15 +25,6 @@ export interface Product {
   specs?: string[];
   description?: string;
   reviews?: number;
-}
-
-export interface CartItem {
-  id?: number;
-  product: Product;
-  qty: number;
-  selectedColor?: string;
-  selectedSize?: string;
-  unitPrice: number;
 }
 
 interface CartContextType {

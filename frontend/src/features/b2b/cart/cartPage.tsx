@@ -7,7 +7,7 @@ import {
   CartSummary,
   OrderConfirmModal,
 } from "./components/index";
-import { PaymongoCheckoutModal } from "@/features/checkout";
+import { PaymongoCheckoutModal } from "@/features/b2b/checkout";
 import { CART_COLORS } from "./constants/index";
 
 export function Cart() {

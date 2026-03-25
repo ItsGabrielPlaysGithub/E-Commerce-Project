@@ -10,3 +10,17 @@ export const CART_CONFIG = {
   MOQ_WARNING_BG: "#fffbeb",
   RETAIL_PRICE_COLOR: "#92400e",
 } as const;
+
+export const getDiscountRate = (itemCount: number) => {
+  if (itemCount <= 0) return 0;
+  if (itemCount <= 10) return 0.1;
+  if (itemCount <= 20) return 0.2;
+  return 0.3;
+};
+
+export const getDiscountLabel = (itemCount: number) => {
+  if (itemCount <= 0) return "";
+  if (itemCount <= 10) return "Retail 10%";
+  if (itemCount <= 20) return "Wholesale 20%";
+  return "Dealer 30%";
+};

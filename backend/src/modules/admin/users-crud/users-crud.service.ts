@@ -7,46 +7,52 @@ import { UpdateUserDto } from './dto/update.user.dto';
 
 @Injectable()
 export class UsersCrudService {
-    constructor(@InjectRepository(UsersTbl) private usersRepository: Repository<UsersTbl>) {}
+  constructor(
+    @InjectRepository(UsersTbl) private usersRepository: Repository<UsersTbl>,
+  ) {}
 
-    // admin side
-    async allUsers(){
-        return await this.usersRepository.find();
+  // admin side
+  async allUsers() {
+    return await this.usersRepository.find();
+  }
+
+  async createUser(createUserDto: CreateUserDto) {
+    const newUser = this.usersRepository.create(createUserDto);
+
+    if (!newUser) {
+      throw new NotFoundException('Failed to create user');
     }
 
-    async createUser(createUserDto: CreateUserDto){
-        const newUser = this.usersRepository.create(createUserDto);
+    return await this.usersRepository.save(newUser);
+  }
 
-        if(!newUser){
-            throw new NotFoundException('Failed to create user');
-        }
+  async updateUser(updateUserDto: UpdateUserDto) {
+    const user = await this.usersRepository.findOne({
+      where: { userId: updateUserDto.userId },
+    });
 
-        return await this.usersRepository.save(newUser);
+    if (!user) {
+      throw new NotFoundException(
+        `User with ID ${updateUserDto.userId} not found`,
+      );
     }
 
-    async updateUser(updateUserDto: UpdateUserDto){
-        const user = await this.usersRepository.findOne({ where: { userId: updateUserDto.userId } });
+    this.usersRepository.merge(user, updateUserDto);
+    return await this.usersRepository.save(user);
+  }
 
-        if (!user) {
-            throw new NotFoundException(`User with ID ${updateUserDto.userId} not found`);
-        }
+  async deleteUser(userId: number) {
+    const user = await this.usersRepository.findOne({ where: { userId } });
 
-        this.usersRepository.merge(user, updateUserDto);
-        return await this.usersRepository.save(user);
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
     }
+    return await this.usersRepository.remove(user);
+  }
 
-    async deleteUser(userId: number){
-        const user = await this.usersRepository.findOne({ where: { userId } });
-        
-        if (!user) {
-            throw new NotFoundException(`User with ID ${userId} not found`);
-        }
-        return await this.usersRepository.remove(user);
-    }
-
-    // client side
-    async readProfile(userId: number){
-        const user = await this.usersRepository.findOne({ where: { userId } });
-        return user;
-    }
-}    
+  // client side
+  async readProfile(userId: number) {
+    const user = await this.usersRepository.findOne({ where: { userId } });
+    return user;
+  }
+}

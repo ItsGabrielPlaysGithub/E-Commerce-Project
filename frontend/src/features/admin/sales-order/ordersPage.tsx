@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Download, Plus, Search, Filter } from "lucide-react";
 import { SalesOrdersTable } from "@/features/admin/sales-order/components/SalesOrdersTable";
@@ -11,9 +11,17 @@ import { UpdateOrderStatusModal } from "@/features/admin/sales-order/components/
 import { useOrders } from "@/features/admin/sales-order/hooks";
 import { useTransitionOrderStatus } from "@/features/admin/sales-order/hooks/use-transitionorderstatus";
 import { useRejectPaymentProof } from "@/features/admin/sales-order/hooks/use-reject-payment-proof";
+import { useCancelOrder } from "@/features/admin/sales-order/hooks/use-cancel-order";
 import { getStatusLabel, getStatusColor } from "@/utils/statusMapper";
 import { SalesOrder } from "../../../types/types";
 import { toast } from "sonner";
+
+const getDiscountRate = (itemCount: number) => {
+  if (itemCount <= 0) return 0;
+  if (itemCount <= 10) return 0.1;
+  if (itemCount <= 20) return 0.2;
+  return 0.3;
+};
 
 export default function SalesOrdersPage() {
   const router = useRouter();
@@ -36,40 +44,102 @@ export default function SalesOrdersPage() {
   const { data, loading, error } = useOrders();
   const [transitionOrderStatus] = useTransitionOrderStatus();
   const [rejectPaymentProof] = useRejectPaymentProof();
+  const { cancelOrder: cancelOrderMutation } = useCancelOrder();
 
-  // Transform GraphQL data to match SalesOrder interface
-  const ordersData: SalesOrder[] = (data?.allOrders || []).map((order: any) => ({
-    orderId: order.orderId?.toString() || "",
-    orderNumber: order.orderNumber || "",
-    userId: order.userId || 0,
-    productId: order.productId || 0,
-    orderType: order.orderType || "",
-    quantity: order.quantity || 0,
-    unitPrice: order.unitPrice || 0,
-    totalPrice: order.totalPrice || 0,
-    status: order.status || "PENDING_APPROVAL",
-    deliveryStatus: order.deliveryStatus || "",
-    paymentMethod: order.paymentMethod || "",
-    paymentProofImage: order.paymentProofImage 
-      ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${order.paymentProofImage}`
-      : "",
-    paymentProofUploadedAt: order.paymentProofUploadedAt || "",
-    paymentProofStatus: order.paymentProofStatus || "",
-    paymentProofRejectionReason: order.paymentProofRejectionReason || "",
-    paymentProofAttempts: order.paymentProofAttempts || 0,
-    paymongoTransactionId: order.paymongoTransactionId || "",
-    paymongoAmount: order.paymongoAmount || 0,
-    paymongoPaymentMethod: order.paymongoPaymentMethod || "",
-    paymongoTimestamp: order.paymongoTimestamp || "",
-    createdAt: order.createdAt || "",
-    updatedAt: order.updatedAt || "",
-  }));
+  // Group line items by orderNumber so admin table shows one row per sales order.
+  const ordersData: SalesOrder[] = useMemo(() => {
+    const source = data?.allOrders || [];
+    const groupedByOrderNumber = new Map<string, any[]>();
+
+    for (const order of source) {
+      const orderNumber = order.orderNumber || order.orderId?.toString() || "";
+      if (!groupedByOrderNumber.has(orderNumber)) {
+        groupedByOrderNumber.set(orderNumber, []);
+      }
+      groupedByOrderNumber.get(orderNumber)!.push(order);
+    }
+
+    const groupedOrders: SalesOrder[] = [];
+
+    for (const [orderNumber, orders] of groupedByOrderNumber) {
+      const sortedOrders = [...orders].sort((a, b) => (a.orderId || 0) - (b.orderId || 0));
+      const primaryOrder = sortedOrders[0];
+      const latestProofOrder =
+        [...sortedOrders]
+          .filter((o) => Boolean(o.paymentProofImage))
+          .sort(
+            (a, b) =>
+              new Date(b.paymentProofUploadedAt || b.updatedAt || b.createdAt || 0).getTime() -
+              new Date(a.paymentProofUploadedAt || a.updatedAt || a.createdAt || 0).getTime()
+          )[0] || primaryOrder;
+
+      const totalQuantity = sortedOrders.reduce((sum, o) => sum + (o.quantity || 0), 0);
+      const subtotalBeforeDiscount = sortedOrders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+      const discountRate = getDiscountRate(totalQuantity);
+      const discountAmount = Math.round(subtotalBeforeDiscount * discountRate);
+      const discountedSubtotal = subtotalBeforeDiscount - discountAmount;
+      const deliveryFee = primaryOrder.deliveryFee ?? (subtotalBeforeDiscount >= 1500 ? 0 : 350);
+      const grandTotal = primaryOrder.grandTotal ?? (discountedSubtotal + deliveryFee);
+
+      groupedOrders.push({
+        orderId: primaryOrder.orderId?.toString() || "",
+        rawOrderIds: sortedOrders
+          .map((o) => o.orderId?.toString())
+          .filter((id): id is string => Boolean(id)),
+        lineItemCount: sortedOrders.length,
+        orderedProducts: sortedOrders.map((o) => ({
+          productId: o.productId || 0,
+          productName: o.productName || o.product?.name || "",
+          quantity: o.quantity || 0,
+          unitPrice: o.unitPrice || 0,
+          totalPrice: o.totalPrice || 0,
+        })),
+        orderNumber,
+        userId: primaryOrder.userId || 0,
+        productId: primaryOrder.productId || 0,
+        orderType: primaryOrder.orderType || "",
+        quantity: totalQuantity,
+        unitPrice: primaryOrder.unitPrice || 0,
+        totalPrice: subtotalBeforeDiscount,
+        subtotalBeforeDiscount,
+        discountRate,
+        discountAmount,
+        discountedSubtotal,
+        deliveryFee,
+        grandTotal,
+        payableTotal: grandTotal,
+        status: primaryOrder.status || "PENDING_APPROVAL",
+        deliveryStatus: primaryOrder.deliveryStatus || "",
+        paymentMethod: primaryOrder.paymentMethod || "",
+        paymentProofImage: latestProofOrder?.paymentProofImage
+          ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${latestProofOrder.paymentProofImage}`
+          : "",
+        paymentProofUploadedAt: latestProofOrder?.paymentProofUploadedAt || "",
+        paymentProofStatus: latestProofOrder?.paymentProofStatus || primaryOrder.paymentProofStatus || "",
+        paymentProofRejectionReason:
+          latestProofOrder?.paymentProofRejectionReason || primaryOrder.paymentProofRejectionReason || "",
+        paymentProofAttempts: latestProofOrder?.paymentProofAttempts || primaryOrder.paymentProofAttempts || 0,
+        paymongoTransactionId: primaryOrder.paymongoTransactionId || "",
+        paymongoAmount: primaryOrder.paymongoAmount || 0,
+        paymongoPaymentMethod: primaryOrder.paymongoPaymentMethod || "",
+        paymongoTimestamp: primaryOrder.paymongoTimestamp || "",
+        createdAt: primaryOrder.createdAt || "",
+        updatedAt: primaryOrder.updatedAt || "",
+      });
+    }
+
+    return groupedOrders.sort(
+      (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    );
+  }, [data?.allOrders]);
 
   // Auto-open payment proof modal if coming from notification
   useEffect(() => {
     if (viewPaymentProofParam && ordersData.length > 0 && processedRef.current !== viewPaymentProofParam) {
       const orderId = parseInt(viewPaymentProofParam, 10);
-      const orderToView = ordersData.find(o => parseInt(o.orderId, 10) === orderId);
+      const orderToView = ordersData.find((o) =>
+        o.rawOrderIds?.some((id) => parseInt(id, 10) === orderId) || parseInt(o.orderId, 10) === orderId
+      );
       if (orderToView) {
         setPaymentProofOrder(orderToView);
         processedRef.current = viewPaymentProofParam;
@@ -108,28 +178,28 @@ export default function SalesOrdersPage() {
 
   // Calculate stats
   const totalOrders = ordersData.length;
-  const totalAmount = ordersData.reduce((sum, o) => sum + o.totalPrice, 0);
+  const totalAmount = ordersData.reduce((sum, o) => sum + (o.payableTotal ?? o.totalPrice), 0);
 
   const statusCards = [
     {
       label: "PENDING_APPROVAL",
       count: ordersData.filter((o) => o.status === "PENDING_APPROVAL").length,
-      amount: ordersData.filter((o) => o.status === "PENDING_APPROVAL").reduce((s, o) => s + o.totalPrice, 0),
+      amount: ordersData.filter((o) => o.status === "PENDING_APPROVAL").reduce((s, o) => s + (o.payableTotal ?? o.totalPrice), 0),
     },
     {
       label: "ACCEPT",
       count: ordersData.filter((o) => o.status === "ACCEPT").length,
-      amount: ordersData.filter((o) => o.status === "ACCEPT").reduce((s, o) => s + o.totalPrice, 0),
+      amount: ordersData.filter((o) => o.status === "ACCEPT").reduce((s, o) => s + (o.payableTotal ?? o.totalPrice), 0),
     },
     {
       label: "IN_TRANSIT",
       count: ordersData.filter((o) => o.status === "IN_TRANSIT").length,
-      amount: ordersData.filter((o) => o.status === "IN_TRANSIT").reduce((s, o) => s + o.totalPrice, 0),
+      amount: ordersData.filter((o) => o.status === "IN_TRANSIT").reduce((s, o) => s + (o.payableTotal ?? o.totalPrice), 0),
     },
     {
       label: "DELIVERED",
       count: ordersData.filter((o) => o.status === "DELIVERED").length,
-      amount: ordersData.filter((o) => o.status === "DELIVERED").reduce((s, o) => s + o.totalPrice, 0),
+      amount: ordersData.filter((o) => o.status === "DELIVERED").reduce((s, o) => s + (o.payableTotal ?? o.totalPrice), 0),
     },
   ];
 
@@ -158,16 +228,18 @@ export default function SalesOrdersPage() {
   };
 
   const handleApprovePayment = async (order: SalesOrder) => {
+    if (order.status !== "AWAITING_PAYMENT_VERIFICATION") {
+      toast.error(`Cannot approve payment proof for status: ${getStatusLabel(order.status)}`);
+      return;
+    }
+
     setPaymentProofLoading(true);
     try {
-      // Determine next status based on current status
-      const nextStatus = order.status === "AWAITING_PAYMENT_VERIFICATION" ? "ACCEPT" : "ACCEPT";
-      
       await transitionOrderStatus({
         variables: {
           input: {
             orderId: parseInt(order.orderId),
-            nextStatus: nextStatus,
+            nextStatus: "ACCEPT",
           },
         },
       });
@@ -213,22 +285,22 @@ export default function SalesOrdersPage() {
     setPaymongoTransactionOrder(order);
   };
 
-  const handleMarkAsReadyForDelivery = async (order: SalesOrder) => {
+  const handlePaymongoStatusUpdate = async (order: SalesOrder, nextStatus: string) => {
     setPaymongoTransactionLoading(true);
     try {
       await transitionOrderStatus({
         variables: {
           input: {
             orderId: parseInt(order.orderId),
-            nextStatus: "READY_FOR_DELIVERY",
+            nextStatus,
           },
         },
       });
-      toast.success("Order marked as ready for delivery");
+      toast.success(`Order updated to ${getStatusLabel(nextStatus)}`);
       setPaymongoTransactionOrder(null);
     } catch (error) {
-      console.error("Failed to mark order as ready:", error);
-      toast.error("Failed to mark order as ready for delivery");
+      console.error("Failed to update order status:", error);
+      toast.error("Failed to update order status");
     } finally {
       setPaymongoTransactionLoading(false);
     }
@@ -260,8 +332,14 @@ export default function SalesOrdersPage() {
     console.log("View invoice:", order);
   };
 
-  const handleCancelOrder = (order: SalesOrder) => {
-    console.log("Cancel order:", order);
+  const handleCancelOrder = async (order: SalesOrder) => {
+    try {
+      await cancelOrderMutation(parseInt(order.orderId));
+      toast.success("Order cancelled successfully");
+    } catch (error) {
+      console.error("Error cancelling order:", error);
+      toast.error("Failed to cancel order");
+    }
   };
 
   const handleAdjustDelivery = (order: SalesOrder) => {
@@ -429,7 +507,6 @@ export default function SalesOrdersPage() {
         onApprovePayment={handleApprovePayment}
         onRejectPayment={handleRejectPayment}
         onViewPaymongoDetails={handleViewPaymongoDetails}
-        onMarkAsReadyForDelivery={handleMarkAsReadyForDelivery}
         onReportDiscrepancy={handleReportDiscrepancy}
         onViewInvoice={handleViewInvoice}
         onCancelOrder={handleCancelOrder}
@@ -456,7 +533,7 @@ export default function SalesOrdersPage() {
           isOpen={!!paymongoTransactionOrder}
           order={paymongoTransactionOrder}
           onClose={() => setPaymongoTransactionOrder(null)}
-          onMarkAsReady={() => handleMarkAsReadyForDelivery(paymongoTransactionOrder)}
+          onUpdateStatus={handlePaymongoStatusUpdate}
           onReportDiscrepancy={() => handleReportDiscrepancy(paymongoTransactionOrder)}
           isLoading={paymongoTransactionLoading}
         />

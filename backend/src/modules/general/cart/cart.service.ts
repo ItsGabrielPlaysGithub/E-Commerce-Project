@@ -1,7 +1,16 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull } from 'typeorm';
-import { CartItem, AddToCartInput, UpdateCartItemInput, CartResponse } from './cart.entity';
+import {
+  CartItem,
+  AddToCartInput,
+  UpdateCartItemInput,
+  CartResponse,
+} from './cart.entity';
 import { ProductsTbl } from '../../admin/products/entity/products.tbl';
 
 @Injectable()
@@ -50,7 +59,10 @@ export class CartService {
     );
 
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = items.reduce((sum, item) => sum + item.quantity * parseFloat(String(item.unitPrice)), 0);
+    const totalPrice = items.reduce(
+      (sum, item) => sum + item.quantity * parseFloat(String(item.unitPrice)),
+      0,
+    );
 
     return {
       items: itemsWithProducts,
@@ -71,9 +83,11 @@ export class CartService {
       const product = await this.productRepository.findOne({
         where: { productId: input.productId },
       });
-      
+
       if (!product) {
-        throw new BadRequestException(`Product with ID ${input.productId} not found`);
+        throw new BadRequestException(
+          `Product with ID ${input.productId} not found`,
+        );
       }
 
       // Use product's authoritative price from database, never from client input
@@ -121,12 +135,15 @@ export class CartService {
       });
 
       const saved = await this.cartRepository.save(cartItem);
-      
+
       const created = await this.getCartItemWithProduct(saved.id);
       if (!created) {
         throw new NotFoundException('Failed to retrieve created cart item');
       }
-      console.log('[CartService.addToCart] Successfully added item', { id: created.id, productId: input.productId });
+      console.log('[CartService.addToCart] Successfully added item', {
+        id: created.id,
+        productId: input.productId,
+      });
       return created;
     } catch (error: any) {
       console.error('[CartService.addToCart] Error:', {
@@ -139,7 +156,10 @@ export class CartService {
     }
   }
 
-  async updateCartItem(userId: number, input: UpdateCartItemInput): Promise<CartItem> {
+  async updateCartItem(
+    userId: number,
+    input: UpdateCartItemInput,
+  ): Promise<CartItem> {
     const item = await this.cartRepository.findOne({
       where: { id: input.id, userId },
     });

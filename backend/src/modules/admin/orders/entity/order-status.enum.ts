@@ -12,3 +12,4 @@ export enum OrderStatus {
   READY_FOR_DELIVERY = 'READY_FOR_DELIVERY',
   PAID = 'PAID',
 }
+

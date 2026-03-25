@@ -28,4 +28,5 @@ export interface Order {
   paymentProofStatus?: "pending" | "rejected" | "approved";
   paymentProofAttempts?: number;
   paymentProofRejectionReason?: string;
+  paymongoTransactionId?: string;
 }

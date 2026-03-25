@@ -7,7 +7,8 @@ import { OrderDetails } from "../OrderDetails";
 import { OrderRowInfo } from "./OrderRowInfo";
 import { OrderRowActions } from "./OrderRowActions";
 import { PaymentProofUploadModal } from "../../../../../components/modals/Payment-Proof";
-import { useUpdateOrderStatus } from "../../hooks/use-update-order-status";
+import { PaymongoCheckoutModal } from "@/features/b2b/checkout";
+import { useCancelOrder } from "../../hooks/use-cancel-order";
 
 interface OrderRowProps {
   order: Order;
@@ -27,9 +28,21 @@ export function OrderRow({
   onUploadSuccess,
 }: OrderRowProps) {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [transitionOrderStatus] = useUpdateOrderStatus();
+  const [isPaymongoModalOpen, setIsPaymongoModalOpen] = useState(false);
+  const { cancelOrder: cancelOrderMutation } = useCancelOrder();
+
+  const cancellableStatuses = ["PENDING_APPROVAL", "READY_FOR_BILLING", "AWAITING_PAYMENT_VERIFICATION"];
+  const canCancel = cancellableStatuses.includes(order.status);
+  const isPendingVerification =
+    order.status === "AWAITING_PAYMENT_VERIFICATION" &&
+    order.paymentProofStatus !== "rejected";
 
   const handleUploadPaymentProof = async (file: File): Promise<void> => {
+    if (isPendingVerification) {
+      toast.error("Payment proof is already under verification.");
+      return;
+    }
+
     try {
       const orderId =
         typeof order.id === "string" ? parseInt(order.id, 10) : order.id;
@@ -60,19 +73,16 @@ export function OrderRow({
   };
 
   const handleCancelOrder = async () => {
+    if (!canCancel) {
+      toast.error("This order can no longer be cancelled.");
+      return;
+    }
+
     try {
       const orderId =
         typeof order.id === "string" ? parseInt(order.id, 10) : order.id;
 
-      await transitionOrderStatus({
-        variables: {
-          input: {
-            orderId,
-            nextStatus: "CANCELLED",
-            rejectionReason: "Order cancelled by B2B customer",
-          },
-        },
-      });
+      await cancelOrderMutation(orderId);
 
       toast.success("Order cancelled successfully!");
       if (onUploadSuccess) {
@@ -98,7 +108,14 @@ export function OrderRow({
             isExpanded={isExpanded}
             onExpand={onExpand}
             onCancelOrder={handleCancelOrder}
-            onUploadPayment={() => setIsUploadModalOpen(true)}
+            onUploadPayment={() => {
+              if (isPendingVerification) {
+                toast.error("Payment proof is already under verification.");
+                return;
+              }
+              setIsUploadModalOpen(true);
+            }}
+            onPayNow={() => setIsPaymongoModalOpen(true)}
           />
         </div>
 
@@ -115,6 +132,15 @@ export function OrderRow({
         orderId={order.id}
         onClose={() => setIsUploadModalOpen(false)}
         onSubmit={handleUploadPaymentProof}
+      />
+
+      <PaymongoCheckoutModal
+        isOpen={isPaymongoModalOpen}
+        orderId={typeof order.id === "string" ? parseInt(order.id, 10) : order.id}
+        orderAmount={order.total}
+        orderNumber={order.sapSo}
+        onClose={() => setIsPaymongoModalOpen(false)}
+        onSuccess={onUploadSuccess}
       />
     </>
   );
