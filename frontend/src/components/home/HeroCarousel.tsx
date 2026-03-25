@@ -28,13 +28,23 @@ export function HeroCarousel() {
     <Link href={slide.ctaPath}>
       <section
         className="relative overflow-hidden cursor-pointer"
-        style={{ minHeight: "580px" }}
+        style={{ minHeight: isMobile ? "auto" : "580px" }}
       >
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
-          style={{ backgroundImage: `url(${bgImage})` }}
-        />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex items-center min-h-[580px]"></div>
+        {isMobile ? (
+          <img
+            src={bgImage}
+            alt="Omega promotional banner"
+            className="block w-full h-auto object-contain"
+          />
+        ) : (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-all duration-1000"
+              style={{ backgroundImage: `url(${bgImage})` }}
+            />
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex items-center min-h-[580px]"></div>
+          </>
+        )}
       </section>
     </Link>
   );

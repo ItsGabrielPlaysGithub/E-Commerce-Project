@@ -23,8 +23,6 @@ export interface SalesOrder {
   quantity: number;
   unitPrice: number;
   totalPrice: number;
-  deliveryFee?: number;
-  grandTotal?: number;
   status: string;
   deliveryStatus?: string;
   paymentMethod?: string;

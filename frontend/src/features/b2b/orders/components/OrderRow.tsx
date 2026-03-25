@@ -107,6 +107,7 @@ export function OrderRow({
             onExpand={onExpand}
             onCancelOrder={handleCancelOrder}
             onUploadPayment={() => setIsUploadModalOpen(true)}
+            onPayNow={() => setIsPaymongoModalOpen(true)}
           />
         </div>
 
