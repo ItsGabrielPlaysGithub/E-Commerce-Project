@@ -8,6 +8,7 @@ import { CreateOrderDto } from './dto/create.order';
 import { UpdateOrderDto } from './dto/update.order';
 import { TransitionOrderStatusDto } from './dto/transition.order-status';
 import { RejectPaymentProofDto } from './dto/reject-payment-proof';
+import { CancelOrderDto } from './dto/cancel-order';
 import { PlaceOrderDto } from './dto/place-order';
 import { PlaceOrderResponse } from './entity/place-order-response';
 
@@ -99,6 +100,17 @@ export class OrdersResolver {
     @Roles('admin')
     async approvePaymentProof(@Args('orderId', { type: () => Int }) orderId: number) {
         return await this.ordersService.approvePaymentProof(orderId);
+    }
+
+    @Mutation(() => OrdersTbl, { name: 'cancelOrder' })
+    @UseGuards(JwtAuthGuard)
+    async cancelOrder(
+        @Args('input') input: CancelOrderDto,
+        @Context() context: any
+    ) {
+        const userId = context.req?.user?.userId || context.user?.userId;
+        if (!userId) throw new ForbiddenException('Not authenticated');
+        return await this.ordersService.cancelOrder(input.orderId, userId);
     }
 
     @Mutation(() => PlaceOrderResponse, { name: 'placeOrder' })

@@ -8,6 +8,7 @@ import { OrderRowInfo } from "./OrderRowInfo";
 import { OrderRowActions } from "./OrderRowActions";
 import { PaymentProofUploadModal } from "../../../../../components/modals/Payment-Proof";
 import { useUpdateOrderStatus } from "../../hooks/use-update-order-status";
+import { useCancelOrder } from "../../hooks/use-cancel-order";
 
 interface OrderRowProps {
   order: Order;
@@ -28,6 +29,7 @@ export function OrderRow({
 }: OrderRowProps) {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [transitionOrderStatus] = useUpdateOrderStatus();
+  const { cancelOrder: cancelOrderMutation } = useCancelOrder();
 
   const handleUploadPaymentProof = async (file: File): Promise<void> => {
     try {
@@ -64,15 +66,7 @@ export function OrderRow({
       const orderId =
         typeof order.id === "string" ? parseInt(order.id, 10) : order.id;
 
-      await transitionOrderStatus({
-        variables: {
-          input: {
-            orderId,
-            nextStatus: "CANCELLED",
-            rejectionReason: "Order cancelled by B2B customer",
-          },
-        },
-      });
+      await cancelOrderMutation(orderId);
 
       toast.success("Order cancelled successfully!");
       if (onUploadSuccess) {

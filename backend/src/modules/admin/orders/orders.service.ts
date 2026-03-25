@@ -4,7 +4,7 @@ import { OrdersTbl } from './entity/orders.tbl';
 import { CreateOrderDto } from './dto/create.order';
 import { Repository, In } from 'typeorm';
 import { UpdateOrderDto } from './dto/update.order';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { OrderStatus } from './entity/order-status.enum';
 import { TransitionOrderStatusDto } from './dto/transition.order-status';
 import { PlaceOrderDto } from './dto/place-order';
@@ -261,6 +261,36 @@ export class OrdersService {
                 this.logger.error(`Payment approved email failed for order #${orderId}`, error instanceof Error ? error.stack : String(error));
             },
         );
+
+        return updatedOrder;
+    }
+
+    /**
+     * Cancel an order by client user (ownership verified at resolver level)
+     */
+    async cancelOrder(orderId: number, userId: number): Promise<OrdersTbl> {
+        const order = await this.ordersRepository.findOne({ where: { orderId } });
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        // Verify ownership
+        if (order.userId !== userId) {
+            throw new ForbiddenException('You can only cancel your own orders');
+        }
+
+        const currentStatus = order.status as OrderStatus;
+        
+        // Cancellation is allowed from any status as per assertTransitionAllowed
+        order.status = OrderStatus.CANCELLED;
+        const updatedOrder = await this.ordersRepository.save(order);
+
+        void this.sendOrderStatusNotificationEmail(updatedOrder, currentStatus, null).catch((error: unknown) => {
+            this.logger.error(
+                `Order cancellation email failed for order #${orderId}`,
+                error instanceof Error ? error.stack : String(error),
+            );
+        });
 
         return updatedOrder;
     }
