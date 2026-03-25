@@ -7,6 +7,7 @@ export const GET_ALL_ORDERS = gql`
       orderNumber
       userId
       productId
+      productName
       orderType
       quantity
       unitPrice

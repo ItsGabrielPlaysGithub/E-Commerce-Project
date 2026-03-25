@@ -428,7 +428,11 @@ export function SalesOrdersTable({
                     <div className="font-medium text-gray-800 whitespace-nowrap">
                       Customer #{order.userId}
                     </div>
-                    <div className="text-xs text-gray-400">Product #{order.productId}</div>
+                    <div className="text-xs text-gray-400">
+                      {order.lineItemCount && order.lineItemCount > 1
+                        ? `${order.lineItemCount} products`
+                        : `Product #${order.productId}`}
+                    </div>
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <OrderTypeBadge type={order.orderType || "Retail"} />
@@ -443,7 +447,7 @@ export function SalesOrdersTable({
                     <StatusBadge status={order.deliveryStatus || ""} />
                   </td>
                   <td className="px-5 py-3.5 font-semibold text-gray-800 whitespace-nowrap">
-                    ₱{(order.totalPrice || 0).toLocaleString('en-PH')}
+                    ₱{(order.payableTotal ?? order.grandTotal ?? order.totalPrice ?? 0).toLocaleString('en-PH')}
                   </td>
                   <td className="px-5 py-3.5 whitespace-nowrap">
                     <StatusBadge status={order.status} />

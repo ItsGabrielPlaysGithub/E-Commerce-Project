@@ -86,22 +86,42 @@ export class OrdersService {
 
     // for admin to view all orders
     async allOrders(){
-        return await this.ordersRepository.find({
+        const orders = await this.ordersRepository.find({
+            relations: ['product'],
             order: { createdAt: 'DESC', orderId: 'ASC' },
         });
+        return orders.map((order) => ({
+            ...order,
+            productName: order.product?.productName,
+        }));
     }
 
-  async orderDetails(orderId: number) {
-    return await this.ordersRepository.findOne({ where: { orderId } });
-  }
+    async orderDetails(orderId: number){
+        const order = await this.ordersRepository.findOne({
+            where: { orderId },
+            relations: ['product'],
+        });
+        if (!order) {
+            return null;
+        }
+        return {
+            ...order,
+            productName: order.product?.productName,
+        };
+    }
 
     // CLIENTS SIDE ORDER FUNCTIONS
     // for clients to view their own orders
     async clientOrders(userId: number){
-        return await this.ordersRepository.find({
+        const orders = await this.ordersRepository.find({
             where: { userId },
+            relations: ['product'],
             order: { createdAt: 'DESC', orderId: 'ASC' },
         });
+        return orders.map((order) => ({
+            ...order,
+            productName: order.product?.productName,
+        }));
     }
 
   async createOrder(createOrderDto: CreateOrderDto) {

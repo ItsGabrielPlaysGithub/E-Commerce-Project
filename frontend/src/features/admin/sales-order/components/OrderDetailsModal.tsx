@@ -4,25 +4,11 @@ import { X, ShoppingCart, User, DollarSign, Calendar, Truck } from "lucide-react
 import { useState, useEffect } from "react";
 import { getStatusLabel } from "@/utils/statusMapper";
 import { formatDateLong } from "@/utils/dateFormatter";
+import type { SalesOrder } from "@/types/types";
 
 interface OrderDetailsModalProps {
   isOpen: boolean;
-  order: {
-    orderId: string;
-    orderNumber: string;
-    userId: number;
-    productId: number;
-    orderType?: string;
-    quantity: number;
-    unitPrice: number;
-    totalPrice: number;
-    status: string;
-    deliveryStatus?: string;
-    paymentMethod?: string;
-    paymentProofImage?: string;
-    createdAt: string;
-    updatedAt: string;
-  };
+  order: SalesOrder;
   onClose: () => void;
 }
 
@@ -60,6 +46,24 @@ export function OrderDetailsModal({
   };
 
   const statusColor = getStatusColor(order.status);
+  const orderedProducts =
+    order.orderedProducts && order.orderedProducts.length > 0
+      ? order.orderedProducts
+      : [{
+          productId: order.productId,
+          productName: "",
+          quantity: order.quantity,
+          unitPrice: order.unitPrice,
+          totalPrice: order.totalPrice,
+        }];
+  const totalQuantity = orderedProducts.reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const subtotalBeforeDiscount =
+    order.subtotalBeforeDiscount ?? orderedProducts.reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+  const discountRate = order.discountRate ?? 0;
+  const discountAmount = order.discountAmount ?? Math.round(subtotalBeforeDiscount * discountRate);
+  const discountedSubtotal = order.discountedSubtotal ?? (subtotalBeforeDiscount - discountAmount);
+  const deliveryFee = order.deliveryFee ?? 0;
+  const payableTotal = order.payableTotal ?? order.grandTotal ?? order.totalPrice;
 
   return (
     <>
@@ -78,13 +82,14 @@ export function OrderDetailsModal({
       {/* Dialog */}
       <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center p-4 pointer-events-none" style={{ maxHeight: "100vh", maxWidth: "100vw" }}>
         <div
-          className="rounded-2xl overflow-hidden w-full max-w-2xl pointer-events-auto"
+          className="rounded-2xl overflow-hidden w-full max-w-2xl pointer-events-auto flex flex-col"
           style={{
             background: "white",
             boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
             animation: isOpen
               ? "slideUp 0.3s ease-out"
               : "slideDown 0.2s ease-out forwards",
+            maxHeight: "90vh",
           }}
           onAnimationEnd={() => {
             if (!isOpen) setIsAnimating(false);
@@ -146,11 +151,11 @@ export function OrderDetailsModal({
           </div>
 
           {/* Content */}
-          <div className="px-6 py-6 space-y-6">
+          <div className="px-6 py-6 space-y-6 overflow-y-auto flex-1">
             {/* Order Header */}
             <div className="flex items-start gap-4">
               <div
-                className="w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0"
+                className="w-16 h-16 rounded-xl flex items-center justify-center shrink-0"
                 style={{ backgroundColor: "#fdf2f2" }}
               >
                 <ShoppingCart size={28} style={{ color: "#bf262f" }} />
@@ -224,18 +229,25 @@ export function OrderDetailsModal({
               </h3>
               <div className="space-y-3 p-4 rounded-lg" style={{ backgroundColor: "#f8fafc" }}>
                 <div className="flex items-center justify-between">
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Product ID</span>
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>{order.productId}</span>
+                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Total Quantity</span>
+                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>{totalQuantity} units</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Quantity</span>
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>{order.quantity} units</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Unit Price</span>
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#0f172a" }}>
-                    ₱{order.unitPrice.toLocaleString()}
-                  </span>
+                <div>
+                  <p style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563", marginBottom: "8px" }}>
+                    Products Ordered
+                  </p>
+                  <div className="space-y-2">
+                    {orderedProducts.map((item, idx) => (
+                      <div key={`${item.productId}-${idx}`} className="flex items-center justify-between rounded-md bg-white px-3 py-2">
+                        <span style={{ fontSize: "13px", color: "#0f172a", fontWeight: 600 }}>
+                          {item.productName || `Product #${item.productId}`}
+                        </span>
+                        <span style={{ fontSize: "12px", color: "#64748b" }}>
+                          Qty {item.quantity} · ₱{(item.totalPrice || 0).toLocaleString()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -252,11 +264,43 @@ export function OrderDetailsModal({
                   borderLeft: "3px solid #2563eb",
                 }}
               >
+                <div className="space-y-2" style={{ marginBottom: "12px" }}>
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Subtotal</span>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#0f172a" }}>
+                      ₱{subtotalBeforeDiscount.toLocaleString('en-PH')}
+                    </span>
+                  </div>
+                  {discountAmount > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>
+                        Discount ({Math.round(discountRate * 100)}%)
+                      </span>
+                      <span style={{ fontSize: "13px", fontWeight: 600, color: "#16a34a" }}>
+                        -₱{discountAmount.toLocaleString('en-PH')}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>After Discount</span>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#0f172a" }}>
+                      ₱{discountedSubtotal.toLocaleString('en-PH')}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: "#4b5563" }}>Delivery Fee</span>
+                    <span style={{ fontSize: "13px", fontWeight: 600, color: deliveryFee === 0 ? "#16a34a" : "#0f172a" }}>
+                      {deliveryFee === 0 ? "FREE" : `₱${deliveryFee.toLocaleString('en-PH')}`}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ borderTop: "1px solid #bfdbfe", paddingTop: "10px" }}>
                 <div className="flex items-center justify-between">
-                  <span style={{ fontSize: "14px", fontWeight: 600, color: "#4b5563" }}>Total Amount</span>
+                  <span style={{ fontSize: "14px", fontWeight: 700, color: "#4b5563" }}>Total Payable</span>
                   <span style={{ fontSize: "18px", fontWeight: 700, color: "#2563eb" }}>
-                    ₱{order.totalPrice.toLocaleString()}
+                    ₱{payableTotal.toLocaleString('en-PH')}
                   </span>
+                </div>
                 </div>
               </div>
             </div>

@@ -7,26 +7,14 @@ import {
   STATUS_FLOW,
   STATUS_LABELS,
 } from "@/features/admin/sales-order/constants/statusFlow";
-
-interface SalesOrder {
-  orderId: string;
-  orderNumber: string;
-  userId: number;
-  totalPrice: number;
-  grandTotal?: number;
-  status?: string;
-  paymongoTransactionId?: string;
-  paymongoAmount?: number;
-  paymongoPaymentMethod?: string;
-  paymongoTimestamp?: string;
-}
+import type { SalesOrder } from "@/types/types";
 
 interface PaymongoTransactionModalProps {
   isOpen: boolean;
   order: SalesOrder;
   onClose: () => void;
-  onUpdateStatus: (order: SalesOrder, nextStatus: string) => void;
-  onReportDiscrepancy: (order: SalesOrder) => void;
+  onUpdateStatus: (order: SalesOrder, nextStatus: string) => Promise<void> | void;
+  onReportDiscrepancy: (order: SalesOrder) => Promise<void> | void;
   isLoading?: boolean;
 }
 

@@ -26,6 +26,7 @@ export function PaymentProofModal({
   const [showRejectReason, setShowRejectReason] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [reasonError, setReasonError] = useState("");
+  const canApproveCurrentStatus = order.status === "AWAITING_PAYMENT_VERIFICATION";
 
   useEffect(() => {
     if (isOpen) {
@@ -368,20 +369,28 @@ export function PaymentProofModal({
 
                 <button
                   onClick={() => onApprove(order)}
-                  disabled={isLoading || !order.paymentProofImage || order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved'}
+                  disabled={isLoading || !order.paymentProofImage || order.paymentProofStatus === 'rejected' || order.paymentProofStatus === 'approved' || !canApproveCurrentStatus}
                   className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg font-semibold text-sm transition-all hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
                     background: order.paymentProofStatus === 'approved' 
                       ? "#dcfce7" 
-                      : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "#f1f5f9" : "#dcfce7"),
+                      : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage || !canApproveCurrentStatus ? "#f1f5f9" : "#dcfce7"),
                     border: order.paymentProofStatus === 'approved' 
                       ? "1px solid #bbf7d0" 
-                      : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "1px solid #e2e8f0" : "1px solid #bbf7d0"),
+                      : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage || !canApproveCurrentStatus ? "1px solid #e2e8f0" : "1px solid #bbf7d0"),
                     color: order.paymentProofStatus === 'approved' 
                       ? "#16a34a" 
-                      : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage ? "#94a3b8" : "#16a34a"),
+                      : (order.paymentProofStatus === 'rejected' || !order.paymentProofImage || !canApproveCurrentStatus ? "#94a3b8" : "#16a34a"),
                   }}
-                  title={order.paymentProofStatus === 'approved' ? "This proof has been approved" : order.paymentProofStatus === 'rejected' ? "This proof has been rejected" : !order.paymentProofImage ? "Waiting for client to upload proof" : ""}
+                  title={order.paymentProofStatus === 'approved'
+                    ? "This proof has been approved"
+                    : order.paymentProofStatus === 'rejected'
+                      ? "This proof has been rejected"
+                      : !order.paymentProofImage
+                        ? "Waiting for client to upload proof"
+                        : !canApproveCurrentStatus
+                          ? "Payment proof can only be approved from Awaiting Payment Verification"
+                          : ""}
                 >
                   <CheckCircle size={14} />
                   <span>

@@ -53,7 +53,7 @@ export function UpdateOrderStatusModal({
 
     try {
       await onUpdate(selectedStatus);
-      toast.success(`Order updated to ${STATUS_LABELS[selectedStatus]}`);
+      toast.success(`Order now in ${STATUS_LABELS[selectedStatus]} status`);
       onClose();
     } catch (err) {
       toast.error("Failed to update order status");
