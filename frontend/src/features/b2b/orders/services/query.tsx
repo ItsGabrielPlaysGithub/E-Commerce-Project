@@ -18,6 +18,7 @@ export const GET_CLIENT_ORDERS = gql`
       grandTotal
       status
       deliveryStatus
+      paymentMethod
       paymentProofImage
       paymentProofStatus
       paymentProofRejectionReason
@@ -44,6 +45,7 @@ export const GET_ORDER_DETAILS = gql`
       grandTotal
       status
       deliveryStatus
+      paymentMethod
       paymentProofImage
       paymentProofStatus
       paymentProofRejectionReason
@@ -70,6 +72,7 @@ export const GET_ALL_ORDERS = gql`
       grandTotal
       status
       deliveryStatus
+      paymentMethod
       createdAt
       updatedAt
       paymentProofImage

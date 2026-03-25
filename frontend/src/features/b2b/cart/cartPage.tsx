@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCartLogic } from "./hooks/useCartLogic";
 import {
   CartEmpty,
@@ -11,6 +12,7 @@ import { PaymongoCheckoutModal } from "@/features/b2b/checkout";
 import { CART_COLORS } from "./constants/index";
 
 export function Cart() {
+  const router = useRouter();
   const {
     company,
     items,
@@ -56,6 +58,14 @@ export function Cart() {
   const currentGrandTotal = selectedSubtotal + deliveryFee;
   const payableAmount = paymentTrigger?.orderAmount ?? currentGrandTotal;
 
+  const handlePaymongoClose = () => {
+    console.log("[cartPage] PayMongo modal closed");
+    resetPaymentTrigger();
+    setShowModal(false);
+    // Redirect to Processing section of orders
+    router.push("/b2b/my-orders?tab=Processing");
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* PayMongo Modal - Render at top level, not inside OrderConfirmModal */}
@@ -65,11 +75,7 @@ export function Cart() {
           orderId={paymentTrigger.orderId}
           orderAmount={payableAmount}
           orderNumber={paymentTrigger.orderNumber}
-          onClose={() => {
-            console.log("[cartPage] PayMongo modal closed");
-            resetPaymentTrigger();
-            setShowModal(false);
-          }}
+          onClose={handlePaymongoClose}
           onSuccess={() => {
             console.log("[cartPage] PayMongo payment successful");
             resetPaymentTrigger();

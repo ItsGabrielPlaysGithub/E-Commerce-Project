@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Order } from "../types/order";
 import { OrderDetails } from "./OrderDetails";
@@ -28,12 +29,19 @@ export function OrderRow({
   isLastItem,
   onUploadSuccess,
 }: OrderRowProps) {
+  const router = useRouter();
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [isPaymongoModalOpen, setIsPaymongoModalOpen] = useState(false);
   const { cancelOrder: cancelOrderMutation } = useCancelOrder();
 
   const cancellableStatuses = ["PENDING_APPROVAL", "READY_FOR_BILLING", "AWAITING_PAYMENT_VERIFICATION"];
   const canCancel = cancellableStatuses.includes(order.status);
+
+  const handlePaymongoCancel = () => {
+    setIsPaymongoModalOpen(false);
+    // Redirect to Processing section of orders
+    router.push("/b2b/my-orders?tab=Processing");
+  };
 
   const handleUploadPaymentProof = async (file: File): Promise<void> => {
     try {
@@ -175,7 +183,7 @@ export function OrderRow({
         orderId={typeof order.id === "string" ? parseInt(order.id, 10) : order.id}
         orderAmount={order.total}
         orderNumber={order.sapSo}
-        onClose={() => setIsPaymongoModalOpen(false)}
+        onClose={handlePaymongoCancel}
         onSuccess={onUploadSuccess}
       />
     </>

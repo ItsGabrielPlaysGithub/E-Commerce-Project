@@ -26,6 +26,7 @@ function mapBackendOrderToOrder(backendOrder: any): Order {
     status: derivedStatus,
     paymentStatus: "Pending",
     deliveryMethod: backendOrder.deliveryStatus || "Standard",
+    paymentMethod: backendOrder.paymentMethod || undefined,
   };
 }
 
@@ -91,6 +92,7 @@ function groupAndMapOrders(backendOrders: any[]): Order[] {
           : mapOrderStatus(primaryOrder.status),
       paymentStatus: "Pending",
       deliveryMethod: primaryOrder.deliveryStatus || "Standard",
+      paymentMethod: primaryOrder.paymentMethod || undefined,
       deliveryFee: deliveryFee, // Store delivery fee for display
       paymentProofImage: latestProofOrder?.paymentProofImage
         ? `${process.env.NEXT_PUBLIC_IMAGE_PATH}${latestProofOrder.paymentProofImage}`

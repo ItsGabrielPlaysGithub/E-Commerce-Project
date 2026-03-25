@@ -23,6 +23,7 @@ export interface Order {
   status: OrderStatus;
   paymentStatus: "Paid" | "Pending" | "Overdue";
   deliveryMethod: string;
+  paymentMethod?: "e-payment" | "manual_transfer" | string;
   notes?: string;
   paymentProofImage?: string;
   paymentProofStatus?: "pending" | "rejected" | "approved";
