@@ -49,6 +49,8 @@ export default function SalesOrdersPage() {
     quantity: order.quantity || 0,
     unitPrice: order.unitPrice || 0,
     totalPrice: order.totalPrice || 0,
+    deliveryFee: order.deliveryFee ?? undefined,
+    grandTotal: order.grandTotal ?? undefined,
     status: order.status || "PENDING_APPROVAL",
     deliveryStatus: order.deliveryStatus || "",
     paymentMethod: order.paymentMethod || "",
@@ -215,22 +217,22 @@ export default function SalesOrdersPage() {
     setPaymongoTransactionOrder(order);
   };
 
-  const handleMarkAsReadyForDelivery = async (order: SalesOrder) => {
+  const handlePaymongoStatusUpdate = async (order: SalesOrder, nextStatus: string) => {
     setPaymongoTransactionLoading(true);
     try {
       await transitionOrderStatus({
         variables: {
           input: {
             orderId: parseInt(order.orderId),
-            nextStatus: "READY_FOR_DELIVERY",
+            nextStatus,
           },
         },
       });
-      toast.success("Order marked as ready for delivery");
+      toast.success(`Order updated to ${getStatusLabel(nextStatus)}`);
       setPaymongoTransactionOrder(null);
     } catch (error) {
-      console.error("Failed to mark order as ready:", error);
-      toast.error("Failed to mark order as ready for delivery");
+      console.error("Failed to update order status:", error);
+      toast.error("Failed to update order status");
     } finally {
       setPaymongoTransactionLoading(false);
     }
@@ -437,7 +439,6 @@ export default function SalesOrdersPage() {
         onApprovePayment={handleApprovePayment}
         onRejectPayment={handleRejectPayment}
         onViewPaymongoDetails={handleViewPaymongoDetails}
-        onMarkAsReadyForDelivery={handleMarkAsReadyForDelivery}
         onReportDiscrepancy={handleReportDiscrepancy}
         onViewInvoice={handleViewInvoice}
         onCancelOrder={handleCancelOrder}
@@ -464,7 +465,7 @@ export default function SalesOrdersPage() {
           isOpen={!!paymongoTransactionOrder}
           order={paymongoTransactionOrder}
           onClose={() => setPaymongoTransactionOrder(null)}
-          onMarkAsReady={() => handleMarkAsReadyForDelivery(paymongoTransactionOrder)}
+          onUpdateStatus={handlePaymongoStatusUpdate}
           onReportDiscrepancy={() => handleReportDiscrepancy(paymongoTransactionOrder)}
           isLoading={paymongoTransactionLoading}
         />

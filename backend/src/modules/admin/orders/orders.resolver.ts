@@ -161,4 +161,28 @@ export class OrdersResolver {
       ...result,
     };
   }
+
+  @Mutation(() => OrdersTbl)
+  @UseGuards(JwtAuthGuard)
+  async confirmPaymongoPayment(
+    @Args('orderId', { type: () => Int }) orderId: number,
+    @Context() context: any,
+  ) {
+    const userId = context.req?.user?.userId || context.user?.userId;
+    console.log('[confirmPaymongoPayment] Called with orderId:', orderId, 'userId:', userId);
+    if (!userId) throw new ForbiddenException('Not authenticated');
+
+    const order = await this.ordersService.orderDetails(orderId);
+    console.log('[confirmPaymongoPayment] Order found:', order?.orderId, 'Order userId:', order?.userId);
+    if (!order) throw new ForbiddenException('Order not found');
+
+    const userRole = context.req?.user?.role || context.user?.role;
+    console.log('[confirmPaymongoPayment] User role:', userRole);
+    if (order.userId !== userId && userRole !== 'admin') {
+      throw new ForbiddenException('You can only confirm your own orders');
+    }
+
+    console.log('[confirmPaymongoPayment] Calling ordersService.confirmPaymongoPayment for orderId:', orderId);
+    return await this.ordersService.confirmPaymongoPayment(orderId);
+  }
 }

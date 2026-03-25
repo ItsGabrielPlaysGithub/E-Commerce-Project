@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Upload } from "lucide-react";
+import { Upload, CreditCard } from "lucide-react";
 import type { Order } from "../../types/order";
 
 interface OrderRowMenuProps {
@@ -10,6 +10,7 @@ interface OrderRowMenuProps {
   order: Order;
   onCancelOrder: () => void;
   onUploadPayment: () => void;
+  onPayNow: () => void;
   onViewDetails: () => void;
   isExpanded: boolean;
   onShowCancelModal: () => void;
@@ -21,6 +22,7 @@ export function OrderRowMenu({
   order,
   onCancelOrder,
   onUploadPayment,
+  onPayNow,
   onViewDetails,
   isExpanded,
   onShowCancelModal,
@@ -65,12 +67,24 @@ export function OrderRowMenu({
               Cancel Order
             </button>
 
-            <button
-              onClick={onUploadPayment}
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
-            >
-              Upload Payment Proof
-            </button>
+            {/* Show Pay Now for e-payment orders, Upload Proof for manual payment */}
+            {order.paymongoTransactionId ? (
+              <button
+                onClick={onPayNow}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
+                <CreditCard size={14} />
+                Pay Now
+              </button>
+            ) : (
+              <button
+                onClick={onUploadPayment}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-2"
+              >
+                <Upload size={14} />
+                Upload Payment Proof
+              </button>
+            )}
           </>
         )}
 

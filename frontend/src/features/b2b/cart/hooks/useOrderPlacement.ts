@@ -55,8 +55,6 @@ export const useOrderPlacement = (
       setPlacing(true);
       setPaymentTrigger(null);
       try {
-        const deliveryFeeValue = selectedSubtotal >= 1500 ? 0 : 350;
-        const grandTotalValue = selectedSubtotal + deliveryFeeValue;
         const mutationInput = {
           items: selectedItems.map((item: CartItem) => ({
             productId: parseInt(String(item.product.id), 10),
@@ -92,6 +90,16 @@ export const useOrderPlacement = (
 
         const { placeOrder } = responseData;
         removeItems(selectedItems.map((item) => item.product.id));
+        if (paymentMethod === "e-payment") {
+          setPaymentTrigger({
+            orderId: placeOrder.orderId,
+            orderNumber: placeOrder.orderNumber,
+            orderAmount: grandTotal,
+          });
+          setShowModal(false);
+          return;
+        }
+
         router.push(
           `/b2b/order-success?orderNumber=${placeOrder.orderNumber}&orderId=${placeOrder.orderId}&grandTotal=${grandTotal}`
         );

@@ -1,14 +1,20 @@
 'use client';
 
-import { X, AlertCircle, CheckCircle } from "lucide-react";
+import { X, AlertCircle, CheckCircle, ArrowUpRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { formatDateWithTime } from "@/utils/dateFormatter";
+import {
+  STATUS_FLOW,
+  STATUS_LABELS,
+} from "@/features/admin/sales-order/constants/statusFlow";
 
 interface SalesOrder {
   orderId: string;
   orderNumber: string;
   userId: number;
   totalPrice: number;
+  grandTotal?: number;
+  status?: string;
   paymongoTransactionId?: string;
   paymongoAmount?: number;
   paymongoPaymentMethod?: string;
@@ -19,7 +25,7 @@ interface PaymongoTransactionModalProps {
   isOpen: boolean;
   order: SalesOrder;
   onClose: () => void;
-  onMarkAsReady: (order: SalesOrder) => void;
+  onUpdateStatus: (order: SalesOrder, nextStatus: string) => void;
   onReportDiscrepancy: (order: SalesOrder) => void;
   isLoading?: boolean;
 }
@@ -28,23 +34,29 @@ export function PaymongoTransactionModal({
   isOpen,
   order,
   onClose,
-  onMarkAsReady,
+  onUpdateStatus,
   onReportDiscrepancy,
   isLoading = false,
 }: PaymongoTransactionModalProps) {
   const [isAnimating, setIsAnimating] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       setIsAnimating(true);
+      setSelectedStatus(null);
     }
-  }, [isOpen]);
+  }, [isOpen, order.orderId]);
 
   if (!isOpen && !isAnimating) return null;
-  const orderAmount = order.totalPrice;
+  const expectedAmount = order.grandTotal ?? order.totalPrice;
   const chargedAmount = order.paymongoAmount || 0;
-  const amountMatch = Math.abs(orderAmount - chargedAmount) < 0.01;
-  const amountDifference = chargedAmount - orderAmount;
+  const amountMatch = Math.abs(expectedAmount - chargedAmount) < 0.01;
+  const amountDifference = chargedAmount - expectedAmount;
+  const statusOptions = (STATUS_FLOW[order.status || ""] || []).filter(
+    (status) => status !== "REJECTED" && status !== "CANCELLED",
+  );
+  const canUpdateStatus = amountMatch && statusOptions.length > 0;
 
   const paymentMethodDisplay: Record<string, string> = {
     card: "Credit/Debit Card",
@@ -172,7 +184,7 @@ export function PaymongoTransactionModal({
                   {amountMatch ? "Amount Match ✓" : "Amount Discrepancy ⚠"}
                 </p>
                 <p style={{ fontSize: "12px", color: amountMatch ? "#16a34a" : "#dc2626" }}>
-                  Expected: ₱{orderAmount.toLocaleString("en-PH")} | Charged: ₱
+                  Expected: ₱{expectedAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })} | Charged: ₱
                   {chargedAmount.toLocaleString("en-PH", { minimumFractionDigits: 2 })}
                 </p>
                 {!amountMatch && (
@@ -186,6 +198,57 @@ export function PaymongoTransactionModal({
               </div>
             </div>
           </div>
+
+          {canUpdateStatus && (
+            <div className="space-y-3">
+              <p
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "#374151",
+                }}
+              >
+                Update Order Status
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {statusOptions.map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    disabled={isLoading}
+                    onClick={() => setSelectedStatus(status)}
+                    className="w-full text-left rounded-xl border px-4 py-3 transition-all"
+                    style={{
+                      borderColor:
+                        selectedStatus === status ? "#0f172a" : "#e2e8f0",
+                      background:
+                        selectedStatus === status ? "#0f172a" : "#f8fafc",
+                      color:
+                        selectedStatus === status ? "white" : "#0f172a",
+                      opacity: isLoading ? 0.6 : 1,
+                      cursor: isLoading ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span style={{ fontWeight: 600, fontSize: "13px" }}>
+                        {STATUS_LABELS[status] || status}
+                      </span>
+                      <ArrowUpRight size={14} />
+                    </div>
+                    <p
+                      style={{
+                        fontSize: "11px",
+                        marginTop: "4px",
+                        color: selectedStatus === status ? "#f1f5f9" : "#64748b",
+                      }}
+                    >
+                      Apply this status immediately
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Transaction Details */}
           <div className="space-y-3">
@@ -267,23 +330,29 @@ export function PaymongoTransactionModal({
             </button>
           )}
 
-          <button
-            onClick={() => onMarkAsReady(order)}
-            disabled={isLoading || !amountMatch}
-            className="flex-1 py-2.5 rounded-lg transition-all"
-            style={{
-              background: amountMatch ? "#dcfce7" : "#f1f5f9",
-              border: amountMatch ? "1px solid #bbf7d0" : "1px solid #e2e8f0",
-              color: amountMatch ? "#16a34a" : "#94a3b8",
-              fontSize: "13px",
-              fontWeight: 600,
-              opacity: isLoading ? 0.6 : !amountMatch ? 0.5 : 1,
-              cursor:
-                isLoading || !amountMatch ? "not-allowed" : "pointer",
-            }}
-          >
-            {isLoading ? "Processing..." : "Mark as Ready for Delivery"}
-          </button>
+          {canUpdateStatus && (
+            <button
+              onClick={() =>
+                selectedStatus && onUpdateStatus(order, selectedStatus)
+              }
+              disabled={
+                isLoading || !selectedStatus || !amountMatch || !canUpdateStatus
+              }
+              className="flex-1 py-2.5 rounded-lg transition-all"
+              style={{
+                background: selectedStatus ? "#0f172a" : "#f1f5f9",
+                border: selectedStatus ? "1px solid #0f172a" : "1px solid #e2e8f0",
+                color: selectedStatus ? "#fff" : "#94a3b8",
+                fontSize: "13px",
+                fontWeight: 600,
+                opacity: isLoading ? 0.6 : 1,
+                cursor:
+                  isLoading || !selectedStatus ? "not-allowed" : "pointer",
+              }}
+            >
+              {isLoading ? "Updating..." : "Apply Status Update"}
+            </button>
+          )}
 
           <button
             onClick={onClose}

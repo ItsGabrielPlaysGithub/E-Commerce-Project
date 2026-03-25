@@ -53,7 +53,10 @@ export function OrderDetailsModal({
   };
 
   const getPaymentMethodLabel = (method?: string) => {
-    return method === "paymongo" ? "PayMongo" : method === "manual_transfer" ? "Bank Transfer" : "N/A";
+    if (method === "paymongo" || method === "e-payment") {
+      return "PayMongo";
+    }
+    return method === "manual_transfer" ? "Bank Transfer" : "N/A";
   };
 
   const statusColor = getStatusColor(order.status);

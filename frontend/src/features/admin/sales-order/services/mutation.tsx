@@ -62,7 +62,7 @@ export const TRANSITION_ADMIN_ORDER_STATUS = gql`
 `;
 
 export const CANCEL_ORDER = gql`
-  mutation CancelOrder($input: CancelOrderDto!) {
+  mutation CancelAdminOrder($input: CancelOrderDto!) {
     cancelOrder(input: $input) {
       orderId
       orderNumber

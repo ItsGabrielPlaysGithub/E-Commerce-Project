@@ -71,12 +71,16 @@ export class PaymongoService {
    * @param amount - Amount in PHP (will be converted to centavos)
    * @param orderId - Reference order ID
    * @param description - Payment description
+   * @param orderNumber - Order reference number
+   * @param grandTotal - Grand total amount for redirect URL
    * @returns Checkout Link with URL
    */
   async createCheckoutLink(
     amount: number,
     orderId: number,
     description?: string,
+    orderNumber?: string,
+    grandTotal?: number,
   ): Promise<{
     checkoutId: string;
     checkoutUrl: string;
@@ -84,7 +88,7 @@ export class PaymongoService {
   }> {
     try {
       this.logger.debug(
-        `createCheckoutLink called with: amount=${amount}, orderId=${orderId}, description=${description}`,
+        `createCheckoutLink called with: amount=${amount}, orderId=${orderId}, description=${description}, orderNumber=${orderNumber}, grandTotal=${grandTotal}`,
       );
 
       const amountInCentavos = Math.round(amount * 100);
@@ -104,6 +108,10 @@ export class PaymongoService {
         this.configService.get<string>('PAYMONGO_CHECKOUT_FAILED_URL') ||
         'http://localhost:3000/b2b/checkout/failed';
 
+      // Build success URL with query parameters
+      const successUrlWithParams = `${successUrl}?orderId=${orderId}${orderNumber ? `&orderNumber=${encodeURIComponent(orderNumber)}` : ''}${grandTotal ? `&grandTotal=${grandTotal}` : ''}`;
+      const failedUrlWithParams = `${failedUrl}?orderId=${orderId}`;
+
       const payload = {
         data: {
           attributes: {
@@ -118,8 +126,8 @@ export class PaymongoService {
                 quantity: 1,
               },
             ],
-            success_url: `${successUrl}?orderId=${orderId}`,
-            cancel_url: `${failedUrl}?orderId=${orderId}`,
+            success_url: successUrlWithParams,
+            cancel_url: failedUrlWithParams,
             show_line_items: true,
           },
         },

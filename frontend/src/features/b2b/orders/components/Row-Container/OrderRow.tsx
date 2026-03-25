@@ -7,6 +7,7 @@ import { OrderDetails } from "../OrderDetails";
 import { OrderRowInfo } from "./OrderRowInfo";
 import { OrderRowActions } from "./OrderRowActions";
 import { PaymentProofUploadModal } from "../../../../../components/modals/Payment-Proof";
+import { PaymongoCheckoutModal } from "@/features/b2b/checkout";
 import { useCancelOrder } from "../../hooks/use-cancel-order";
 
 interface OrderRowProps {
@@ -27,6 +28,7 @@ export function OrderRow({
   onUploadSuccess,
 }: OrderRowProps) {
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isPaymongoModalOpen, setIsPaymongoModalOpen] = useState(false);
   const { cancelOrder: cancelOrderMutation } = useCancelOrder();
 
   const cancellableStatuses = ["PENDING_APPROVAL", "READY_FOR_BILLING", "AWAITING_PAYMENT_VERIFICATION"];
@@ -99,6 +101,7 @@ export function OrderRow({
             onExpand={onExpand}
             onCancelOrder={handleCancelOrder}
             onUploadPayment={() => setIsUploadModalOpen(true)}
+            onPayNow={() => setIsPaymongoModalOpen(true)}
           />
         </div>
 
@@ -115,6 +118,15 @@ export function OrderRow({
         orderId={order.id}
         onClose={() => setIsUploadModalOpen(false)}
         onSubmit={handleUploadPaymentProof}
+      />
+
+      <PaymongoCheckoutModal
+        isOpen={isPaymongoModalOpen}
+        orderId={typeof order.id === "string" ? parseInt(order.id, 10) : order.id}
+        orderAmount={order.total}
+        orderNumber={order.sapSo}
+        onClose={() => setIsPaymongoModalOpen(false)}
+        onSuccess={onUploadSuccess}
       />
     </>
   );

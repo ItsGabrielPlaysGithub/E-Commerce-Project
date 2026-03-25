@@ -18,12 +18,13 @@ export const GET_CLIENT_ORDERS = gql`
       grandTotal
       status
       deliveryStatus
-      createdAt
-      updatedAt
       paymentProofImage
       paymentProofStatus
       paymentProofRejectionReason
       paymentProofAttempts
+      paymongoTransactionId
+      createdAt
+      updatedAt
     }
   }
 `;
@@ -43,12 +44,13 @@ export const GET_ORDER_DETAILS = gql`
       grandTotal
       status
       deliveryStatus
-      createdAt
-      updatedAt
       paymentProofImage
       paymentProofStatus
       paymentProofRejectionReason
       paymentProofAttempts
+      paymongoTransactionId
+      createdAt
+      updatedAt
     }
   }
 `;

@@ -1037,6 +1037,8 @@ export class OrdersService {
         totalAmount,
         orderId,
         `Order #${order.orderId} - ${order.orderNumber || 'Unnamed'}`,
+        order.orderNumber,
+        totalAmount,
       );
 
       // Update order with checkout link ID and set payment status to PENDING
@@ -1094,6 +1096,61 @@ export class OrdersService {
           err,
         );
       }
+    }
+
+    return updatedOrder;
+  }
+
+  /**
+   * Confirm PayMongo payment and update order status
+   * Called after user successfully completes PayMongo payment
+   */
+  async confirmPaymongoPayment(orderId: number): Promise<OrdersTbl> {
+    const { targetOrder, groupedOrders } = await this.getOrderGroupFromOrderId(
+      orderId,
+    );
+
+    const primaryOrder =
+      groupedOrders.find((o) => o.grandTotal != null || o.deliveryFee != null) ||
+      targetOrder;
+
+    const subtotal = groupedOrders.reduce(
+      (sum, item) => sum + Number(item.totalPrice || 0),
+      0,
+    );
+    const computedAmount =
+      Number(primaryOrder.grandTotal) ||
+      subtotal + Number(primaryOrder.deliveryFee || 0);
+
+    const transactionId =
+      primaryOrder.paymentIntentId ||
+      targetOrder.paymentIntentId ||
+      `PAYMONGO-${primaryOrder.orderNumber ?? orderId}`;
+    const timestamp = new Date();
+
+    for (const groupedOrder of groupedOrders) {
+      groupedOrder.paymentStatus = 'PAID';
+      groupedOrder.status = OrderStatus.AWAITING_PAYMENT_VERIFICATION;
+      groupedOrder.paymongoAmount = computedAmount;
+      groupedOrder.paymongoTransactionId = transactionId;
+      groupedOrder.paymongoPaymentMethod =
+        groupedOrder.paymongoPaymentMethod || 'card';
+      groupedOrder.paymongoTimestamp = timestamp;
+    }
+
+    const updatedOrders = await this.ordersRepository.save(groupedOrders);
+    const updatedOrder =
+      updatedOrders.find((o) => o.orderId === targetOrder.orderId) ||
+      updatedOrders[0];
+
+    // Update invoice to PAID
+    try {
+      await this.invoicesService.payInvoiceByOrderId(orderId);
+      this.logger.log(
+        `Order #${orderId} payment confirmed via PayMongo. Status: AWAITING_PAYMENT_VERIFICATION`,
+      );
+    } catch (err) {
+      this.logger.error(`Failed to update invoice for Order #${orderId}:`, err);
     }
 
     return updatedOrder;
