@@ -108,7 +108,7 @@ export function CancelOrderConfirmDialog({
           <div className="px-6 py-4 w-full" style={{ borderBottom: "1px solid #f1f5f9" }}>
             <div className="flex items-center gap-3 mb-3">
               <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
                 style={{ backgroundColor: "#fef2f2" }}
               >
                 <AlertCircle size={20} style={{ color: "#dc2626" }} />
