@@ -25,12 +25,7 @@ const storage = diskStorage({
 
 // File filter - only allow image types
 const fileFilter = (req: any, file: Multer.File, cb: any) => {
-  const allowedMimes = [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-    'image/jpg',
-  ];
+  const allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
 
   if (allowedMimes.includes(file.mimetype)) {
     cb(null, true);

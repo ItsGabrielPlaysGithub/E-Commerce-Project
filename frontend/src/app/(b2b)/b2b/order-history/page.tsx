@@ -16,7 +16,6 @@ const ITEMS_PER_PAGE = 6;
 
 export default function OrderHistoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const { RED: theme_RED } = useAuth();
   const { orders, loading, error, refetchOrders } = useFetchOrders();
 
   if (loading) {
@@ -113,7 +112,7 @@ export default function OrderHistoryPage() {
 
       <div className="min-h-screen bg-gray-50 pb-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <OrderHistoryTable orders={paginatedOrders} RED={theme_RED || RED} />
+          <OrderHistoryTable orders={paginatedOrders} RED={RED} />
           <OrdersPaginationControls
             currentPage={currentPage}
             totalPages={totalPages}

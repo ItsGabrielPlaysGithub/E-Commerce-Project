@@ -4,7 +4,7 @@ import { CreateUserDto } from './create.user.dto';
 
 @InputType()
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-    @Field()
-    @IsNumber()
-    userId: number;
+  @Field()
+  @IsNumber()
+  userId: number;
 }

@@ -45,6 +45,7 @@ type Documents = {
     "\n  mutation RemoveCartItemByProductId($productId: Int!) {\n    removeCartItemByProductId(productId: $productId)\n  }\n": typeof types.RemoveCartItemByProductIdDocument,
     "\n  mutation PlaceOrder($input: PlaceOrderInput!) {\n    placeOrder(input: $input) {\n      success\n      orderNumber\n      message\n      orderId\n      createdAt\n    }\n  }\n": typeof types.PlaceOrderDocument,
     "\n  query GetCart {\n    getCart {\n      items {\n        id\n        userId\n        productId\n        quantity\n        unitPrice\n        selectedColor\n        selectedSize\n        createdAt\n        updatedAt\n        product {\n          productId\n          productName\n          imageUrl\n          productDescription\n          productPrice\n          category {\n            categoryId\n            categoryName\n          }\n        }\n      }\n      totalItems\n      totalPrice\n    }\n  }\n": typeof types.GetCartDocument,
+    "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n": typeof types.InitiatePaymongoCheckoutDocument,
     "\n  mutation CreateOrder($input: CreateOrderDto!) {\n    createOrder(input: $input) {\n      orderId\n      orderNumber\n      productId\n      userId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.CreateOrderDocument,
     "\n  mutation UpdateOrder($input: UpdateOrderDto!) {\n    updateOrder(input: $input) {\n      orderId\n      orderNumber\n      productId\n      userId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.UpdateOrderDocument,
     "\n  mutation TransitionOrderStatus($input: TransitionOrderStatusDto!) {\n    transitionOrderStatus(input: $input) {\n      orderId\n      orderNumber\n      productId\n      userId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.TransitionOrderStatusDocument,
@@ -54,7 +55,6 @@ type Documents = {
     "\n  query GetNotificationsByUserId {\n    getNotificationsByUserId {\n      notificationId\n      userId\n      type\n      title\n      message\n      orderId\n      isRead\n      createdAt\n      readAt\n      metadata\n    }\n  }\n": typeof types.GetNotificationsByUserIdDocument,
     "\n  mutation MarkNotificationAsRead($notificationId: Int!) {\n    markNotificationAsRead(notificationId: $notificationId) {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n": typeof types.MarkNotificationAsReadDocument,
     "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n": typeof types.MarkAllNotificationsAsReadDocument,
-    "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n": typeof types.InitiatePaymongoCheckoutDocument,
 };
 const documents: Documents = {
     "\n  mutation PayInvoiceByOrderId($orderId: Int!) {\n    payInvoiceByOrderId(orderId: $orderId) {\n      invoiceId\n      orderId\n      invoiceNumber\n      totalAmount\n      paymentStatus\n      dueDate\n      updatedAt\n    }\n  }\n": types.PayInvoiceByOrderIdDocument,
@@ -88,6 +88,7 @@ const documents: Documents = {
     "\n  mutation RemoveCartItemByProductId($productId: Int!) {\n    removeCartItemByProductId(productId: $productId)\n  }\n": types.RemoveCartItemByProductIdDocument,
     "\n  mutation PlaceOrder($input: PlaceOrderInput!) {\n    placeOrder(input: $input) {\n      success\n      orderNumber\n      message\n      orderId\n      createdAt\n    }\n  }\n": types.PlaceOrderDocument,
     "\n  query GetCart {\n    getCart {\n      items {\n        id\n        userId\n        productId\n        quantity\n        unitPrice\n        selectedColor\n        selectedSize\n        createdAt\n        updatedAt\n        product {\n          productId\n          productName\n          imageUrl\n          productDescription\n          productPrice\n          category {\n            categoryId\n            categoryName\n          }\n        }\n      }\n      totalItems\n      totalPrice\n    }\n  }\n": types.GetCartDocument,
+    "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n": types.InitiatePaymongoCheckoutDocument,
     "\n  mutation CreateOrder($input: CreateOrderDto!) {\n    createOrder(input: $input) {\n      orderId\n      orderNumber\n      productId\n      userId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      createdAt\n      updatedAt\n    }\n  }\n": types.CreateOrderDocument,
     "\n  mutation UpdateOrder($input: UpdateOrderDto!) {\n    updateOrder(input: $input) {\n      orderId\n      orderNumber\n      productId\n      userId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      createdAt\n      updatedAt\n    }\n  }\n": types.UpdateOrderDocument,
     "\n  mutation TransitionOrderStatus($input: TransitionOrderStatusDto!) {\n    transitionOrderStatus(input: $input) {\n      orderId\n      orderNumber\n      productId\n      userId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      createdAt\n      updatedAt\n    }\n  }\n": types.TransitionOrderStatusDocument,
@@ -97,7 +98,6 @@ const documents: Documents = {
     "\n  query GetNotificationsByUserId {\n    getNotificationsByUserId {\n      notificationId\n      userId\n      type\n      title\n      message\n      orderId\n      isRead\n      createdAt\n      readAt\n      metadata\n    }\n  }\n": types.GetNotificationsByUserIdDocument,
     "\n  mutation MarkNotificationAsRead($notificationId: Int!) {\n    markNotificationAsRead(notificationId: $notificationId) {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n": types.MarkNotificationAsReadDocument,
     "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n": types.MarkAllNotificationsAsReadDocument,
-    "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n": types.InitiatePaymongoCheckoutDocument,
 };
 
 /**
@@ -241,6 +241,10 @@ export function graphql(source: "\n  query GetCart {\n    getCart {\n      items
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n"): (typeof documents)["\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n  mutation CreateOrder($input: CreateOrderDto!) {\n    createOrder(input: $input) {\n      orderId\n      orderNumber\n      productId\n      userId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      createdAt\n      updatedAt\n    }\n  }\n"): (typeof documents)["\n  mutation CreateOrder($input: CreateOrderDto!) {\n    createOrder(input: $input) {\n      orderId\n      orderNumber\n      productId\n      userId\n      orderType\n      quantity\n      unitPrice\n      totalPrice\n      status\n      deliveryStatus\n      createdAt\n      updatedAt\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -274,10 +278,6 @@ export function graphql(source: "\n  mutation MarkNotificationAsRead($notificati
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n"): (typeof documents)["\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead {\n      notificationId\n      isRead\n      readAt\n    }\n  }\n"];
-/**
- * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function graphql(source: "\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n"): (typeof documents)["\n  mutation InitiatePaymongoCheckout($orderId: Int!) {\n    initiatePaymongoCheckout(orderId: $orderId) {\n      success\n      paymentIntentId\n      checkoutUrl\n      message\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

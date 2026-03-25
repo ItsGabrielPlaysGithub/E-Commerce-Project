@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Star } from "lucide-react";
-import { Product } from "../../data/products";
+import type { Product as B2BProduct } from "@/features/b2b/cart/hooks/useCart";
+import type { Product as GeneralProduct } from "@/data/products";
 import {
   getProductPrice,
   getProductReviewCount,
@@ -14,6 +15,9 @@ import { useCart } from "@/features/b2b/cart/hooks/useCart";
 import { useAuth } from "@/features/auth";
 import { AddToCartConfirmModal } from "../modals/AddToCartConfirmModal";
 import { AddToCartButton } from "../ui/AddToCartButton";
+
+// Accept both Product types
+type Product = B2BProduct | GeneralProduct;
 
 const RED = "#bf262f";
 const RED_LIGHT = "#f9e9ea";
@@ -32,6 +36,25 @@ interface ProductCardProps {
   showPricing?: "retail" | "wholesale" | "bulk";
 }
 
+// Convert any product to B2B Product type
+function convertToB2BProduct(product: Product): B2BProduct {
+  return {
+    id: String(product.id),
+    name: product.name || "",
+    price: product.price ?? 0,
+    retailPrice: (product as any).retailPrice ?? product.price ?? 0,
+    wholesalePrice: (product as any).wholesalePrice,
+    bulkPrice: (product as any).bulkPrice,
+    minWholesale: (product as any).minWholesale,
+    minBulk: (product as any).minBulk,
+    image: product.image,
+    imageUrl: product.imageUrl,
+    category: (product as any).category ?? undefined,
+    rating: (product as any).rating ?? undefined,
+    description: (product as any).description,
+  };
+}
+
 export function ProductCard({ product, showPricing = "retail" }: ProductCardProps) {
   const { addItem } = useCart();
   const { isLoggedIn } = useAuth();
@@ -48,13 +71,13 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
   };
 
   const handleAddToCartAndCheckout = () => {
-    addItem(product, 1);
+    addItem(convertToB2BProduct(product), 1);
     setShowConfirmModal(false);
     router.push("/b2b/cart");
   };
 
   const handleAddToCartAndContinue = () => {
-    addItem(product, 1);
+    addItem(convertToB2BProduct(product), 1);
     setShowConfirmModal(false);
   };
 
@@ -88,8 +111,8 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
             <Star
               key={s}
               size={10}
-              fill={s <= Math.round(product.rating) ? "#f59e0b" : "none"}
-              stroke={s <= Math.round(product.rating) ? "#f59e0b" : "#d1d5db"}
+              fill={s <= Math.round(product.rating ?? 4.5) ? "#f59e0b" : "none"}
+              stroke={s <= Math.round(product.rating ?? 4.5) ? "#f59e0b" : "#d1d5db"}
             />
           ))}
           <span className="text-gray-300 text-xs ml-0.5">({reviewCount})</span>

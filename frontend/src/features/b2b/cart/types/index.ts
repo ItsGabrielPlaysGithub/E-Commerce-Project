@@ -8,15 +8,16 @@ export interface DeliveryDetails {
 }
 
 export interface CartItem {
+  id?: number;
   product: {
     id: string;
     name: string;
-    category: string;
-    image: string;
+    category?: string;
+    image?: string;
     imageUrl?: string;
-    retailPrice: number;
-    minWholesale: number;
-    minBulk: number;
+    retailPrice?: number;
+    minWholesale?: number;
+    minBulk?: number;
   };
   qty: number;
   unitPrice: number;

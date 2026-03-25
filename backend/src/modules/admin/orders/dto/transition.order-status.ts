@@ -1,5 +1,12 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsEnum, IsInt, IsNotEmpty, IsOptional, MinLength, MaxLength } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 import { OrderStatus } from '../entity/order-status.enum';
 
 @InputType()

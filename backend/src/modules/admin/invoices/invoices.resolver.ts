@@ -33,7 +33,9 @@ export class InvoicesResolver {
     if (userRole !== 'admin') {
       const order = await this.ordersService.orderDetails(orderId);
       if (!order || order.userId !== userId) {
-        throw new ForbiddenException('You do not have permission to view this invoice');
+        throw new ForbiddenException(
+          'You do not have permission to view this invoice',
+        );
       }
     }
 
@@ -53,7 +55,9 @@ export class InvoicesResolver {
     if (userRole !== 'admin') {
       const order = await this.ordersService.orderDetails(orderId);
       if (!order || order.userId !== userId) {
-        throw new ForbiddenException('You do not have permission to pay this invoice');
+        throw new ForbiddenException(
+          'You do not have permission to pay this invoice',
+        );
       }
     }
 

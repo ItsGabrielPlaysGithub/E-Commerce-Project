@@ -23,7 +23,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
     }),
   ],
-  providers: [AuthService, AuthResolver, RateLimitService, BruteForceService, JwtAuthGuard, RolesGuard],
+  providers: [
+    AuthService,
+    AuthResolver,
+    RateLimitService,
+    BruteForceService,
+    JwtAuthGuard,
+    RolesGuard,
+  ],
   exports: [JwtAuthGuard, RolesGuard, JwtModule],
 })
 export class AuthModule {}

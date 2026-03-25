@@ -1,5 +1,13 @@
 import { Field, Float, InputType, Int } from '@nestjs/graphql';
-import { IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 import { OrderStatus } from '../entity/order-status.enum';
 
 @InputType()

@@ -89,8 +89,8 @@ export function CartItems({
                 {/* Unit price */}
                 <div className="col-span-2 text-center hidden sm:block">
                   <div className="text-gray-900 text-sm font-medium">₱{item.unitPrice.toLocaleString()}</div>
-                  {item.unitPrice < item.product.retailPrice && (
-                    <div className="text-gray-300 text-xs line-through">₱{item.product.retailPrice.toLocaleString()}</div>
+                  {item.unitPrice < (item.product.retailPrice ?? 0) && (
+                    <div className="text-gray-300 text-xs line-through">₱{(item.product.retailPrice ?? 0).toLocaleString()}</div>
                   )}
                 </div>
 

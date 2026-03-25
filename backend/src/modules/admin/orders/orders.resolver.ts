@@ -14,131 +14,141 @@ import { PaymongoCheckoutResponse } from './entity/paymongo-checkout-response';
 
 @Resolver()
 export class OrdersResolver {
-    constructor(private readonly ordersService: OrdersService){}
+  constructor(private readonly ordersService: OrdersService) {}
 
-    // ADMIN SIDE ORDER FUNCTIONS
+  // ADMIN SIDE ORDER FUNCTIONS
 
-    // for admin to view all orders - ADMIN ONLY
-    @Query(() => [OrdersTbl], { name: 'allOrders' })
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('admin')
-    async allOrders(){
-        return await this.ordersService.allOrders();
+  // for admin to view all orders - ADMIN ONLY
+  @Query(() => [OrdersTbl], { name: 'allOrders' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async allOrders() {
+    return await this.ordersService.allOrders();
+  }
+
+  @Query(() => OrdersTbl, { name: 'orderDetails' })
+  @UseGuards(JwtAuthGuard)
+  async orderDetails(
+    @Args('orderId', { type: () => Int }) orderId: number,
+    @Context() context: any,
+  ) {
+    const userId = context.req?.user?.userId || context.user?.userId;
+    const userRole = context.req?.user?.role || context.user?.role;
+
+    if (!userId) throw new ForbiddenException('Not authenticated');
+
+    // Fetch the order to check ownership
+    const order = await this.ordersService.orderDetails(orderId);
+    if (!order) throw new Error('Order not found');
+
+    // Allow access if user owns the order OR is an admin
+    if (order.userId !== userId && userRole !== 'admin') {
+      throw new ForbiddenException('You can only view your own orders');
     }
 
-    @Query(() => OrdersTbl, { name: 'orderDetails' })
-    @UseGuards(JwtAuthGuard)
-    async orderDetails(
-        @Args('orderId', { type: () => Int }) orderId: number,
-        @Context() context: any
-    ){
-        const userId = context.req?.user?.userId || context.user?.userId;
-        const userRole = context.req?.user?.role || context.user?.role;
-        
-        if (!userId) throw new ForbiddenException('Not authenticated');
-        
-        // Fetch the order to check ownership
-        const order = await this.ordersService.orderDetails(orderId);
-        if (!order) throw new Error('Order not found');
-        
-        // Allow access if user owns the order OR is an admin
-        if (order.userId !== userId && userRole !== 'admin') {
-            throw new ForbiddenException('You can only view your own orders');
-        }
-        
-        return order;
+    return order;
+  }
+
+  // CLIENTS SIDE ORDER FUNCTIONS
+  // for clients to view their own orders
+  @Query(() => [OrdersTbl], { name: 'clientOrders' })
+  @UseGuards(JwtAuthGuard)
+  async clientOrders(@Context() context: any) {
+    const userId = context.req?.user?.userId || context.user?.userId;
+    if (!userId) throw new Error('Unauthorized: User ID not found in request');
+    return await this.ordersService.clientOrders(userId);
+  }
+
+  @Mutation(() => OrdersTbl, { name: 'createOrder' })
+  @UseGuards(JwtAuthGuard)
+  async createOrder(
+    @Args('input') createOrderDto: CreateOrderDto,
+    @Context() context: any,
+  ) {
+    const userId = context.req?.user?.userId || context.user?.userId;
+    if (!userId) throw new ForbiddenException('Not authenticated');
+    return await this.ordersService.createOrder(createOrderDto);
+  }
+
+  @Mutation(() => OrdersTbl, { name: 'updateOrder' })
+  @UseGuards(JwtAuthGuard)
+  async updateOrder(
+    @Args('input') updateOrderDto: UpdateOrderDto,
+    @Context() context: any,
+  ) {
+    const userId = context.req?.user?.userId || context.user?.userId;
+    if (!userId) throw new ForbiddenException('Not authenticated');
+    return await this.ordersService.updateOrder(updateOrderDto);
+  }
+
+  @Mutation(() => OrdersTbl, { name: 'transitionOrderStatus' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async transitionOrderStatus(@Args('input') input: TransitionOrderStatusDto) {
+    return await this.ordersService.transitionOrderStatus(input);
+  }
+
+  @Mutation(() => OrdersTbl, { name: 'rejectPaymentProof' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async rejectPaymentProof(@Args('input') input: RejectPaymentProofDto) {
+    return await this.ordersService.rejectPaymentProof(
+      input.orderId,
+      input.rejectionReason,
+    );
+  }
+
+  @Mutation(() => OrdersTbl, { name: 'approvePaymentProof' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  async approvePaymentProof(
+    @Args('orderId', { type: () => Int }) orderId: number,
+  ) {
+    return await this.ordersService.approvePaymentProof(orderId);
+  }
+
+  @Mutation(() => PlaceOrderResponse, { name: 'placeOrder' })
+  @UseGuards(JwtAuthGuard)
+  async placeOrder(
+    @Args('input') placeOrderDto: PlaceOrderDto,
+    @Context() context: any,
+  ) {
+    const userId = context.req?.user?.userId || context.user?.userId;
+    if (!userId) throw new ForbiddenException('Not authenticated');
+
+    // Create a new DTO with userId from authenticated context (never trust client)
+    const orderInput = {
+      ...placeOrderDto,
+      userId: userId, // Override with authenticated user's ID
+    };
+
+    return await this.ordersService.placeOrder(orderInput);
+  }
+
+  @Mutation(() => PaymongoCheckoutResponse, {
+    name: 'initiatePaymongoCheckout',
+  })
+  @UseGuards(JwtAuthGuard)
+  async initiatePaymongoCheckout(
+    @Args('orderId', { type: () => Int }) orderId: number,
+    @Context() context: any,
+  ) {
+    const userId = context.req?.user?.userId || context.user?.userId;
+    if (!userId) throw new ForbiddenException('Not authenticated');
+
+    // Verify order belongs to user or user is admin
+    const order = await this.ordersService.orderDetails(orderId);
+    if (!order) throw new ForbiddenException('Order not found');
+
+    const userRole = context.req?.user?.role || context.user?.role;
+    if (order.userId !== userId && userRole !== 'admin') {
+      throw new ForbiddenException('You can only pay for your own orders');
     }
 
-    // CLIENTS SIDE ORDER FUNCTIONS
-    // for clients to view their own orders
-    @Query(() => [OrdersTbl], { name: 'clientOrders' })
-    @UseGuards(JwtAuthGuard)
-    async clientOrders(@Context() context: any){
-        const userId = context.req?.user?.userId || context.user?.userId;
-        if (!userId) throw new Error('Unauthorized: User ID not found in request');
-        return await this.ordersService.clientOrders(userId);
-    }
-
-    @Mutation(() => OrdersTbl, { name: 'createOrder' })
-    @UseGuards(JwtAuthGuard)
-    async createOrder(
-        @Args('input') createOrderDto: CreateOrderDto,
-        @Context() context: any
-    ){
-        const userId = context.req?.user?.userId || context.user?.userId;
-        if (!userId) throw new ForbiddenException('Not authenticated');
-        return await this.ordersService.createOrder(createOrderDto);
-    }
-
-    @Mutation(() => OrdersTbl, { name: 'updateOrder' })
-    @UseGuards(JwtAuthGuard)
-    async updateOrder(
-        @Args('input') updateOrderDto: UpdateOrderDto,
-        @Context() context: any
-    ){
-        const userId = context.req?.user?.userId || context.user?.userId;
-        if (!userId) throw new ForbiddenException('Not authenticated');
-        return await this.ordersService.updateOrder(updateOrderDto);
-    }
-
-    @Mutation(() => OrdersTbl, { name: 'transitionOrderStatus' })
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('admin')
-    async transitionOrderStatus(@Args('input') input: TransitionOrderStatusDto) {
-        return await this.ordersService.transitionOrderStatus(input);
-    }
-
-    @Mutation(() => OrdersTbl, { name: 'rejectPaymentProof' })
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('admin')
-    async rejectPaymentProof(@Args('input') input: RejectPaymentProofDto) {
-        return await this.ordersService.rejectPaymentProof(input.orderId, input.rejectionReason);
-    }
-
-    @Mutation(() => OrdersTbl, { name: 'approvePaymentProof' })
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @Roles('admin')
-    async approvePaymentProof(@Args('orderId', { type: () => Int }) orderId: number) {
-        return await this.ordersService.approvePaymentProof(orderId);
-    }
-
-    @Mutation(() => PlaceOrderResponse, { name: 'placeOrder' })
-    @UseGuards(JwtAuthGuard)
-    async placeOrder(@Args('input') placeOrderDto: PlaceOrderDto, @Context() context: any) {
-        const userId = context.req?.user?.userId || context.user?.userId;
-        if (!userId) throw new ForbiddenException('Not authenticated');
-        
-        // Create a new DTO with userId from authenticated context (never trust client)
-        const orderInput = {
-            ...placeOrderDto,
-            userId: userId, // Override with authenticated user's ID
-        };
-        
-        return await this.ordersService.placeOrder(orderInput);
-    }
-
-    @Mutation(() => PaymongoCheckoutResponse, { name: 'initiatePaymongoCheckout' })
-    @UseGuards(JwtAuthGuard)
-    async initiatePaymongoCheckout(
-        @Args('orderId', { type: () => Int }) orderId: number,
-        @Context() context: any
-    ) {
-        const userId = context.req?.user?.userId || context.user?.userId;
-        if (!userId) throw new ForbiddenException('Not authenticated');
-
-        // Verify order belongs to user or user is admin
-        const order = await this.ordersService.orderDetails(orderId);
-        if (!order) throw new ForbiddenException('Order not found');
-        
-        const userRole = context.req?.user?.role || context.user?.role;
-        if (order.userId !== userId && userRole !== 'admin') {
-            throw new ForbiddenException('You can only pay for your own orders');
-        }
-
-        const result = await this.ordersService.initiatePaymongoCheckout(orderId);
-        return {
-            success: true,
-            ...result,
-        };
-    }
+    const result = await this.ordersService.initiatePaymongoCheckout(orderId);
+    return {
+      success: true,
+      ...result,
+    };
+  }
 }

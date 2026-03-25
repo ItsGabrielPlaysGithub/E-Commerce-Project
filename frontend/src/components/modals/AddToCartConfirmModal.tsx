@@ -1,7 +1,10 @@
 "use client";
 
 import { X, ShoppingCart } from "lucide-react";
-import { Product } from "@/data/products";
+import type { Product as B2BProduct } from "@/features/b2b/cart/hooks/useCart";
+import type { Product as GeneralProduct } from "@/data/products";
+
+type Product = B2BProduct | GeneralProduct;
 
 interface AddToCartConfirmModalProps {
   isOpen: boolean;

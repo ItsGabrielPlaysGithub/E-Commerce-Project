@@ -1,4 +1,12 @@
-import { Controller, Post, Body, Get, Query, Logger, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Query,
+  Logger,
+  BadRequestException,
+} from '@nestjs/common';
 import { PaymongoService } from './paymongo.service';
 
 interface CreateCheckoutDto {
@@ -25,7 +33,9 @@ export class PaymongoController {
    * POST /paymongo/checkout
    */
   @Post('checkout')
-  async createCheckout(@Body() createCheckoutDto: CreateCheckoutDto): Promise<CheckoutResponse> {
+  async createCheckout(
+    @Body() createCheckoutDto: CreateCheckoutDto,
+  ): Promise<CheckoutResponse> {
     try {
       const { orderId, amount, description } = createCheckoutDto;
 
@@ -38,7 +48,9 @@ export class PaymongoController {
         throw new BadRequestException('amount must be greater than 0');
       }
 
-      this.logger.log(`Creating checkout for Order #${orderId}, Amount: ₱${amount}`);
+      this.logger.log(
+        `Creating checkout for Order #${orderId}, Amount: ₱${amount}`,
+      );
 
       const result = await this.paymongoService.createPaymentIntent(
         amount,
@@ -52,7 +64,10 @@ export class PaymongoController {
         checkoutUrl: result.checkoutUrl,
       };
     } catch (error) {
-      this.logger.error('Checkout creation failed:', error instanceof Error ? error.message : String(error));
+      this.logger.error(
+        'Checkout creation failed:',
+        error instanceof Error ? error.message : String(error),
+      );
       throw error;
     }
   }
@@ -62,7 +77,9 @@ export class PaymongoController {
    * GET /paymongo/status/:paymentIntentId
    */
   @Get('status')
-  async getPaymentStatus(@Query('paymentIntentId') paymentIntentId: string): Promise<{
+  async getPaymentStatus(
+    @Query('paymentIntentId') paymentIntentId: string,
+  ): Promise<{
     status: string;
     amount: number;
     amountInPhp: number;
@@ -70,16 +87,22 @@ export class PaymongoController {
   }> {
     try {
       if (!paymentIntentId) {
-        throw new BadRequestException('paymentIntentId query parameter is required');
+        throw new BadRequestException(
+          'paymentIntentId query parameter is required',
+        );
       }
 
       this.logger.log(`Checking payment status for Intent: ${paymentIntentId}`);
 
-      const result = await this.paymongoService.retrievePaymentIntent(paymentIntentId);
+      const result =
+        await this.paymongoService.retrievePaymentIntent(paymentIntentId);
 
       return result;
     } catch (error) {
-      this.logger.error('Status check failed:', error instanceof Error ? error.message : String(error));
+      this.logger.error(
+        'Status check failed:',
+        error instanceof Error ? error.message : String(error),
+      );
       throw error;
     }
   }

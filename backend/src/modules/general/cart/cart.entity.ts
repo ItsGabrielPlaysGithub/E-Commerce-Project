@@ -1,5 +1,11 @@
 import { Field, InputType, Int, ObjectType, Float } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 @Entity('cart_items')

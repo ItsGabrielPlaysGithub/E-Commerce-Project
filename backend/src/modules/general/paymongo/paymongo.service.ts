@@ -45,9 +45,13 @@ export class PaymongoService {
   private readonly publicKey: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.secretKey = this.configService.get<string>('PAYMONGO_SECRET_KEY') || '';
-    this.publicKey = this.configService.get<string>('PAYMONGO_PUBLIC_KEY') || '';
-    const apiUrl = this.configService.get<string>('PAYMONGO_API_URL') || 'https://api.paymongo.com/v1';
+    this.secretKey =
+      this.configService.get<string>('PAYMONGO_SECRET_KEY') || '';
+    this.publicKey =
+      this.configService.get<string>('PAYMONGO_PUBLIC_KEY') || '';
+    const apiUrl =
+      this.configService.get<string>('PAYMONGO_API_URL') ||
+      'https://api.paymongo.com/v1';
 
     // Create axios instance with Base64 authentication
     const encodedKey = Buffer.from(`${this.secretKey}:`).toString('base64');
@@ -55,7 +59,7 @@ export class PaymongoService {
     this.client = axios.create({
       baseURL: apiUrl,
       headers: {
-        'Authorization': `Basic ${encodedKey}`,
+        Authorization: `Basic ${encodedKey}`,
         'Content-Type': 'application/json',
       },
       timeout: 30000,
@@ -79,7 +83,9 @@ export class PaymongoService {
     status: string;
   }> {
     try {
-      this.logger.debug(`createCheckoutLink called with: amount=${amount}, orderId=${orderId}, description=${description}`);
+      this.logger.debug(
+        `createCheckoutLink called with: amount=${amount}, orderId=${orderId}, description=${description}`,
+      );
 
       const amountInCentavos = Math.round(amount * 100);
 
@@ -91,8 +97,12 @@ export class PaymongoService {
         throw new Error(`Invalid amount in centavos: ${amountInCentavos}`);
       }
 
-      const successUrl = this.configService.get<string>('PAYMONGO_CHECKOUT_SUCCESS_URL') || 'http://localhost:3000/checkout/success';
-      const failedUrl = this.configService.get<string>('PAYMONGO_CHECKOUT_FAILED_URL') || 'http://localhost:3000/checkout/failed';
+      const successUrl =
+        this.configService.get<string>('PAYMONGO_CHECKOUT_SUCCESS_URL') ||
+        'http://localhost:3000/b2b/checkout/success';
+      const failedUrl =
+        this.configService.get<string>('PAYMONGO_CHECKOUT_FAILED_URL') ||
+        'http://localhost:3000/b2b/checkout/failed';
 
       const payload = {
         data: {
@@ -115,7 +125,9 @@ export class PaymongoService {
         },
       };
 
-      this.logger.debug(`PayMongo Checkout Link Request: ${JSON.stringify(payload)}`);
+      this.logger.debug(
+        `PayMongo Checkout Link Request: ${JSON.stringify(payload)}`,
+      );
 
       const response = await this.client.post<{ data: any }>(
         '/checkout_sessions',
@@ -125,15 +137,21 @@ export class PaymongoService {
       const data = response.data.data;
       const checkoutUrl = data.attributes?.checkout_url || '';
 
-      this.logger.debug(`Full Checkout Link Response: ${JSON.stringify(response.data)}`);
+      this.logger.debug(
+        `Full Checkout Link Response: ${JSON.stringify(response.data)}`,
+      );
       this.logger.debug(`Checkout URL: ${checkoutUrl}`);
 
       if (!checkoutUrl) {
-        this.logger.error(`No checkout URL in response: ${JSON.stringify(data.attributes)}`);
+        this.logger.error(
+          `No checkout URL in response: ${JSON.stringify(data.attributes)}`,
+        );
         throw new Error('Failed to get checkout URL from PayMongo');
       }
 
-      this.logger.log(`Checkout Link created: ${data.id} for Order #${orderId}`);
+      this.logger.log(
+        `Checkout Link created: ${data.id} for Order #${orderId}`,
+      );
 
       return {
         checkoutId: data.id,
@@ -148,7 +166,9 @@ export class PaymongoService {
 
       if (error instanceof Error && 'response' in error) {
         const axiosError = error as any;
-        this.logger.error(`PayMongo API Error Response: ${JSON.stringify(axiosError.response?.data)}`);
+        this.logger.error(
+          `PayMongo API Error Response: ${JSON.stringify(axiosError.response?.data)}`,
+        );
       }
 
       throw new Error(
@@ -175,10 +195,12 @@ export class PaymongoService {
   }> {
     try {
       // Debug: log input parameters
-      this.logger.debug(`createPaymentIntent called with: amount=${amount}, orderId=${orderId}, description=${description}`);
+      this.logger.debug(
+        `createPaymentIntent called with: amount=${amount}, orderId=${orderId}, description=${description}`,
+      );
 
       const amountInCentavos = Math.round(amount * 100); // Convert PHP to centavos
-      
+
       // Validate amount
       if (!amount || amount <= 0 || isNaN(amount)) {
         throw new Error(`Invalid amount: ${amount}`);
@@ -188,8 +210,12 @@ export class PaymongoService {
         throw new Error(`Invalid amount in centavos: ${amountInCentavos}`);
       }
 
-      const successUrl = this.configService.get<string>('PAYMONGO_CHECKOUT_SUCCESS_URL') || 'http://localhost:3000/checkout/success';
-      const failedUrl = this.configService.get<string>('PAYMONGO_CHECKOUT_FAILED_URL') || 'http://localhost:3000/checkout/failed';
+      const successUrl =
+        this.configService.get<string>('PAYMONGO_CHECKOUT_SUCCESS_URL') ||
+        'http://localhost:3000/b2b/checkout/success';
+      const failedUrl =
+        this.configService.get<string>('PAYMONGO_CHECKOUT_FAILED_URL') ||
+        'http://localhost:3000/b2b/checkout/failed';
 
       const payload: PaymentIntentPayload = {
         amount: amountInCentavos,
@@ -205,7 +231,9 @@ export class PaymongoService {
       };
 
       // Debug: log the exact payload being sent
-      this.logger.debug(`PayMongo API Request Payload: ${JSON.stringify(payload)}`);
+      this.logger.debug(
+        `PayMongo API Request Payload: ${JSON.stringify(payload)}`,
+      );
 
       // Wrap payload in data.attributes structure as required by PayMongo API
       const wrappedPayload = {
@@ -214,7 +242,9 @@ export class PaymongoService {
         },
       };
 
-      this.logger.debug(`PayMongo API Wrapped Payload: ${JSON.stringify(wrappedPayload)}`);
+      this.logger.debug(
+        `PayMongo API Wrapped Payload: ${JSON.stringify(wrappedPayload)}`,
+      );
 
       const response = await this.client.post<{ data: PaymentIntentResponse }>(
         '/payment_intents',
@@ -229,12 +259,16 @@ export class PaymongoService {
       );
 
       // Debug: log full response structure
-      this.logger.debug(`Full PayMongo Response: ${JSON.stringify(response.data)}`);
+      this.logger.debug(
+        `Full PayMongo Response: ${JSON.stringify(response.data)}`,
+      );
       this.logger.debug(`Extracted data: ${JSON.stringify(data)}`);
       this.logger.debug(`Checkout URL: ${checkoutUrl}`);
 
       if (!checkoutUrl) {
-        this.logger.error(`No checkout URL found in PayMongo response. nextAction: ${JSON.stringify(data.attributes.nextAction)}`);
+        this.logger.error(
+          `No checkout URL found in PayMongo response. nextAction: ${JSON.stringify(data.attributes.nextAction)}`,
+        );
       }
 
       return {
@@ -250,7 +284,9 @@ export class PaymongoService {
       // Log the full error response if it's an axios error
       if (error instanceof Error && 'response' in error) {
         const axiosError = error as any;
-        this.logger.error(`PayMongo API Response: ${JSON.stringify(axiosError.response?.data)}`);
+        this.logger.error(
+          `PayMongo API Response: ${JSON.stringify(axiosError.response?.data)}`,
+        );
       }
       throw new Error(
         `PayMongo: Failed to create payment intent - ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -276,7 +312,9 @@ export class PaymongoService {
 
       const data = response.data.data;
 
-      this.logger.log(`Retrieved Payment Intent: ${paymentIntentId}, Status: ${data.attributes.status}`);
+      this.logger.log(
+        `Retrieved Payment Intent: ${paymentIntentId}, Status: ${data.attributes.status}`,
+      );
 
       return {
         status: data.attributes.status,

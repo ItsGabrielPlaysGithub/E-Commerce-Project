@@ -6,10 +6,7 @@ import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
 import { AuthModule } from '../../general/auth/auth.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UsersTbl]),
-    AuthModule,
-  ],
-  providers: [UsersCrudResolver, UsersCrudService]
+  imports: [TypeOrmModule.forFeature([UsersTbl]), AuthModule],
+  providers: [UsersCrudResolver, UsersCrudService],
 })
 export class UsersCrudModule {}

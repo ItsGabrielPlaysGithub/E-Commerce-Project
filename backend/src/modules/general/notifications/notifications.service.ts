@@ -15,11 +15,17 @@ export class NotificationsService {
     data: CreateNotificationDto,
   ): Promise<NotificationsTbl> {
     // Validate notification type
-    const validTypes = ['payment_proof_rejected', 'payment_proof_approved', 'order_status_change', 'new_order', 'general'];
+    const validTypes = [
+      'payment_proof_rejected',
+      'payment_proof_approved',
+      'order_status_change',
+      'new_order',
+      'general',
+    ];
     if (!validTypes.includes(data.type)) {
       throw new Error(`Invalid notification type: ${data.type}`);
     }
-    
+
     // Validate metadata is valid JSON if provided
     if (data.metadata) {
       try {
@@ -44,7 +50,9 @@ export class NotificationsService {
         order: { createdAt: 'DESC' },
       });
     } catch (err) {
-      throw new Error(`Failed to fetch notifications for user ${userId}: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `Failed to fetch notifications for user ${userId}: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 
@@ -54,7 +62,9 @@ export class NotificationsService {
         where: { userId, isRead: false },
       });
     } catch (err) {
-      throw new Error(`Failed to count unread notifications for user ${userId}: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `Failed to count unread notifications for user ${userId}: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 
@@ -73,7 +83,9 @@ export class NotificationsService {
       if (err instanceof NotFoundException) {
         throw err;
       }
-      throw new Error(`Failed to mark notification as read: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `Failed to mark notification as read: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 
@@ -90,13 +102,17 @@ export class NotificationsService {
       if (err instanceof NotFoundException) {
         throw err;
       }
-      throw new Error(`Failed to fetch notification: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `Failed to fetch notification: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 
   async deleteNotification(notificationId: number): Promise<void> {
     try {
-      const result = await this.notificationsRepository.delete({ notificationId });
+      const result = await this.notificationsRepository.delete({
+        notificationId,
+      });
       if (!result.affected) {
         throw new NotFoundException('Notification not found');
       }
@@ -104,7 +120,9 @@ export class NotificationsService {
       if (err instanceof NotFoundException) {
         throw err;
       }
-      throw new Error(`Failed to delete notification: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(
+        `Failed to delete notification: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 
@@ -119,7 +137,7 @@ export class NotificationsService {
       }
 
       const now = new Date();
-      const updatedNotifications = notifications.map(notification => ({
+      const updatedNotifications = notifications.map((notification) => ({
         ...notification,
         isRead: true,
         readAt: now,
