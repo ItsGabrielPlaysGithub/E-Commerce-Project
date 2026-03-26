@@ -89,11 +89,25 @@ export const useOrderPlacement = (
         }
 
         const { placeOrder } = responseData;
+
+        const resolvedOrderId = Number(placeOrder.orderId);
+        const hasValidOrderId = Number.isInteger(resolvedOrderId) && resolvedOrderId > 0;
+
+        if (!placeOrder.success || !placeOrder.orderNumber || !hasValidOrderId) {
+          const invalidOrderMessage =
+            "Order was created but response data is incomplete. Please check My Orders.";
+          console.error("[useOrderPlacement] Invalid placeOrder response:", placeOrder);
+          setErrors({ notes: invalidOrderMessage });
+          return;
+        }
+
+        setOrderId(resolvedOrderId);
+        setOrderNumber(String(placeOrder.orderNumber));
         removeItems(selectedItems.map((item) => item.product.id));
         if (paymentMethod === "e-payment") {
           setPaymentTrigger({
-            orderId: placeOrder.orderId,
-            orderNumber: placeOrder.orderNumber,
+            orderId: resolvedOrderId,
+            orderNumber: String(placeOrder.orderNumber),
             orderAmount: grandTotal,
           });
           setShowModal(false);
@@ -101,7 +115,7 @@ export const useOrderPlacement = (
         }
 
         router.push(
-          `/b2b/order-success?orderNumber=${placeOrder.orderNumber}&orderId=${placeOrder.orderId}&grandTotal=${grandTotal}`
+          `/b2b/order-success?orderNumber=${encodeURIComponent(String(placeOrder.orderNumber))}&orderId=${resolvedOrderId}&grandTotal=${grandTotal}`
         );
       } catch (error) {
         let errorMessage = "Failed to place order";

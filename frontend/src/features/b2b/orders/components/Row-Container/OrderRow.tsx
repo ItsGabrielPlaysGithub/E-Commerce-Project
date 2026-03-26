@@ -10,8 +10,6 @@ import { PaymentProofUploadModal } from "../../../../../components/modals/Paymen
 import { PaymongoCheckoutModal } from "@/features/b2b/checkout";
 import { useCancelOrder } from "../../hooks/use-cancel-order";
 
-const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
-
 interface OrderRowProps {
   order: Order;
   isExpanded: boolean;
@@ -53,7 +51,7 @@ export function OrderRow({
       formData.append("file", file);
 
       const response = await fetch(
-        `${apiBaseUrl}/orders/upload-payment-proof/${orderId}`,
+        `http://localhost:4000/orders/upload-payment-proof/${orderId}`,
         {
           method: "POST",
           body: formData,
