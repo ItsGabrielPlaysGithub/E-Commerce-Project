@@ -13,6 +13,7 @@ import { OrderSuccessActions } from "./OrderSuccessActions";
 import { SupportFooter } from "./SupportFooter";
 
 const RED = "#bf262f";
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
 
 interface OrderSuccessProps {
   orderNumber: string;
@@ -44,7 +45,7 @@ export function OrderSuccess({ orderNumber, orderId = "", grandTotal = 0 }: Orde
       formData.append("file", file);
 
       const response = await fetch(
-        `http://localhost:4000/orders/upload-payment-proof/${resolvedOrderId}`,
+        `${apiBaseUrl}/orders/upload-payment-proof/${resolvedOrderId}`,
         {
           method: "POST",
           body: formData,
