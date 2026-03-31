@@ -1,12 +1,10 @@
-version: "3.9"
-
 services:
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3001:3000"  # match your Nginx proxy for frontend
+      - "3001:3000"
     depends_on:
       - backend
 
@@ -26,14 +24,16 @@ services:
 
   db:
     image: mysql:8
+    container_name: ecomm-project-db-1
+    restart: always
     env_file:
       - ./.env
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"   # use default 3306
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
