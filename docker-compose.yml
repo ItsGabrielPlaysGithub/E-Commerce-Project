@@ -3,8 +3,10 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    environment:
+      BACKEND_INTERNAL_URL: http://backend:4000
     ports:
-      - "3001:3000"
+      - "3000:3000"
     depends_on:
       - backend
 
@@ -14,13 +16,16 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./.env
+    environment:
+      DB_HOST: host.docker.internal
+      DB_PORT: "3306"
     ports:
       - "4000:4000"
     depends_on:
       db:
         condition: service_healthy
     volumes:
-      - backend_uploads:/app/uploads
+      - ./backend/uploads:/app/uploads
 
   db:
     image: mysql:8
@@ -41,4 +46,3 @@ services:
 
 volumes:
   db_data:
-  backend_uploads:

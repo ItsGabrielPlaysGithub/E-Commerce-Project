@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const backendInternalUrl = process.env.BACKEND_INTERNAL_URL ?? "http://backend:4000";
+
 const nextConfig: NextConfig = {
   /* config options here */
   experimental: {
@@ -10,11 +12,11 @@ const nextConfig: NextConfig = {
       beforeFiles: [
         {
           source: '/products/upload-image',
-          destination: 'http://localhost:4000/products/upload-image',
+          destination: `${backendInternalUrl}/products/upload-image`,
         },
         {
           source: '/uploads/:path*',
-          destination: 'http://localhost:4000/uploads/:path*',
+          destination: `${backendInternalUrl}/uploads/:path*`,
         },
       ],
     };

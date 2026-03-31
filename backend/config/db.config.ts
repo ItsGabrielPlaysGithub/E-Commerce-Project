@@ -14,11 +14,14 @@ export const DatabaseConfig =  TypeOrmModule.forRootAsync({
     inject: [ConfigService],
     useFactory: (config: ConfigService) => ({
         type: 'mysql',
-        host: config.get<string>('DB_HOST'),
-        port: Number(config.get<string>('DB_PORT')),
-        username: config.get<string>('DB_USER'),
-        password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_NAME'),
+        host: config.get<string>('DB_HOST') ?? 'localhost',
+        port: Number(config.get<string>('DB_PORT') ?? '3306'),
+        username: config.get<string>('DB_USER') ?? config.get<string>('MYSQL_USER') ?? 'root',
+        password:
+            config.get<string>('DB_PASSWORD') ??
+            config.get<string>('MYSQL_PASSWORD') ??
+            config.get<string>('MYSQL_ROOT_PASSWORD'),
+        database: config.get<string>('DB_NAME') ?? config.get<string>('MYSQL_DATABASE'),
         entities: [UsersTbl, OrdersTbl, InvoicesTbl, ProductsTbl, PaymentsTbl, CartItem, CategoriesTbl, NotificationsTbl],
         synchronize: config.get<string>('DB_SYNC') === 'true',
     })
