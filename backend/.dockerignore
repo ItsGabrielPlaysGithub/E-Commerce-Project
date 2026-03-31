@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+dist
+coverage
+
+# Local files
+.env
+uploads
+
+# Repo metadata
+.git
+.gitignore
+Dockerfile
