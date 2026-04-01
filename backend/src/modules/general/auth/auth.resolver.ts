@@ -114,9 +114,10 @@ export class AuthResolver implements OnModuleInit {
     res.cookie('access_token', accessToken, {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: 'lax', // 'lax' allows cookies on top-level redirects (PayMongo callback)
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
+      domain: isProduction ? '.synchores.com' : undefined, // Set domain for production so cookies work across subdomains
       ...(cookieDomain ? { domain: cookieDomain } : {}),
     });
     res.setHeader('Cache-Control', 'no-store');
@@ -135,8 +136,9 @@ export class AuthResolver implements OnModuleInit {
     res.clearCookie('access_token', {
       httpOnly: true,
       secure: isProduction,
-      sameSite: isProduction ? 'strict' : 'lax',
+      sameSite: 'lax', // 'lax' allows cookies on top-level redirects (PayMongo callback)
       path: '/',
+      domain: isProduction ? '.synchores.com' : undefined, // Set domain for production so cookies work across subdomains
       ...(cookieDomain ? { domain: cookieDomain } : {}),
     });
     res.setHeader('Cache-Control', 'no-store');
