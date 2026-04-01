@@ -1,0 +1,50 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      BACKEND_INTERNAL_URL: http://backend:4000
+      NEXT_PUBLIC_GRAPHQL_URL: ${NEXT_PUBLIC_GRAPHQL_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_IMAGE_PATH: ${NEXT_PUBLIC_IMAGE_PATH}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env.prod
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SYNC: "false"
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN}
+      JWT_SECRET: ${JWT_SECRET}
+      MAIL_ENABLED: ${MAIL_ENABLED}
+      MAIL_FROM: ${MAIL_FROM}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_SECURE: ${SMTP_SECURE}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      PAYMONGO_PUBLIC_KEY: ${PAYMONGO_PUBLIC_KEY}
+      PAYMONGO_SECRET_KEY: ${PAYMONGO_SECRET_KEY}
+      PAYMONGO_API_URL: ${PAYMONGO_API_URL}
+      PAYMONGO_CHECKOUT_SUCCESS_URL: ${PAYMONGO_CHECKOUT_SUCCESS_URL}
+      PAYMONGO_CHECKOUT_FAILED_URL: ${PAYMONGO_CHECKOUT_FAILED_URL}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    restart: unless-stopped
