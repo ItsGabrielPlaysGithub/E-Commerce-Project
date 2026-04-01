@@ -14,6 +14,24 @@ interface Category {
   image: string;
 }
 
+const resolveImageUrl = (src?: string): string => {
+  if (!src) {
+    return "/images/OMEGA_BAU_3-_WEB_1365x601.webp";
+  }
+
+  if (src.startsWith("http://") || src.startsWith("https://")) {
+    return src
+      .replace("http://localhost:4000", "")
+      .replace("http://backend:4000", "");
+  }
+
+  if (src.startsWith("/")) {
+    return src;
+  }
+
+  return `/${src}`;
+};
+
 export function CategoryShowcase() {
   const { data, loading } = useQuery(GetProductsDocument);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -114,9 +132,12 @@ export function CategoryShowcase() {
               style={{ aspectRatio: "1" }}
             >
               <img
-                src={cat.image}
+                src={resolveImageUrl(cat.image)}
                 alt={cat.categoryName}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = "/images/OMEGA_BAU_3-_WEB_1365x601.webp";
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-black/10" />
               <div className="absolute bottom-0 left-0 right-0 p-3 text-white">

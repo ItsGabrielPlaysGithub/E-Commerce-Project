@@ -48,5 +48,5 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - ./backend/uploads:/app/uploads
+      - ${UPLOADS_DIR:-/var/lib/omega/uploads}:/app/uploads
     restart: unless-stopped

@@ -36,6 +36,24 @@ interface ProductCardProps {
   showPricing?: "retail" | "wholesale" | "bulk";
 }
 
+const resolveImageUrl = (src?: string): string => {
+  if (!src) {
+    return "/images/OMEGA_BAU_3-_WEB_1365x601.webp";
+  }
+
+  if (src.startsWith("http://") || src.startsWith("https://")) {
+    return src
+      .replace("http://localhost:4000", "")
+      .replace("http://backend:4000", "");
+  }
+
+  if (src.startsWith("/")) {
+    return src;
+  }
+
+  return `/${src}`;
+};
+
 // Convert any product to B2B Product type
 function convertToB2BProduct(product: Product): B2BProduct {
   return {
@@ -86,7 +104,7 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
       {/* Image */}
       <div className="relative overflow-hidden bg-gray-50 aspect-square shrink-0">
         <img
-          src={product.imageUrl || product.image}
+          src={resolveImageUrl(product.imageUrl || product.image)}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
