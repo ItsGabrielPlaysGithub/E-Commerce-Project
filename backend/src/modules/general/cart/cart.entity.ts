@@ -13,23 +13,23 @@ import { IsInt, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 export class CartItem {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
-  id: number;
+  declare id: number;
 
   @Column()
   @Field(() => Int)
-  userId: number;
+  declare userId: number;
 
   @Column()
   @Field(() => Int)
-  productId: number;
+  declare productId: number;
 
   @Column()
   @Field(() => Int)
-  quantity: number;
+  declare quantity: number;
 
   @Column('decimal', { precision: 10, scale: 2 })
   @Field(() => Float)
-  unitPrice: number;
+  declare unitPrice: number;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
@@ -41,11 +41,11 @@ export class CartItem {
 
   @CreateDateColumn()
   @Field()
-  createdAt: Date;
+  declare createdAt: Date;
 
   @UpdateDateColumn()
   @Field()
-  updatedAt: Date;
+  declare updatedAt: Date;
 }
 
 @InputType()
@@ -53,17 +53,17 @@ export class AddToCartInput {
   @Field(() => Int)
   @IsInt()
   @Min(1)
-  productId: number;
+  declare productId: number;
 
   @Field(() => Int)
   @IsInt()
   @Min(1)
-  quantity: number;
+  declare quantity: number;
 
   @Field(() => Float)
   @IsNumber()
   @Min(0)
-  unitPrice: number;
+  declare unitPrice: number;
 
   @Field({ nullable: true })
   @IsOptional()
@@ -81,22 +81,22 @@ export class UpdateCartItemInput {
   @Field(() => Int)
   @IsInt()
   @Min(1)
-  id: number;
+  declare id: number;
 
   @Field(() => Int)
   @IsInt()
   @Min(1)
-  quantity: number;
+  declare quantity: number;
 }
 
 @ObjectType()
 export class CartResponse {
   @Field(() => [CartItem])
-  items: CartItem[];
+  declare items: CartItem[];
 
   @Field()
-  totalItems: number;
+  declare totalItems: number;
 
   @Field()
-  totalPrice: number;
+  declare totalPrice: number;
 }

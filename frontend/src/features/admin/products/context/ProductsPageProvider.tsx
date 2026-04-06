@@ -103,31 +103,49 @@ export function ProductsPageProvider({
   // Transform GraphQL data to Product format
   const products: Product[] = useMemo(() => {
     if (!data?.getProducts) return [];
-    return data.getProducts.map((product) => {
-      const basePrice = product.productPrice || 0;
-      return {
-        id: product.productId.toString(),
-        name: product.productName,
-        price: Math.round(basePrice),
-        retailPrice: Math.round(basePrice),
-        wholesalePrice: Math.round(basePrice * 0.92),
-        bulkPrice: Math.round(basePrice * 0.84),
-        minWholesale: 10,
-        minBulk: 50,
-        image:
-          "https://images.unsplash.com/photo-1696986324692-f4aa0f2f495d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
-        imageUrl: product.imageUrl || undefined,
-        category: typeof product.category === 'string' ? product.category : (product.category?.categoryName || "Uncategorized"),
-        rating: 4.5,
-      };
-    });
+    return data.getProducts
+      .filter((product) => {
+        // Ensure product has required fields
+        if (!product.productId || !product.productName) {
+          console.warn("Product missing required fields:", product);
+          return false;
+        }
+        return true;
+      })
+      .map((product) => {
+        const basePrice = product.productPrice || 0;
+        const categoryName = typeof product.category === 'string' 
+          ? product.category 
+          : (product.category?.categoryName || "Uncategorized");
+        
+        return {
+          id: product.productId.toString(),
+          name: product.productName || "Unnamed Product",
+          price: Math.round(basePrice),
+          retailPrice: Math.round(basePrice),
+          wholesalePrice: Math.round(basePrice * 0.92),
+          bulkPrice: Math.round(basePrice * 0.84),
+          minWholesale: 10,
+          minBulk: 50,
+          image:
+            "https://images.unsplash.com/photo-1696986324692-f4aa0f2f495d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+          imageUrl: product.imageUrl || undefined,
+          category: categoryName,
+          rating: 4.5,
+        };
+      });
   }, [data]);
 
   const filteredProducts = useMemo(() => {
     let list = [...products];
 
     if (displayCategory !== "All") {
-      list = list.filter((product) => product.category === displayCategory);
+      // Use case-insensitive comparison for category filtering
+      list = list.filter((product) => {
+        const productCat = (product.category || "").trim().toLowerCase();
+        const filterCat = displayCategory.trim().toLowerCase();
+        return productCat === filterCat;
+      });
     }
 
     if (search) {

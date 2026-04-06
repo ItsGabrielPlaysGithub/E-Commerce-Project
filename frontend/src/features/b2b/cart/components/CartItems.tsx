@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { CartItem, Company } from "../types";
+import { resolveImageUrl } from "@/utils/imageUrlResolver";
 
 // Helper function to convert product name to URL slug
 const productNameToSlug = (name: string): string => {
@@ -64,7 +65,7 @@ export function CartItems({
                   />
                   {(item.product.imageUrl || item.product.image) && (
                     <img
-                      src={item.product.imageUrl || item.product.image}
+                      src={resolveImageUrl(item.product.imageUrl || item.product.image)}
                       alt={item.product.name}
                       className="w-14 h-14 rounded-xl object-cover shrink-0 border border-gray-100"
                     />

@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ProductsTbl } from '../../products/entity/products.tbl';
-import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
+import { UsersTbl } from '../../../general/auth/entity/users.tbl';
 import { OrderStatus } from './order-status.enum';
 
 @Entity('orders_tbl')
@@ -15,7 +15,7 @@ import { OrderStatus } from './order-status.enum';
 export class OrdersTbl {
   @PrimaryGeneratedColumn()
   @Field()
-  orderId: number;
+  declare orderId: number;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
@@ -23,11 +23,11 @@ export class OrdersTbl {
 
   @Column()
   @Field()
-  productId: number;
+  declare productId: number;
 
   @Column()
   @Field()
-  userId: number;
+  declare userId: number;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
@@ -35,15 +35,15 @@ export class OrdersTbl {
 
   @Column()
   @Field()
-  quantity: number;
+  declare quantity: number;
 
   @Column()
   @Field()
-  unitPrice: number;
+  declare unitPrice: number;
 
   @Column()
   @Field()
-  totalPrice: number;
+  declare totalPrice: number;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
@@ -59,7 +59,7 @@ export class OrdersTbl {
     default: OrderStatus.PENDING_APPROVAL,
   })
   @Field()
-  status: string;
+  declare status: string;
 
   @Column({ nullable: true })
   @Field({ nullable: true })
@@ -147,7 +147,7 @@ export class OrdersTbl {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Field()
-  createdAt: Date;
+  declare createdAt: Date;
 
   @Column({
     type: 'timestamp',
@@ -155,7 +155,7 @@ export class OrdersTbl {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   @Field()
-  updatedAt: Date;
+  declare updatedAt: Date;
 
   @ManyToOne(() => ProductsTbl)
   @JoinColumn({ name: 'productId' })

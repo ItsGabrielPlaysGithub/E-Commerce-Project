@@ -13,25 +13,25 @@ import { CategoriesTbl } from '../../categories/entity/categories.tbl';
 export class ProductsTbl {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
-  productId: number;
+  declare productId: number;
 
   @Column()
   @Field()
-  productName: string;
+  declare productName: string;
 
   @Column('longtext')
   @Field()
-  productDescription: string;
+  declare productDescription: string;
   @Column({ type: 'varchar', length: 500, nullable: true })
   @Field({ nullable: true })
-  imageUrl: string;
+  declare imageUrl: string;
   @Column()
   @Field()
-  sku: string;
+  declare sku: string;
 
   @Column()
   @Field(() => Int)
-  categoryId: number;
+  declare categoryId: number;
 
   @ManyToOne(() => CategoriesTbl, (category) => category.products)
   @JoinColumn({ name: 'categoryId', referencedColumnName: 'categoryId' })
@@ -40,27 +40,27 @@ export class ProductsTbl {
 
   @Column('decimal', { precision: 10, scale: 2 })
   @Field()
-  productPrice: number;
+  declare productPrice: number;
 
   @Column({ default: 0 })
   @Field(() => Int)
-  reorderPoint: number;
+  declare reorderPoint: number;
 
   @Column({ default: 0 })
   @Field(() => Int)
-  available: number;
+  declare available: number;
 
   @Column({ default: 0 })
   @Field(() => Int)
-  inTransit: number;
+  declare inTransit: number;
 
   @Column({ default: 0 })
   @Field(() => Int)
-  blocked: number;
+  declare blocked: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Field()
-  createdAt: Date;
+  declare createdAt: Date;
 
   @Column({
     type: 'timestamp',
@@ -68,5 +68,5 @@ export class ProductsTbl {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   @Field()
-  updatedAt: Date;
+  declare updatedAt: Date;
 }

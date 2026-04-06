@@ -4,30 +4,19 @@ import {
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
-import { ProductsTbl } from '../../products/entity/products.tbl';
+import { NavLinksTbl } from './nav-links-tbl';
 
-@Entity('categories_tbl')
+@Entity('nav_bar_tbl')
 @ObjectType()
-@Unique(['slug'])
-@Unique(['skuPrefix'])
-export class CategoriesTbl {
+export class NavBarTbl {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
-  declare categoryId: number;
+  declare navBarId: number;
 
   @Column()
   @Field()
-  declare categoryName: string;
-
-  @Column()
-  @Field()
-  declare slug: string;
-
-  @Column()
-  @Field()
-  declare skuPrefix: string;
+  declare navBarName: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Field()
@@ -41,7 +30,7 @@ export class CategoriesTbl {
   @Field()
   declare updatedAt: Date;
 
-  @OneToMany(() => ProductsTbl, (product) => product.category)
-  @Field(() => [ProductsTbl], { nullable: true })
-  products?: ProductsTbl[];
+  @OneToMany(() => NavLinksTbl, (navLink) => navLink.navBar)
+  @Field(() => [NavLinksTbl], { nullable: true })
+  navLinks?: NavLinksTbl[];
 }

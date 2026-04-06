@@ -6,42 +6,42 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 export class UsersTbl {
   @PrimaryGeneratedColumn()
   @Field()
-  userId: number;
+  declare userId: number;
 
   @Column()
   @Field()
-  firstName: string;
+  declare firstName: string;
 
   @Column()
   @Field()
-  middleName: string;
+  declare middleName: string;
 
   @Column()
   @Field()
-  lastName: string;
+  declare lastName: string;
 
   @Column({ unique: true })
   @Field()
-  emailAddress: string;
+  declare emailAddress: string;
 
   @Column()
   @Field()
-  companyName: string;
+  declare companyName: string;
 
   @Column()
   @Field()
-  address: string;
+  declare address: string;
 
   @Column()
   @Field()
-  phoneNumber: string;
+  declare phoneNumber: string;
 
   @Column()
-  password: string;
+  declare password: string;
 
   @Column({ default: 'partner' })
   @Field()
-  role: string;
+  declare role: string;
 
   @Column()
   @Field()
@@ -49,7 +49,7 @@ export class UsersTbl {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Field()
-  createdAt: Date;
+  declare createdAt: Date;
 
   @Column({
     type: 'timestamp',
@@ -57,7 +57,7 @@ export class UsersTbl {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   @Field()
-  updatedAt: Date;
+  declare updatedAt: Date;
 
   @Field()
   get fullName(): string {

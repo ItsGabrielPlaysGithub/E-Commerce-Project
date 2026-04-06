@@ -10,7 +10,7 @@ import { Int } from '@nestjs/graphql';
 import { UseGuards, ForbiddenException } from '@nestjs/common';
 import { JwtAuthGuard } from '../../general/auth/guards/jwt-auth.guard';
 import { RolesGuard, Roles } from '../../general/auth/guards/roles.guard';
-import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
+import { UsersTbl } from '../../general/auth/entity/users.tbl';
 import { UsersCrudService } from './users-crud.service';
 import { CreateUserDto } from './dto/create.user.dto';
 import { UpdateUserDto } from './dto/update.user.dto';

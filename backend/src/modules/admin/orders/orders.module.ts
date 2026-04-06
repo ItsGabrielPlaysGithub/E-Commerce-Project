@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrdersTbl } from './entity/orders.tbl';
 import { InvoicesModule } from '../invoices/invoices.module';
 import { ProductsTbl } from '../products/entity/products.tbl';
-import { UsersTbl } from 'src/modules/general/auth/entity/users.tbl';
+import { UsersTbl } from '../../general/auth/entity/users.tbl';
 import { NotificationsModule } from '../../general/notifications/notifications.module';
 import { AuthModule } from '../../general/auth/auth.module';
 import { PaymongoModule } from '../../general/paymongo/paymongo.module';

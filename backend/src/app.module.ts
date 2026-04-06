@@ -17,6 +17,7 @@ import { OrdersModule } from './modules/admin/orders/orders.module';
 import { MailerModule } from './modules/general/mailer/mailer.module';
 import { InvoicesModule } from './modules/admin/invoices/invoices.module';
 import { PaymongoModule } from './modules/general/paymongo/paymongo.module';
+import { CmsModule } from './modules/admin/cms/cms.module';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { PaymongoModule } from './modules/general/paymongo/paymongo.module';
     ProductsModule,
     OrdersModule,
     InvoicesModule,
+    CmsModule,
     NotificationsModule,
     PaymongoModule,
   ],

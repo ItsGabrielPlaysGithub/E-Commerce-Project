@@ -1,5 +1,6 @@
 import { Package } from "lucide-react";
 import { CartItem } from "../../types";
+import { resolveImageUrl } from "@/utils/imageUrlResolver";
 
 interface ItemsSummaryProps {
   items: CartItem[];
@@ -18,7 +19,7 @@ export function ItemsSummary({ items, itemCount }: ItemsSummaryProps) {
           <div key={item.product.id} className="flex items-center justify-between px-4 py-3 text-xs">
             <div className="flex items-center gap-2 min-w-0">
               <img
-                src={item.product.imageUrl || item.product.image}
+                src={resolveImageUrl(item.product.imageUrl || item.product.image)}
                 alt={item.product.name}
                 className="w-8 h-8 rounded-lg object-cover shrink-0"
               />

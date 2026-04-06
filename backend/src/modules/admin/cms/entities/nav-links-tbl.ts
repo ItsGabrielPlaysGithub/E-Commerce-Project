@@ -2,32 +2,39 @@ import { Field, ObjectType, Int } from '@nestjs/graphql';
 import {
   Column,
   Entity,
-  OneToMany,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
-import { ProductsTbl } from '../../products/entity/products.tbl';
+import { NavBarTbl } from './nav-bar-tbl';
 
-@Entity('categories_tbl')
+@Entity('nav_links_tbl')
 @ObjectType()
-@Unique(['slug'])
-@Unique(['skuPrefix'])
-export class CategoriesTbl {
+export class NavLinksTbl {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
-  declare categoryId: number;
+  declare navLinkId: number;
+
+  @Column()
+  @Field(() => Int)
+  declare navBarId: number;
+
+  @ManyToOne(() => NavBarTbl, (navBar) => navBar.navLinks)
+  @JoinColumn({ name: 'navBarId' })
+  @Field(() => NavBarTbl, { nullable: true })
+  navBar?: NavBarTbl;
 
   @Column()
   @Field()
-  declare categoryName: string;
+  declare navLinkName: string;
 
   @Column()
   @Field()
-  declare slug: string;
+  declare navLinkUrl: string;
 
   @Column()
   @Field()
-  declare skuPrefix: string;
+  declare isActive: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   @Field()
@@ -40,8 +47,4 @@ export class CategoriesTbl {
   })
   @Field()
   declare updatedAt: Date;
-
-  @OneToMany(() => ProductsTbl, (product) => product.category)
-  @Field(() => [ProductsTbl], { nullable: true })
-  products?: ProductsTbl[];
 }

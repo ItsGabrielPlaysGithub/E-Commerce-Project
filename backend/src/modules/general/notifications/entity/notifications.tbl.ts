@@ -14,11 +14,11 @@ import { UsersTbl } from '../../auth/entity/users.tbl';
 export class NotificationsTbl {
   @PrimaryGeneratedColumn()
   @Field(() => Int)
-  notificationId: number;
+  declare notificationId: number;
 
   @Column()
   @Field()
-  userId: number;
+  declare userId: number;
 
   @ManyToOne(() => UsersTbl, { eager: false })
   @JoinColumn({ name: 'userId' })
@@ -26,7 +26,7 @@ export class NotificationsTbl {
 
   @Column({ type: 'varchar', length: 50 })
   @Field()
-  type:
+  declare type:
     | 'payment_proof_rejected'
     | 'payment_proof_approved'
     | 'order_status_change'
@@ -35,11 +35,11 @@ export class NotificationsTbl {
 
   @Column({ type: 'varchar', length: 255 })
   @Field()
-  title: string;
+  declare title: string;
 
   @Column({ type: 'text' })
   @Field()
-  message: string;
+  declare message: string;
 
   @Column({ nullable: true, type: 'int' })
   @Field(() => Int, { nullable: true })
@@ -55,7 +55,7 @@ export class NotificationsTbl {
 
   @CreateDateColumn()
   @Field()
-  createdAt: Date;
+  declare createdAt: Date;
 
   @Column({ nullable: true, type: 'timestamp' })
   @Field({ nullable: true })

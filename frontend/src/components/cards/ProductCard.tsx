@@ -15,6 +15,7 @@ import { useCart } from "@/features/b2b/cart/hooks/useCart";
 import { useAuth } from "@/features/auth";
 import { AddToCartConfirmModal } from "../modals/AddToCartConfirmModal";
 import { AddToCartButton } from "../ui/AddToCartButton";
+import { resolveImageUrl } from "@/utils/imageUrlResolver";
 
 // Accept both Product types
 type Product = B2BProduct | GeneralProduct;
@@ -35,24 +36,6 @@ interface ProductCardProps {
   product: Product;
   showPricing?: "retail" | "wholesale" | "bulk";
 }
-
-const resolveImageUrl = (src?: string): string => {
-  if (!src) {
-    return "/images/OMEGA_BAU_3-_WEB_1365x601.webp";
-  }
-
-  if (src.startsWith("http://") || src.startsWith("https://")) {
-    return src
-      .replace("http://localhost:4000", "")
-      .replace("http://backend:4000", "");
-  }
-
-  if (src.startsWith("/")) {
-    return src;
-  }
-
-  return `/${src}`;
-};
 
 // Convert any product to B2B Product type
 function convertToB2BProduct(product: Product): B2BProduct {
@@ -78,6 +61,12 @@ export function ProductCard({ product, showPricing = "retail" }: ProductCardProp
   const { isLoggedIn } = useAuth();
   const router = useRouter();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // Defensive checks for required fields
+  if (!product || !product.id || !product.name) {
+    console.warn("ProductCard: Invalid product data", product);
+    return null;
+  }
 
   const displayPrice = getProductPrice(product, "retail");
   const retailPrice = getRetailPrice(product);

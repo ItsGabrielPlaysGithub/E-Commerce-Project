@@ -18,17 +18,19 @@ export function ProductsResultsSection() {
   }
 
   if (error) {
+    console.error("ProductsResultsSection error:", error);
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-center text-red-600">
+        <div className="text-center text-red-600 max-w-md">
           <p className="text-lg font-semibold">Error loading products</p>
-          <p className="mt-2 text-sm">{error}</p>
+          <p className="mt-2 text-sm">{String(error)}</p>
+          <p className="mt-4 text-xs text-gray-500">Please try refreshing the page.</p>
         </div>
       </div>
     );
   }
 
-  if (filteredProducts.length === 0) {
+  if (!filteredProducts || filteredProducts.length === 0) {
     return <NoProducts />;
   }
 

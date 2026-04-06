@@ -1,13 +1,15 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { UsersTbl } from "src/modules/general/auth/entity/users.tbl";
-import { OrdersTbl } from "src/modules/admin/orders/entity/orders.tbl";
-import { InvoicesTbl } from "src/modules/admin/invoices/entity/invoices.tbl";
-import { ProductsTbl } from "src/modules/admin/products/entity/products.tbl";
-import { PaymentsTbl } from "src/modules/admin/payments/entity/payments.tbl";
-import { CartItem } from "src/modules/general/cart/cart.entity";
-import { CategoriesTbl } from "src/modules/admin/categories/entity/categories.tbl";
-import { NotificationsTbl } from "src/modules/general/notifications/entity/notifications.tbl";
+import { UsersTbl } from "../src/modules/general/auth/entity/users.tbl";
+import { OrdersTbl } from "../src/modules/admin/orders/entity/orders.tbl";
+import { InvoicesTbl } from "../src/modules/admin/invoices/entity/invoices.tbl";
+import { ProductsTbl } from "../src/modules/admin/products/entity/products.tbl";
+import { PaymentsTbl } from "../src/modules/admin/payments/entity/payments.tbl";
+import { CartItem } from "../src/modules/general/cart/cart.entity";
+import { CategoriesTbl } from "../src/modules/admin/categories/entity/categories.tbl";
+import { NotificationsTbl } from "../src/modules/general/notifications/entity/notifications.tbl";
+import { TiktokCarouselsTbl } from "../src/modules/admin/cms/entities/tiktok-carousels-tbl";
+import { TiktokVideosTbl } from "../src/modules/admin/cms/entities/tiktok-videos-tbl";
 
 export const DatabaseConfig =  TypeOrmModule.forRootAsync({
     imports: [ConfigModule],
@@ -22,7 +24,7 @@ export const DatabaseConfig =  TypeOrmModule.forRootAsync({
             config.get<string>('MYSQL_PASSWORD') ??
             config.get<string>('MYSQL_ROOT_PASSWORD'),
         database: config.get<string>('DB_NAME') ?? config.get<string>('MYSQL_DATABASE'),
-        entities: [UsersTbl, OrdersTbl, InvoicesTbl, ProductsTbl, PaymentsTbl, CartItem, CategoriesTbl, NotificationsTbl],
+        entities: [UsersTbl, OrdersTbl, InvoicesTbl, ProductsTbl, PaymentsTbl, CartItem, CategoriesTbl, NotificationsTbl, TiktokCarouselsTbl, TiktokVideosTbl],
         synchronize: config.get<string>('DB_SYNC') === 'true',
     })
 })
