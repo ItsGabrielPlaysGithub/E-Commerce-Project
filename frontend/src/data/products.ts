@@ -10,6 +10,14 @@ export interface Product {
   description?: string;
 }
 
+export interface ProductCard {
+  id: number;
+  name: string;
+  price: string;
+  image: string;
+  category: string;
+}
+
 export interface Review {
   id: string;
   name: string;
@@ -164,4 +172,15 @@ export const reviews: Review[] = [
     avatar: "N",
     color: "#AA96DA",
   },
+];
+
+export const productsData: ProductCard[] = [
+  { id: 1, name: "Premium Chef Pan", price: "₱12,50", image: "/assets/Classic Chef Pan.png", category: "Kitchenware" },
+  { id: 2, name: "Ceramic Dish Set", price: "₱3,200", image: "/assets/dishes.png", category: "Dinnerware" },
+  { id: 3, name: "Essential Knife Set", price: "₱4,500", image: "/assets/Essential Knife Set.png", category: "Kitchenware" },
+  { id: 4, name: "Professional Bakeware", price: "₱2,100", image: "/assets/bakeware.png", category: "Kitchenware" },
+  { id: 5, name: "Enamel Dutch Oven", price: "₱2,450", image: "/assets/Enamel Dutch Oven.png", category: "Kitchenware" },
+  { id: 6, name: "Glass Casserole", price: "₱1,899", image: "/assets/glass.png", category: "Glassware" },
+  { id: 7, name: "Classic Tumbler", price: "₱850", image: "/assets/glass.png", category: "Glassware" },
+  { id: 8, name: "Vacuum Flask", price: "₱1,200", image: "/assets/thermos.png", category: "Vacuum Flask" },
 ];

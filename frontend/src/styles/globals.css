@@ -1,21 +1,72 @@
-@import url('./fonts.css');
 @import "tailwindcss";
 
-:root {
-  color-scheme: light;
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --color-primary: #C8102E;
+  --color-secondary: #212121;
+  --color-accent: #FDFDFD;
+  --color-neutral: #555555;
+  
+  --font-sans: "Outfit", var(--font-geist-sans);
+  --font-display: "Playfair Display", serif;
+
+  --breakpoint-xs: 375px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
-html,
+:root {
+  --background: #ffffff;
+  --foreground: #212121;
+  --primary: #C8102E;
+}
+
 body {
-  font-family: var(--font-sans);
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Reduce global scale by 5% on large screens for more breathing room */
+  font-size: 15px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+@media (min-width: 1024px) {
+  html {
+     font-size: 95%; /* Reduces overall scale of rem-based units */
+  }
+}
+
+/* Section Spacing refinement */
+section {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  section {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* Custom Scrollbar for premium feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #C8102E;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a00d25;
 }
