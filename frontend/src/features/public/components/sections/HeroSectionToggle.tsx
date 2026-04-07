@@ -15,26 +15,29 @@ export default function HeroSectionToggle({ data }: { data: HeroData }) {
   }, [heroVersion]);
 
   return (
-    <div className="relative w-full z-10">
-      {/* Dev Toggle */}
-      <div className="absolute top-28 w-[fit-content] right-4 md:top-28 md:right-8 z-[1000] flex items-center bg-black/80 backdrop-blur-md rounded-full shadow-lg overflow-hidden border border-white/20 p-1">
+    <div className="relative w-full pointer-events-none">
+      {/* Minimal Toggle Button - High Index z-[100] */}
+      <div className="absolute bottom-8 right-8 z-[100] flex items-center bg-black/40 backdrop-blur-md rounded-full shadow-lg overflow-hidden border border-white/10 p-0.5 pointer-events-auto">
         <button
           onClick={() => setHeroVersion("A")}
-          className={`px-4 py-1.5 md:px-6 md:py-2 text-[10px] md:text-xs font-bold transition-all rounded-full cursor-pointer ${heroVersion === "A" ? "bg-primary text-white shadow-md shadow-primary/20" : "text-white/50 hover:text-white"}`}
+          className={`px-3 py-1 md:px-4 md:py-1.5 text-[8px] md:text-[10px] font-bold transition-all rounded-full cursor-pointer ${heroVersion === "A" ? "bg-primary text-white" : "text-white/40 hover:text-white"}`}
         >
-          Version A (Carousel)
+          VER A
         </button>
         <button
           onClick={() => setHeroVersion("B")}
-          className={`px-4 py-1.5 md:px-6 md:py-2 text-[10px] md:text-xs font-bold transition-all rounded-full cursor-pointer ${heroVersion === "B" ? "bg-primary text-white shadow-md shadow-primary/20" : "text-white/50 hover:text-white"}`}
+          className={`px-3 py-1 md:px-4 md:py-1.5 text-[8px] md:text-[10px] font-bold transition-all rounded-full cursor-pointer ${heroVersion === "B" ? "bg-primary text-white" : "text-white/40 hover:text-white"}`}
         >
-          Version B (Video)
+          VER B
         </button>
       </div>
 
-      <div className="w-full h-full">
+
+      {/* Hero Content - Lower Index z-10 */}
+      <div className="w-full h-full relative z-10 pointer-events-auto">
         {heroVersion === "A" ? <Hero data={data.versionA} /> : <HeroB data={data.versionB} />}
       </div>
     </div>
+
   );
 }

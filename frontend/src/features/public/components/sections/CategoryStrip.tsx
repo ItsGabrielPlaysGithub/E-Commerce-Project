@@ -16,8 +16,10 @@ const IconMap: Record<string, React.ReactNode> = {
 
 const CategoryStrip = ({ categories }: { categories: CategoryData[] }) => {
   return (
-    <section className="relative z-30 -mt-24 md:-mt-32 lg:-mt-60 mb-12">
-      <div className="container mx-auto px-4 md:px-6">
+    <section className="relative z-[80] -mt-24 md:-mt-32 lg:-mt-60 mb-12 pointer-events-none">
+
+      <div className="container mx-auto px-4 md:px-6 pointer-events-auto">
+
 
         {/* Main Floating Container */}
         <div className="relative bg-[#F9F3EE] rounded-[2rem] md:rounded-[3.5rem] p-4 md:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-white/50">
@@ -35,7 +37,7 @@ const CategoryStrip = ({ categories }: { categories: CategoryData[] }) => {
           </div>
 
           {/* Grid Content: Horizontal Scroll on Mobile, Grid on Desktop */}
-          <div className="flex md:grid md:grid-cols-4 gap-3 md:gap-6 lg:gap-8 overflow-x-auto md:overflow-visible pb-2 md:pb-0 scrollbar-hide snap-x snap-mandatory scroll-content-padding">
+          <div className="flex md:grid md:grid-cols-4 gap-3 md:gap-6 lg:gap-8 overflow-x-auto md:overflow-visible scrollbar-hide snap-x snap-mandatory scroll-content-padding">
             {categories.map((category, i) => (
               <motion.a
                 key={category.id}
@@ -43,12 +45,27 @@ const CategoryStrip = ({ categories }: { categories: CategoryData[] }) => {
                 whileHover={{ y: -8 }}
                 className="group relative aspect-[3/4] min-w-[160px] md:min-w-0 md:w-auto rounded-2xl md:rounded-[2.5rem] overflow-hidden shadow-md flex-shrink-0 snap-start"
               >
-                {/* Background Image */}
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+                {/* Background Media */}
+                {category.videoUrl ? (
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  >
+                    <source src={category.videoUrl.replace('.mp4', '.webm')} type="video/webm" />
+                    <source src={category.videoUrl} type="video/mp4" />
+                  </video>
+
+                ) : (
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                )}
+
 
                 {/* Overlay Gradient */}
                 <div className="absolute inset-0 bg-transparent group-hover:bg-black/10 transition-colors" />
@@ -70,10 +87,12 @@ const CategoryStrip = ({ categories }: { categories: CategoryData[] }) => {
               </motion.a>
             ))}
           </div>
+
         </div>
 
       </div>
     </section>
+
   );
 };
 

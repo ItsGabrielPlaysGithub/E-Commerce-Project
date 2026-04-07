@@ -175,12 +175,16 @@ export const reviews: Review[] = [
 ];
 
 export const productsData: ProductCard[] = [
-  { id: 1, name: "Premium Chef Pan", price: "₱12,50", image: "/assets/Classic Chef Pan.png", category: "Kitchenware" },
-  { id: 2, name: "Ceramic Dish Set", price: "₱3,200", image: "/assets/dishes.png", category: "Dinnerware" },
-  { id: 3, name: "Essential Knife Set", price: "₱4,500", image: "/assets/Essential Knife Set.png", category: "Kitchenware" },
-  { id: 4, name: "Professional Bakeware", price: "₱2,100", image: "/assets/bakeware.png", category: "Kitchenware" },
-  { id: 5, name: "Enamel Dutch Oven", price: "₱2,450", image: "/assets/Enamel Dutch Oven.png", category: "Kitchenware" },
-  { id: 6, name: "Glass Casserole", price: "₱1,899", image: "/assets/glass.png", category: "Glassware" },
-  { id: 7, name: "Classic Tumbler", price: "₱850", image: "/assets/glass.png", category: "Glassware" },
-  { id: 8, name: "Vacuum Flask", price: "₱1,200", image: "/assets/thermos.png", category: "Vacuum Flask" },
-];
+  { id: 1, name: "Premium Chef Pan", price: "₱1,250", image: "/assets/products/cookware/cookware-1.jpg", category: "Cookware" },
+  { id: 2, name: "Ceramic Dish Set", price: "₱3,200", image: "/assets/products/dinnerware/dinnerware-1.jpg", category: "Dinnerware" },
+  { id: 3, name: "Essential Skillet", price: "₱1,850", image: "/assets/products/cookware/cookware-2.jpg", category: "Cookware" },
+  { id: 4, name: "Professional Bakeware", price: "₱2,100", image: "/assets/products/bakeware/bakeware-1.jpg", category: "Bakeware" },
+  { id: 5, name: "Enamel Dutch Oven", price: "₱2,450", image: "/assets/products/cookware/cookware-3.jpg", category: "Cookware" },
+  { id: 6, name: "Glass Casserole", price: "₱1,899", image: "/assets/products/glassware/glassware-1.jpg", category: "Glassware" },
+  { id: 7, name: "Heritage Vacuum Flask", price: "₱1,200", image: "/assets/products/vacuum-flask/vacuum-flask-1.jpg", category: "Vacuum Flask" },
+  { id: 8, name: "Hydration Bottle", price: "₱850", image: "/assets/products/hydration/hydration-1.jpg", category: "Hydration" },
+  { id: 9, name: "Crystal Tumbler", price: "₱550", image: "/assets/products/glassware/glassware-2.jpg", category: "Glassware" },
+  { id: 10, name: "Tableware Set", price: "₱4,500", image: "/assets/products/tableware/tableware-1.jpg", category: "Tableware" },
+  { id: 11, name: "Drinkware Mug", price: "₱350", image: "/assets/products/drinkware/drinkware-1.jpg", category: "Drinkware" },
+  { id: 12, name: "Stainless Flask", price: "₱1,500", image: "/assets/products/vacuum-flask/vacuum-flask-2.jpg", category: "Vacuum Flask" },
+];

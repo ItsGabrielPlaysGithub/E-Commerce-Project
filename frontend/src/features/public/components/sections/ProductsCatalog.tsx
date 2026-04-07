@@ -51,9 +51,10 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
                 />
               </div>
               <div className="flex flex-col flex-grow items-start space-y-2 px-2">
-                <h3 className="text-xl font-bold text-secondary font-display group-hover:text-primary transition-colors leading-tight">
+                <h3 className="text-xl font-bold text-secondary font-display group-hover:text-primary transition-colors leading-tight line-clamp-1 truncate">
                   {product.name}
                 </h3>
+
                 <p className="text-neutral-500 font-bold text-base mb-4 opacity-80">{product.price}</p>
                 <Button 
                   className="w-full mt-auto bg-primary hover:bg-red-800 text-white rounded-2xl py-6 h-auto text-base font-bold shadow-[0_10px_20px_rgba(200,16,46,0.15)] transition-all duration-300"

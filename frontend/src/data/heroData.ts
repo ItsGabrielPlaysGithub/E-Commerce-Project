@@ -23,6 +23,8 @@ export type HeroPointer = {
 export type HeroScene = {
   id: string;
   video: string;
+  startTime: number;
+  endTime: number;
   pointers: HeroPointer[];
 };
 
@@ -48,61 +50,64 @@ export type HeroData = {
 
 export const heroData: HeroData = {
   versionA: {
-    headlinePart1: "Elevate Your",
-    headlineItalic: "Kitchen Tray.",
-    description: "Join the elite circle of Omega Houseware promoters and start earning while styling Filipino kitchens.",
-    bgImage: "/assets/hero/hero_bg_a.png",
-    ctaPrimary: { text: "Explore Now", link: "#explore" },
-    ctaSecondary: { text: "Contact Us", link: "#contact" },
+    headlinePart1: "All-around Partner sa",
+    headlineItalic: "Amazing Handaan",
+    description: "Discover reliable, stylish, and high-quality kitchen and home essentials designed to simplify your modern lifestyle. From cookwares to glasswares, Omega brings functionality and premium elegance into every Filipino home.",
+    bgImage: "/assets/modernkitchen_bg_hero_crop.png",
+    ctaPrimary: { text: "Shop Now", link: "#explore" },
+    ctaSecondary: { text: "Explore Collections", link: "#contact" },
     productGroups: [
       {
         id: 1,
-        name: "Classic Chef Collection",
+        name: "Premium Cookware",
         products: [
-          { id: 101, image: "/assets/Classic Chef Pan.png", name: "Premium Chef Pan", price: "₱1,250" },
-          { id: 102, image: "/assets/Enamel Dutch Oven.png", name: "Enamel Dutch Oven", price: "₱2,450", isMain: true },
-          { id: 103, image: "/assets/Essential Knife Set.png", name: "Essential Knife Set", price: "₱1,850" },
+          { id: 101, image: "/assets/product_category/cookware/cookware1.png", name: "Premium Chef Pan", price: "₱1,250" },
+          { id: 102, image: "/assets/product_category/cookware/cookware2.png", name: "Enamel Dutch Oven", price: "₱2,450", isMain: true },
+          { id: 103, image: "/assets/product_category/cookware/cookware1.png", name: "Essential Skillet", price: "₱1,850" },
         ]
       },
       {
         id: 2,
-        name: "Essential Kitchen Tools",
+        name: "Elegant Glassware",
         products: [
-          { id: 201, image: "/assets/thermos.png", name: "Vacuum Flask", price: "₱850" },
-          { id: 202, image: "/assets/glass.png", name: "Glassware Set", price: "₱1,200", isMain: true },
-          { id: 203, image: "/assets/dishes.png", name: "Ceramic Dish Set", price: "₱3,100" },
+          { id: 201, image: "/assets/product_category/glassware/glassware1.png", name: "Heritage Glass", price: "₱850" },
+          { id: 202, image: "/assets/product_category/glassware/glassware2.png", name: "Classic Tumbler Set", price: "₱1,200", isMain: true },
+          { id: 203, image: "/assets/product_category/glassware/glassware3.png", name: "Crystal Casserole", price: "₱3,100" },
         ]
       },
       {
         id: 3,
-        name: "Master Chef Bakeware",
+        name: "Professional Bakeware",
         products: [
-          { id: 301, image: "/assets/bakeware.png", name: "Pro Bakeware", price: "₱1,500" },
-          { id: 302, image: "/assets/Enamel Dutch Oven.png", name: "Classic Dutch Oven", price: "₱2,250", isMain: true },
-          { id: 303, image: "/assets/Classic Chef Pan.png", name: "Chef's Skillet", price: "₱1,150" },
+          { id: 301, image: "/assets/product_category/bakeware/bakeware1.png", name: "Pro Roasting Pan", price: "₱1,500" },
+          { id: 302, image: "/assets/product_category/bakeware/bakeware2.png", name: "Ceramic Baking Dish", price: "₱2,250", isMain: true },
+          { id: 303, image: "/assets/product_category/bakeware/bakeware1.png", name: "Muffin Tray Set", price: "₱1,150" },
         ]
       }
     ]
+
   },
   versionB: {
-    headlinePart1: "Elevate Your",
-    headlineItalic: "Kitchen Tray.",
-    description: "Join the elite circle of Omega Houseware promoters and start earning while styling Filipino kitchens.",
-    ctaPrimary: { text: "Explore Now", link: "#explore" },
-    ctaSecondary: { text: "Contact Us", link: "#contact" },
+    headlinePart1: "All-around Partner sa",
+    headlineItalic: "Amazing Handaan",
+    description: "Discover reliable, stylish, and high-quality kitchen and home essentials designed to simplify your modern lifestyle. From cookwares to glasswares, Omega brings functionality and premium elegance into every Filipino home.",
+    ctaPrimary: { text: "Shop Now", link: "#explore" },
+    ctaSecondary: { text: "Explore Collections", link: "#contact" },
     scenes: [
       {
         id: "scene1",
-        video: "/assets/hero/hero1.mp4",
+        video: "/assets/hero/videobgsample.mp4",
+        startTime: 0,
+        endTime: 6,
         pointers: [
           {
             id: "p1-1",
             top: "45%",
             left: "60%",
-            productName: "Premium Chef Pan",
+            productName: "Premium Cookware",
             description: "Perfect heat distribution for professional searing.",
-            image: "/assets/Classic Chef Pan.png",
-            link: "/shop/chef-pan"
+            image: "/assets/product_category/cookware/cookware1.png",
+            link: "/shop/cookware"
           },
           {
             id: "p1-2",
@@ -110,14 +115,16 @@ export const heroData: HeroData = {
             left: "80%",
             productName: "Enamel Dutch Oven",
             description: "Heritage design with modern kitchen durability.",
-            image: "/assets/Enamel Dutch Oven.png",
+            image: "/assets/product_category/cookware/cookware2.png",
             link: "/shop/dutch-oven"
           }
         ]
       },
       {
         id: "scene2",
-        video: "/assets/hero/hero2.mp4",
+        video: "/assets/hero/videobgsample.mp4",
+        startTime: 6,
+        endTime: 14,
         pointers: [
           {
             id: "p2-1",
@@ -125,31 +132,33 @@ export const heroData: HeroData = {
             left: "70%",
             productName: "Heritage Vacuum Flask",
             description: "Keeps drinks hot or cold for 12 hours.",
-            image: "/assets/thermos.png",
+            image: "/assets/product_category/vacuum-flask/vacuum-flask1.png",
             link: "/shop/vacuum-flask"
           }
         ]
       },
       {
         id: "scene3",
-        video: "/assets/hero/hero3.mp4",
+        video: "/assets/hero/videobgsample.mp4",
+        startTime: 14,
+        endTime: 999, // Final scene until loop
         pointers: [
           {
             id: "p3-1",
             top: "50%",
             left: "65%",
-            productName: "Essential Knife Set",
-            description: "Precision steel for effortless carving.",
-            image: "/assets/Essential Knife Set.png",
-            link: "/shop/knife-set"
+            productName: "Hydration Solutions",
+            description: "Durable and stylish water bottles for everyday use.",
+            image: "/assets/product_category/glassware/glassware2.png",
+            link: "/shop/hydration"
           },
           {
             id: "p3-2",
             top: "65%",
             left: "85%",
-            productName: "Classic Glassware",
-            description: "Elegant design for any table setting.",
-            image: "/assets/glass.png",
+            productName: "Elegant Glasswares",
+            description: "Crystal clear glass for premium beverage service.",
+            image: "/assets/product_category/glassware/glassware1.png",
             link: "/shop/glassware"
           }
         ]

@@ -43,17 +43,36 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Section Spacing refinement */
-section {
+/* Section Spacing refinement - Excludes Toast notification containers from global padding */
+section:not([data-sonner-toaster]) {
   padding-top: 4rem;
   padding-bottom: 4rem;
 }
 
 @media (min-width: 768px) {
-  section {
+  section:not([data-sonner-toaster]) {
     padding-top: 6rem;
     padding-bottom: 6rem;
   }
+}
+
+/* Fix Notification Interaction: Force fixed position and zero layout impact */
+[data-sonner-toaster], 
+section[aria-label*="Notifications"] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: 0 !important;
+  pointer-events: none !important;
+  z-index: 9999 !important;
+}
+
+/* Restore pointer events for the actual toast cards */
+[data-sonner-toaster] [data-sonner-toast] {
+  pointer-events: auto;
 }
 
 /* Custom Scrollbar for premium feel */
