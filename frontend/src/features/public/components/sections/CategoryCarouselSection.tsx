@@ -76,13 +76,16 @@ const CategoryCarouselSection: React.FC<CategoryCarouselProps> = ({
                 {/* Background Image / Video Cover */}
                 {item.videoUrl ? (
                   <video 
-                    src={item.videoUrl}
                     autoPlay
                     loop
                     muted
                     playsInline
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  >
+                    <source src={item.videoUrl.replace('.mp4', '.webm')} type="video/webm" />
+                    <source src={item.videoUrl} type="video/mp4" />
+                  </video>
+
                 ) : (
                   <img 
                     src={item.productImage} 

@@ -101,7 +101,7 @@ export const socialPostsData: AffiliateSocialPost[] = [
 export const socialAccountsData: SocialAccount[] = [
   {
     platform: "Instagram",
-    username: "@omegahouseware",
+    username: "@omegahousewareph",
     description: "Follow us for styling tips, kitchen aesthetics, and behind-the-scenes glimpses of our craftsmanship.",
     images: [
       "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=400&auto=format&fit=crop",
@@ -112,7 +112,7 @@ export const socialAccountsData: SocialAccount[] = [
   },
   {
     platform: "TikTok",
-    username: "@omegahouseware",
+    username: "@omegahousewareph",
     description: "Catch our viral recipes, quick cleaning hacks, and fun kitchen moments with the Omega family.",
     images: [
       "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=400&auto=format&fit=crop",
@@ -121,49 +121,55 @@ export const socialAccountsData: SocialAccount[] = [
   }
 ];
 
+
 // Unified Array Mapping Highlights to their respective Categories
 // This mirrors exactly how your CMS API will return the nested data!
 export const categoryHighlightsData: CategoryCarouselData[] = [
   {
     categoryId: "glassware",
-    title: "Glassware Highlights",
-    subtitle: "Elegance in every sip",
+    title: "Glassware",
+    subtitle: "Elegant and durable glassware designed for both everyday use and special occasions.",
     bgColor: "bg-[#FDFDFD]",
     items: [
-      { id: 101, influencer: "@homeglass", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1517705008128-361805f42e86?q=80&w=2070&auto=format&fit=crop", videoUrl: "/assets/hero/hero3.mp4", avatar: "https://i.pravatar.cc/150?u=1", likes: "12K", comments: "102", shares: "3K", caption: "Crystal clear mornings with Omega's new tumbler collection....", productName: "Classic Tumbler", regularPrice: "₱850", offerPrice: "₱699", affiliateLink: "/shop/classic-tumbler" },
-      { id: 102, influencer: "@coffee_time", influencerLink: "#", platform: "tiktok", productImage: "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=1974&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=2", likes: "45K", comments: "892", shares: "12K", caption: "Pour over perfection. My daily ritual. ☕", productName: "Glass Casserole", regularPrice: "₱1,899", affiliateLink: "/shop/glass-casserole" },
-      { id: 103, influencer: "@interior_ph", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1556911220-e15224bbaf40?q=80&w=2070&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=3", likes: "8K", comments: "56", shares: "200", caption: "Styling the kitchen shelves with these beauties.", productName: "Elegant Wine Glasses", regularPrice: "₱1,500", offerPrice: "₱1,200", affiliateLink: "/shop/wine-glasses" },
+      { id: 101, influencer: "@homeglass", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1544222830-41077750800c?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=1", likes: "12K", comments: "102", shares: "3K", caption: "Crystal clear mornings with Omega's new tumbler collection....", productName: "Classic Tumbler", regularPrice: "₱850", offerPrice: "₱699", affiliateLink: "/shop/classic-tumbler" },
+
+      { id: 102, influencer: "@coffee_time", influencerLink: "#", platform: "tiktok", productImage: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=2", likes: "45K", comments: "892", shares: "12K", caption: "Pour over perfection. My daily ritual. ☕", productName: "Glass Casserole", regularPrice: "₱1,899", affiliateLink: "/shop/glass-casserole" },
+      { id: 103, influencer: "@interior_ph", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=3", likes: "8K", comments: "56", shares: "200", caption: "Styling the kitchen shelves with these beauties.", productName: "Elegant Wine Glasses", regularPrice: "₱1,500", offerPrice: "₱1,200", affiliateLink: "/shop/wine-glasses" },
     ],
   },
   {
     categoryId: "kitchenware",
-    title: "Kitchenware Highlights",
-    subtitle: "For the heart of the home",
+    title: "Kitchenware",
+    subtitle: "Essential tools and cookware that make cooking more efficient and enjoyable.",
     bgColor: "bg-white",
     items: [
-      { id: 201, influencer: "@chef_juan", influencerLink: "#", platform: "tiktok", productImage: "https://images.unsplash.com/photo-1556912177-f547c126989f?q=80&w=2070&auto=format&fit=crop", videoUrl: "/assets/hero/hero1.mp4", avatar: "https://i.pravatar.cc/150?u=4", likes: "55K", comments: "1.2K", shares: "8K", caption: "Slicing through prep time like butter! 🔪 #KitchenHacks", productName: "Essential Knife Set", regularPrice: "₱4,500", affiliateLink: "/shop/knife-set" },
-      { id: 202, influencer: "@mommycooks", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1510972527921-ce03766a1cf1?q=80&w=2070&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=5", likes: "34K", comments: "450", shares: "2.1K", caption: "Sunday stews in my favorite Dutch Oven. The heat retention is...", productName: "Enamel Dutch Oven", regularPrice: "₱2,450", offerPrice: "₱1,999", affiliateLink: "/shop/dutch-oven" },
-      { id: 203, influencer: "@wok_star", influencerLink: "#", platform: "tiktok", productImage: "https://images.unsplash.com/photo-1517705008128-361805f42e86?q=80&w=2070&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=6", likes: "19K", comments: "210", shares: "900", caption: "Seasoning the new wok. Ready for some serious stir-fry.", productName: "Premium Chef Pan", regularPrice: "₱1,250", affiliateLink: "/shop/chef-pan" },
+      { id: 201, influencer: "@chef_juan", influencerLink: "#", platform: "tiktok", productImage: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=4", likes: "55K", comments: "1.2K", shares: "8K", caption: "Slicing through prep time like butter! 🔪 #KitchenHacks", productName: "Essential Knife Set", regularPrice: "₱4,500", affiliateLink: "/shop/knife-set" },
+      { id: 202, influencer: "@mommycooks", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1581622558667-3419a8dc5f83?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=5", likes: "34K", comments: "450", shares: "2.1K", caption: "Sunday stews in my favorite Dutch Oven. The heat retention is...", productName: "Enamel Dutch Oven", regularPrice: "₱2,450", offerPrice: "₱1,999", affiliateLink: "/shop/dutch-oven" },
+      { id: 203, influencer: "@wok_star", influencerLink: "#", platform: "tiktok", productImage: "https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=6", likes: "19K", comments: "210", shares: "900", caption: "Seasoning the new wok. Ready for some serious stir-fry.", productName: "Premium Chef Pan", regularPrice: "₱1,250", affiliateLink: "/shop/chef-pan" },
     ],
   },
   {
     categoryId: "dinnerware",
-    title: "Dinnerware Highlights",
-    subtitle: "Premium Dining Experience",
+    title: "Dinnerware",
+    subtitle: "Stylish and functional dinner sets perfect for family meals and gatherings.",
     bgColor: "bg-[#FDFDFD]",
     items: [
-      { id: 301, influencer: "@table_settings", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1517705008128-361805f42e86?q=80&w=2070&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=7", likes: "15K", comments: "180", shares: "500", caption: "Setting the table for tonight's dinner party. Classic white never...", productName: "Ceramic Dish Set", regularPrice: "₱3,200", offerPrice: "₱2,800", affiliateLink: "/shop/dish-set" },
-      { id: 302, influencer: "@hostess_ph", influencerLink: "#", platform: "facebook", productImage: "https://images.unsplash.com/photo-1556911220-e15224bbaf40?q=80&w=2070&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=8", likes: "28K", comments: "340", shares: "1.2K", caption: "Details matter. Loving the gold trim on these plates.", productName: "Gold Trim Plates", regularPrice: "₱1,800", affiliateLink: "/shop/plates" },
+      { id: 301, influencer: "@table_settings", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=7", likes: "15K", comments: "180", shares: "500", caption: "Setting the table for tonight's dinner party. Classic white never...", productName: "Ceramic Dish Set", regularPrice: "₱3,200", offerPrice: "₱2,800", affiliateLink: "/shop/dish-set" },
+      { id: 302, influencer: "@hostess_ph", influencerLink: "#", platform: "facebook", productImage: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=8", likes: "28K", comments: "340", shares: "1.2K", caption: "Details matter. Loving the gold trim on these plates.", productName: "Gold Trim Plates", regularPrice: "₱1,800", affiliateLink: "/shop/plates" },
     ],
   },
   {
     categoryId: "vacuum-flask",
-    title: "Vacuum Flask Highlights",
-    subtitle: "Keep it hot or cold",
+    title: "Vacuum Flask",
+    subtitle: "Keep beverages hot or cold for longer with our reliable insulated flasks.",
     bgColor: "bg-white",
     items: [
-      { id: 401, influencer: "@on_the_go", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1510972527921-ce03766a1cf1?q=80&w=2070&auto=format&fit=crop", videoUrl: "/assets/hero/hero2.mp4", avatar: "https://i.pravatar.cc/150?u=9", likes: "31K", comments: "420", shares: "1.8K", caption: "Keeps my coffee hot for 12 hours. Essential for long drives.", productName: "Vacuum Flask XL", regularPrice: "₱1,200", offerPrice: "₱999", affiliateLink: "/shop/vacuum-flask-xl" },
-      { id: 402, influencer: "@tea_lover", influencerLink: "#", platform: "tiktok", productImage: "https://images.unsplash.com/photo-1511920170033-f8396924c348?q=80&w=1974&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=10", likes: "18K", comments: "150", shares: "600", caption: "Morning tea time setup. 🍵", productName: "Mini Flask", regularPrice: "₱850", affiliateLink: "/shop/mini-flask" },
+      { id: 401, influencer: "@on_the_go", influencerLink: "#", platform: "instagram", productImage: "https://images.unsplash.com/photo-1590794056226-79ef3a8147e1?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=9", likes: "31K", comments: "420", shares: "1.8K", caption: "Keeps my coffee hot for 12 hours. Essential for long drives.", productName: "Vacuum Flask XL", regularPrice: "₱1,200", offerPrice: "₱999", affiliateLink: "/shop/vacuum-flask-xl" },
+      { id: 402, influencer: "@coffee_lover", influencerLink: "#", platform: "tiktok", productImage: "https://images.unsplash.com/photo-1581622558667-3419a8dc5f83?q=80&w=800&auto=format&fit=crop", avatar: "https://i.pravatar.cc/150?u=10", likes: "18K", comments: "150", shares: "600", caption: "Morning tea time setup. 🍵", productName: "Mini Flask", regularPrice: "₱850", affiliateLink: "/shop/mini-flask" },
+
     ],
+
+
+
   }
-];
+];

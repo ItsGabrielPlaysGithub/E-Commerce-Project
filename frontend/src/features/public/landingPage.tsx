@@ -2,6 +2,7 @@ import Header from "@/features/public/components/layout/Header";
 import Footer from "@/features/public/components/layout/Footer";
 import HeroSectionToggle from "@/features/public/components/sections/HeroSectionToggle";
 import CategoryStrip from "@/features/public/components/sections/CategoryStrip";
+import FeaturesSection from "@/features/public/components/sections/FeaturesSection";
 import ProductCatalog from "@/features/public/components/sections/ProductsCatalog";
 import CategoryCarouselSection from "@/features/public/components/sections/CategoryCarouselSection";
 import ReviewsSection from "@/features/public/components/sections/ReviewSection";
@@ -24,7 +25,9 @@ export default function Home() {
       <Header />
       <HeroSectionToggle data={heroData} />
       <CategoryStrip categories={categoriesData} />
+      <FeaturesSection />
       <ProductCatalog products={productsData} />
+
       
       {categoryHighlightsData.map((highlight) => (
         <CategoryCarouselSection 
