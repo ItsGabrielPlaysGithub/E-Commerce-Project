@@ -15,8 +15,8 @@ export function Logo({ href, className, white }: LogoProps) {
       <Image 
         src={omegaLogo}
         alt="Omega Logo"
-        width={150}
-        height={50}
+        width={120}
+        height={40}
         className={cn(
           "h-auto w-auto transition-all duration-300",
           white && "brightness-0 invert"

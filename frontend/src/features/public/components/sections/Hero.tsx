@@ -160,7 +160,7 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
     <section
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative min-h-[900px] md:min-h-[1000px] lg:h-[95vh] lg:min-h-[850px] w-full overflow-hidden flex items-center bg-[#FDFDFD] pt-24 lg:pt-0"
+      className="relative min-h-[900px] md:min-h-[1100px] lg:h-[95vh] lg:min-h-[900px] w-full overflow-hidden flex items-center bg-[#FDFDFD] pt-32 lg:pt-32 pb-20 md:pb-32"
     >
       <div className="absolute inset-0 z-0 select-none overflow-hidden">
         {/* Main Background Layer with Mouse Follow */}
