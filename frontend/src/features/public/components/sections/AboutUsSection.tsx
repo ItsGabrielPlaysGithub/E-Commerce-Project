@@ -7,7 +7,7 @@ export default function AboutUsSection() {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <section className="relative w-full overflow-hidden bg-white">
+    <section id="about-us" className="relative w-full overflow-hidden bg-white">
 
       {/* Background Section */}
       <div className="relative w-full h-auto min-h-[450px] md:min-h-[600px] overflow-hidden transition-all duration-700 ease-in-out">

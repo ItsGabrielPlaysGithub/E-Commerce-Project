@@ -7,12 +7,11 @@ import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/Logo";
 
 const NavLinks = [
-  { name: "Products", href: "#product-catalog", hasDropdown: true },
-  { name: "About", href: "/about" },
+  { name: "Products", href: "/catalog" },
+  { name: "About", href: "#about-us" },
   { name: "Omega Stories", href: "#omega-stories" },
-  { name: "Careers", href: "/careers" },
   { name: "Contact Us", href: "#contact-us" },
-  { name: "Omega Affiliate", href: "/affiliate", highlight: true },
+  { name: "Omega Affiliate", href: "/", highlight: true },
 ];
 
 const Header = () => {
@@ -71,7 +70,6 @@ const Header = () => {
               )}
             >
               {link.name}
-              {link.hasDropdown && <ChevronDown size={14} />}
             </Link>
           ))}
         </nav>
@@ -110,7 +108,6 @@ const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {link.name}
-              {link.hasDropdown && <ChevronDown size={18} />}
             </Link>
           ))}
         </div>
