@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
+import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.png";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
