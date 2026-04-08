@@ -44,7 +44,7 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section className="bg-white py-12 border-b border-gray-50">
+    <section className="bg-white border-b border-gray-50">
       <div className="container mx-auto px-6">
         <div className="bg-[#F9F3EE]/50 rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-[#F9F3EE]">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">

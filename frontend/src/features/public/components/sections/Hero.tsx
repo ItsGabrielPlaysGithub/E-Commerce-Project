@@ -116,11 +116,11 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
     if (isMobile) return;
     const { clientX, clientY, currentTarget } = e;
     const { width, height, left, top } = currentTarget.getBoundingClientRect();
-    
+
     // Normalize position from -0.5 to 0.5
     const xPos = (clientX - left) / width - 0.5;
     const yPos = (clientY - top) / height - 0.5;
-    
+
     mouseX.set(xPos);
     mouseY.set(yPos);
   };
@@ -157,22 +157,22 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
   }, []);
 
   return (
-    <section 
+    <section
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className="relative min-h-[900px] md:min-h-[1000px] lg:h-[95vh] lg:min-h-[850px] w-full overflow-hidden flex items-center bg-[#FDFDFD] pt-24 lg:pt-0"
     >
       <div className="absolute inset-0 z-0 select-none overflow-hidden">
         {/* Main Background Layer with Mouse Follow */}
-        <motion.div 
+        <motion.div
           className="w-full h-full relative"
-          style={{ 
-            x, 
-            y, 
-            rotateX, 
+          style={{
+            x,
+            y,
+            rotateX,
             rotateY,
             scale: 1.15, // Slightly zoomed in to allow panning without showing edges
-            perspective: 1000 
+            perspective: 1000
           }}
         >
           <img

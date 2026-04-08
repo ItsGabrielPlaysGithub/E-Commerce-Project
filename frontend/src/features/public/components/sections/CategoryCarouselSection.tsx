@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef } from "react";
-import { motion } from "framer-motion";
+import React, { useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Heart, MessageCircle, Share2, Play, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +16,14 @@ interface CategoryCarouselProps {
   bgColor?: string;
 }
 
+// Map category IDs to their asset folders for floating visuals
+const CATEGORY_ASSET_MAP: Record<string, string> = {
+  glassware: "glassware",
+  kitchenware: "cookware",
+  dinnerware: "dinnerware",
+  "vacuum-flask": "vacuum-flask",
+};
+
 const CategoryCarouselSection: React.FC<CategoryCarouselProps> = ({ 
   id, 
   title, 
@@ -25,6 +33,7 @@ const CategoryCarouselSection: React.FC<CategoryCarouselProps> = ({
   bgColor = "bg-white"
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showFloatingImage, setShowFloatingImage] = useState(true);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -34,152 +43,181 @@ const CategoryCarouselSection: React.FC<CategoryCarouselProps> = ({
     }
   };
 
+  const folderName = CATEGORY_ASSET_MAP[id] || id;
+  const floatingImageUrl = `/assets/product_category/${folderName}/${folderName}1.png`;
+
   return (
-    <section id={id} className={cn("py-12 md:py-24 overflow-hidden", bgColor)}>
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="flex flex-row justify-between items-center mb-10 md:mb-16 gap-4">
-          <h2 className="text-2xl md:text-5xl font-display font-black text-primary leading-tight">
-            {title}
-          </h2>
-          <div className="flex gap-4">
-            <button 
-              onClick={() => scroll("left")}
-              className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-neutral-200 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm bg-white"
-            >
-              <ChevronLeft size={24} />
-            </button>
-            <button 
-              onClick={() => scroll("right")}
-              className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-neutral-200 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm bg-white"
-            >
-              <ChevronRight size={24} />
-            </button>
+    <section id={id} className={cn("py-16 md:py-28 overflow-hidden relative", bgColor)}>
+      
+      {/* 1. Background Container Block */}
+      <div className="container mx-auto px-4 md:px-8 relative z-10">
+        <div className="bg-neutral-50/50 rounded-[3rem] p-8 md:p-16 lg:p-20 relative overflow-hidden border border-neutral-100/50 shadow-sm">
+          
+          {/* 3. Category Product Visual (Floating Top Right) */}
+          <div className="absolute top-0 right-0 w-1/3 h-full pointer-events-none overflow-hidden hidden md:block">
+             <AnimatePresence mode="wait">
+               <motion.img
+                 key={floatingImageUrl}
+                 src={floatingImageUrl}
+                 alt=""
+                 initial={{ opacity: 0, x: 50, rotate: 10 }}
+                 whileInView={{ opacity: 0.15, x: 20, rotate: -5 }}
+                 exit={{ opacity: 0, x: 100 }}
+                 transition={{ duration: 1, ease: "easeOut" }}
+                 className="absolute top-10 -right-10 w-full max-w-[400px] h-auto object-contain drop-shadow-2xl grayscale"
+                 onError={(e) => {
+                   (e.target as HTMLImageElement).style.display = 'none';
+                 }}
+               />
+             </AnimatePresence>
           </div>
-        </div>
 
-        <div 
-          ref={scrollRef}
-          className="flex gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory pb-12 scrollbar-none no-scrollbar"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {items.map((item, i) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="shrink-0 w-[280px] md:w-[320px] lg:w-[360px] snap-start group"
-            >
-              {/* Media Card */}
-              <div className="relative aspect-[9/16] bg-neutral-900 rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-500 group-hover:-translate-y-2">
-                {/* Background Image / Video Cover */}
-                {item.videoUrl ? (
-                  <video 
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          <div className="relative z-10">
+            {/* Header */}
+            <div className="flex flex-col mb-10 md:mb-16 max-w-2xl">
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-display font-black text-primary leading-tight mb-4 tracking-tight">
+                {title}
+              </h2>
+              <p className="text-neutral-500 text-sm md:text-base font-medium leading-relaxed opacity-80">
+                {subtitle}
+              </p>
+            </div>
+
+            {/* 2. Carousel Container with Internal Navigation */}
+            <div className="relative group/carousel">
+              
+              {/* Internal Navigation Buttons */}
+              <div className="absolute inset-y-0 left-0 -translate-x-4 md:-translate-x-8 flex items-center z-30">
+                <button 
+                  onClick={() => scroll("left")}
+                  className="w-12 h-16 md:w-14 md:h-20 bg-secondary/90 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-primary transition-all shadow-xl active:scale-95 group-hover/carousel:translate-x-2 opacity-0 group-hover/carousel:opacity-100 duration-300"
+                >
+                  <ChevronLeft size={28} strokeWidth={2.5} />
+                </button>
+              </div>
+              <div className="absolute inset-y-0 right-0 translate-x-4 md:translate-x-8 flex items-center z-30">
+                <button 
+                  onClick={() => scroll("right")}
+                  className="w-12 h-16 md:w-14 md:h-20 bg-secondary/90 backdrop-blur-md rounded-2xl flex items-center justify-center text-white hover:bg-primary transition-all shadow-xl active:scale-95 group-hover/carousel:-translate-x-2 opacity-0 group-hover/carousel:opacity-100 duration-300"
+                >
+                  <ChevronRight size={28} strokeWidth={2.5} />
+                </button>
+              </div>
+
+              {/* Carousel Content */}
+              <div 
+                ref={scrollRef}
+                className="flex gap-6 md:gap-10 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-none no-scrollbar"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {items.map((item, i) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="shrink-0 w-[280px] md:w-[320px] lg:w-[380px] snap-start"
                   >
-                    <source src={item.videoUrl.replace('.mp4', '.webm')} type="video/webm" />
-                    <source src={item.videoUrl} type="video/mp4" />
-                  </video>
-
-                ) : (
-                  <img 
-                    src={item.productImage} 
-                    alt={item.influencer} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/assets/placeholder.png";
-                    }}
-                  />
-                )}
-                
-                {/* Visual Overlays */}
-                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-black/20 flex flex-col justify-end p-6">
-                  
-                  {/* Side Engagement Bars (Replicating Social feel) */}
-                  <div className="absolute right-4 bottom-32 flex flex-col items-center gap-6 text-white text-xs font-bold">
-                    <div className="flex flex-col items-center gap-1 group/engagement cursor-pointer">
-                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-primary transition-colors">
-                        <Heart size={20} />
-                      </div>
-                      <span className="drop-shadow-md">{item.likes}</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1 group/engagement cursor-pointer">
-                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-primary transition-colors">
-                        <MessageCircle size={20} />
-                      </div>
-                      <span className="drop-shadow-md">{item.comments}</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-1 group/engagement cursor-pointer">
-                      <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-primary transition-colors">
-                        <Share2 size={20} />
-                      </div>
-                      <span className="drop-shadow-md">{item.shares || "2.1k"}</span>
-                    </div>
-                  </div>
-
-                  {/* Middle Play UI */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500">
-                       <Play size={28} fill="currentColor" />
-                    </div>
-                  </div>
-
-                  {/* Bottom Info & CTA */}
-                  <div className="space-y-4">
-                    {/* Influencer Tag */}
-                    <a href={item.influencerLink} className="flex items-center gap-3 w-max hover:opacity-80 transition-opacity">
-                      <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden bg-neutral-800 shrink-0 shadow-lg">
+                    {/* Media Card */}
+                    <div className="relative aspect-[9/16] bg-neutral-900 rounded-[2.5rem] overflow-hidden shadow-2xl transition-all duration-500 hover:-translate-y-3 group">
+                      {/* Background Image / Video Cover */}
+                      {item.videoUrl ? (
+                        <video 
+                          autoPlay
+                          loop
+                          muted
+                          playsInline
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        >
+                          <source src={item.videoUrl.replace('.mp4', '.webm')} type="video/webm" />
+                          <source src={item.videoUrl} type="video/mp4" />
+                        </video>
+                      ) : (
                         <img 
-                          src={item.avatar} 
+                          src={item.productImage} 
                           alt={item.influencer} 
-                          className="w-full h-full object-cover" 
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           onError={(e) => {
                             (e.target as HTMLImageElement).src = "/assets/placeholder.png";
                           }}
                         />
+                      )}
+                      
+                      {/* Visual Overlays */}
+                      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-transparent to-black/20 flex flex-col justify-end p-6">
+                        
+                        {/* Side Engagement Bars */}
+                        <div className="absolute right-4 bottom-32 flex flex-col items-center gap-6 text-white text-xs font-bold">
+                          <div className="flex flex-col items-center gap-1 cursor-pointer">
+                            <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-primary transition-colors">
+                              <Heart size={20} />
+                            </div>
+                            <span className="drop-shadow-md">{item.likes}</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1 cursor-pointer">
+                            <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-primary transition-colors">
+                              <MessageCircle size={20} />
+                            </div>
+                            <span className="drop-shadow-md">{item.comments}</span>
+                          </div>
+                          <div className="flex flex-col items-center gap-1 cursor-pointer">
+                            <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-primary transition-colors">
+                              <Share2 size={20} />
+                            </div>
+                            <span className="drop-shadow-md">{item.shares || "2.1k"}</span>
+                          </div>
+                        </div>
+
+                        {/* Middle Play UI */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white scale-90 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500">
+                             <Play size={28} fill="currentColor" />
+                          </div>
+                        </div>
+
+                        {/* Bottom Info & CTA */}
+                        <div className="space-y-4">
+                          {/* Influencer Tag */}
+                          <div className="flex items-center gap-3 w-max">
+                            <div className="w-10 h-10 rounded-full border-2 border-primary overflow-hidden bg-neutral-800 shrink-0 shadow-lg">
+                              <img 
+                                src={item.avatar} 
+                                alt={item.influencer} 
+                                className="w-full h-full object-cover" 
+                              />
+                            </div>
+                            <span className="text-sm font-bold text-white drop-shadow-md">{item.influencer}</span>
+                          </div>
+
+                          {/* Caption */}
+                          <p className="text-xs text-white/90 leading-relaxed font-medium drop-shadow-sm line-clamp-2 italic">
+                             {item.caption}
+                          </p>
+
+                          {/* Product Details & Buy Now Button */}
+                          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-4 flex flex-col gap-3">
+                             <div className="flex justify-between items-center">
+                               <span className="text-white font-bold text-xs uppercase tracking-tight">{item.productName}</span>
+                               <span className="text-primary font-black text-sm">{item.offerPrice || item.regularPrice}</span>
+                             </div>
+                             
+                             <a 
+                               href={item.affiliateLink}
+                               className="w-full bg-white hover:bg-primary hover:text-white text-secondary rounded-xl py-3 flex items-center justify-center gap-2 font-black uppercase tracking-widest text-[10px] transition-all duration-300 shadow-xl"
+                             >
+                               <ShoppingBag size={14} />
+                               Shop Now
+                             </a>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-sm font-bold text-white drop-shadow-md">{item.influencer}</span>
-                    </a>
-
-                    {/* Caption */}
-                    <p className="text-xs text-white/90 leading-relaxed font-medium drop-shadow-sm line-clamp-2">
-                       {item.caption || "Look at this amazing build with Omega Houseware! Perfect for modern kitchens. #OmegaHome #KitchenDesign"}
-                    </p>
-
-                    {/* Product Details & Buy Now Button (Omega Red) */}
-                    <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-xl p-3 flex flex-col gap-2">
-                       <div className="flex justify-between items-start">
-                         <span className="text-white font-bold text-sm leading-tight max-w-[60%]">{item.productName}</span>
-                         <div className="flex flex-col items-end">
-                           {item.offerPrice ? (
-                             <>
-                               <span className="text-white font-black text-sm text-primary">{item.offerPrice}</span>
-                               <span className="text-white/50 text-[10px] line-through">{item.regularPrice}</span>
-                             </>
-                           ) : (
-                             <span className="text-white font-black text-sm">{item.regularPrice}</span>
-                           )}
-                         </div>
-                       </div>
-                       
-                       <a 
-                         href={item.affiliateLink}
-                         className="w-full bg-primary hover:bg-red-800 text-white rounded-lg py-3 flex items-center justify-center gap-2 font-black uppercase tracking-widest text-[10px] transition-all duration-300 shadow-xl shadow-black/20 mt-1"
-                       >
-                         <ShoppingBag size={14} />
-                         Buy Now
-                       </a>
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
+                ))}
               </div>
-            </motion.div>
-          ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
