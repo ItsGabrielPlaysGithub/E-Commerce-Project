@@ -33,7 +33,7 @@ export const featuredOffersData: FeaturedOfferCardData[] = [
     product: {
       id: "p1",
       name: "Omega Premium Cookware Set",
-      image: "/assets/products/fry-pan-1.png",
+      image: "/assets/products/cookware/cookware-10.jpg",
       link: "/catalog?productId=p1"
     },
   },
@@ -51,7 +51,7 @@ export const featuredOffersData: FeaturedOfferCardData[] = [
     product: {
       id: "p2",
       name: "Eco-Friendly Storage Jars",
-      image: "/assets/products/thermos-1.png",
+      image: "/assets/products/bakeware/bakeware-5.jpg",
       link: "/catalog?productId=p2"
     },
   },
@@ -69,7 +69,7 @@ export const featuredOffersData: FeaturedOfferCardData[] = [
     product: {
       id: "p3",
       name: "Professional Knife Collection",
-      image: "/assets/products/knife-set.png",
+      image: "/assets/products/tableware/tableware-7.jpg",
       link: "/catalog?productId=p3"
     },
   },

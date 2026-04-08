@@ -11,7 +11,7 @@ import {
   LogOut, BarChart3, Layers,
   Menu, X, Settings, ChevronDown,
 } from "lucide-react";
-import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
+import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.png";
 import { NotificationDropdown } from "@/features/admin/notifications/components/NotificationDropdown";
 import { GET_NOTIFICATIONS } from "@/features/b2b/orders/services/query";
 
