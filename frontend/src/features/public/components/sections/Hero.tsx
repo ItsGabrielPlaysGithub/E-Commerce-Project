@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { ChevronLeft, ChevronRight, ShoppingCart, ArrowRight } from "lucide-react";
 
@@ -236,14 +237,14 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
             </p>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-5">
-              <button className="bg-secondary hover:bg-black text-white px-6 md:px-10 py-4 md:py-6 h-auto rounded-2xl font-black text-[10px] md:text-sm uppercase tracking-widest transition-all duration-300 shadow-2xl shadow-black/30 hover:scale-105 active:scale-95 flex items-center gap-3">
+              <Link href="/catalog" className="bg-secondary hover:bg-black text-white px-6 md:px-10 py-4 md:py-6 h-auto rounded-2xl font-black text-[10px] md:text-sm uppercase tracking-widest transition-all duration-300 shadow-2xl shadow-black/30 hover:scale-105 active:scale-95 flex items-center gap-3">
                 {ctaPrimary.text}
                 <ArrowRight size={18} />
-              </button>
+              </Link>
 
-              <button className="bg-white hover:bg-neutral-50 text-secondary border border-neutral-200 px-6 md:px-10 py-4 md:py-6 h-auto rounded-2xl font-black text-[10px] md:text-sm uppercase tracking-widest transition-all duration-300 shadow-sm hover:scale-105 active:scale-95">
+              <Link href="#product-catalog" className="bg-white hover:bg-neutral-50 text-secondary border border-neutral-200 px-6 md:px-10 py-4 md:py-6 h-auto rounded-2xl font-black text-[10px] md:text-sm uppercase tracking-widest transition-all duration-300 shadow-sm hover:scale-105 active:scale-95">
                 {ctaSecondary.text}
-              </button>
+              </Link>
             </div>
           </motion.div>
 

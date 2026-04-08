@@ -2,8 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-
+import Link from "next/link";
 import { BlogStory } from "@/data/blogsData";
 
 const OmegaStories = ({ stories }: { stories: BlogStory[] }) => {
@@ -44,7 +43,7 @@ const OmegaStories = ({ stories }: { stories: BlogStory[] }) => {
                   {story.excerpt}
                 </p>
                 <div className="pt-2">
-                  <Link href={story.link} className="inline-flex items-center text-primary font-bold text-sm tracking-wide hover:underline transition-all">
+                  <Link href={story.link || "#"} className="inline-flex items-center text-primary font-bold text-sm tracking-wide hover:underline transition-all">
                     Read more ›
                   </Link>
                 </div>
@@ -57,6 +56,4 @@ const OmegaStories = ({ stories }: { stories: BlogStory[] }) => {
   );
 };
 
-const Link = ({ href, children, ...props }: any) => <a href={href} {...props}>{children}</a>;
-
-export default OmegaStories;
+export default OmegaStories;

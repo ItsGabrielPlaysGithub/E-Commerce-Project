@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -111,8 +112,8 @@ const OfferCard = ({ offer, index }: { offer: FeaturedOfferCardData; index: numb
           </div>
         </div>
 
-        <a
-          href={product.link}
+        <Link
+          href={product.link || "/catalog"}
           className="w-full mt-6 group/btn"
         >
           <Button
@@ -121,7 +122,7 @@ const OfferCard = ({ offer, index }: { offer: FeaturedOfferCardData; index: numb
             <span>View Product</span>
             <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
           </Button>
-        </a>
+        </Link>
       </div>
     </motion.div>
   );
