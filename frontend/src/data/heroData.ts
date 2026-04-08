@@ -1,3 +1,9 @@
+export type HeroSettings = {
+  scale?: number;
+  translateY?: number;
+  translateX?: number;
+};
+
 export type ProductGroup = {
   id: number;
   name: string;
@@ -7,6 +13,7 @@ export type ProductGroup = {
     name: string;
     price: string;
     isMain?: boolean;
+    heroSettings?: HeroSettings;
   }[];
 };
 
@@ -33,6 +40,7 @@ export type HeroData = {
     headlinePart1: string;
     headlineItalic: string;
     description: string;
+    heroDescriptionShort: string;
     bgImage: string;
     ctaPrimary: { text: string; link: string };
     ctaSecondary: { text: string; link: string };
@@ -42,6 +50,7 @@ export type HeroData = {
     headlinePart1: string;
     headlineItalic: string;
     description: string;
+    heroDescriptionShort: string;
     ctaPrimary: { text: string; link: string };
     ctaSecondary: { text: string; link: string };
     scenes: HeroScene[];
@@ -53,6 +62,7 @@ export const heroData: HeroData = {
     headlinePart1: "All-around Partner sa",
     headlineItalic: "Amazing Handaan",
     description: "Discover reliable, stylish, and high-quality kitchen and home essentials designed to simplify your modern lifestyle. From cookwares to glasswares, Omega brings functionality and premium elegance into every Filipino home.",
+    heroDescriptionShort: "Your all-around partner for every amazing handaan.",
     bgImage: "/assets/modernkitchen_bg_hero_crop.png",
     ctaPrimary: { text: "Shop Now", link: "#explore" },
     ctaSecondary: { text: "Explore Collections", link: "#contact" },
@@ -61,27 +71,27 @@ export const heroData: HeroData = {
         id: 1,
         name: "Premium Cookware",
         products: [
-          { id: 101, image: "/assets/product_category/cookware/cookware1.png", name: "Premium Chef Pan", price: "₱1,250" },
-          { id: 102, image: "/assets/product_category/cookware/cookware2.png", name: "Enamel Dutch Oven", price: "₱2,450", isMain: true },
-          { id: 103, image: "/assets/product_category/cookware/cookware1.png", name: "Essential Skillet", price: "₱1,850" },
+          { id: 101, image: "/assets/product_category/cookware/cookware1.png", name: "Tessa Aluminum Non-stick Coating Fry Pan", price: "₱759", heroSettings: { scale: 3.5, translateY: 200 } },
+          { id: 102, image: "/assets/product_category/cookware/cookware2.png", name: "Valdemar Stainless Steel Whistling Kettle", price: "₱629", isMain: true, heroSettings: { scale: 1.5, translateY: 10 } },
+          { id: 103, image: "/assets/product_category/vacuum-flask/vacuumflask1.png", name: "Omega Dalvin Stainless Steel Thermal Carafe", price: "₱780", heroSettings: { scale: 1.5 } },
         ]
       },
       {
         id: 2,
         name: "Elegant Glassware",
         products: [
-          { id: 201, image: "/assets/product_category/glassware/glassware1.png", name: "Heritage Glass", price: "₱850" },
-          { id: 202, image: "/assets/product_category/glassware/glassware2.png", name: "Classic Tumbler Set", price: "₱1,200", isMain: true },
-          { id: 203, image: "/assets/product_category/glassware/glassware3.png", name: "Crystal Casserole", price: "₱3,100" },
+          { id: 201, image: "/assets/product_category/glassware/glassware1.png", name: "Robbia Rectangular Glass Food Keeper", price: "₱549", heroSettings: { scale: 1.5 } },
+          { id: 202, image: "/assets/product_category/glassware/glassware2.png", name: "Shaula Square Glass Food Keeper", price: "₱449", isMain: true, heroSettings: { scale: 1.5, translateY: 5 } },
+          { id: 203, image: "/assets/product_category/glassware/glassware3.png", name: "Crumpet Plastic French Press With Stainless Steel Filter", price: "₱339", heroSettings: { scale: 1.5 } },
         ]
       },
       {
         id: 3,
         name: "Professional Bakeware",
         products: [
-          { id: 301, image: "/assets/product_category/bakeware/bakeware1.png", name: "Pro Roasting Pan", price: "₱1,500" },
-          { id: 302, image: "/assets/product_category/bakeware/bakeware2.png", name: "Ceramic Baking Dish", price: "₱2,250", isMain: true },
-          { id: 303, image: "/assets/product_category/bakeware/bakeware1.png", name: "Muffin Tray Set", price: "₱1,150" },
+          { id: 301, image: "/assets/product_category/bakeware/bakeware1.png", name: "Adolf Rectangular Glass Bakedish", price: "₱629", heroSettings: { scale: 1.5 } },
+          { id: 302, image: "/assets/product_category/bakeware/bakeware2.png", name: "Ceramic Baking Dish", price: "₱559", isMain: true, heroSettings: { scale: 1.5, translateY: 15 } },
+          { id: 303, image: "/assets/product_category/bakeware/bakeware1.png", name: "Vendome Rectangular Tempered Glass Bakedish", price: "₱429", heroSettings: { scale: 1.5 } },
         ]
       }
     ]
@@ -91,6 +101,7 @@ export const heroData: HeroData = {
     headlinePart1: "All-around Partner sa",
     headlineItalic: "Amazing Handaan",
     description: "Discover reliable, stylish, and high-quality kitchen and home essentials designed to simplify your modern lifestyle. From cookwares to glasswares, Omega brings functionality and premium elegance into every Filipino home.",
+    heroDescriptionShort: "Perfect companion for every handaan—easy, reliable, and powerful.",
     ctaPrimary: { text: "Shop Now", link: "#explore" },
     ctaSecondary: { text: "Explore Collections", link: "#contact" },
     scenes: [

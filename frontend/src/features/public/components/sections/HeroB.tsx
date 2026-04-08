@@ -9,7 +9,7 @@ import { HeroData } from "@/data/heroData";
 
 
 export default function HeroB({ data }: { data: HeroData["versionB"] }) {
-  const { scenes, headlinePart1, headlineItalic, description, ctaPrimary, ctaSecondary } = data;
+  const { scenes, headlinePart1, headlineItalic, heroDescriptionShort, ctaPrimary, ctaSecondary } = data;
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
   const [activePointerId, setActivePointerId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -88,7 +88,7 @@ export default function HeroB({ data }: { data: HeroData["versionB"] }) {
             </h1>
 
             <p className="text-white/80 text-sm md:text-lg lg:text-xl font-medium leading-relaxed mb-8 md:mb-12 max-w-sm drop-shadow-md">
-              {description}
+              {heroDescriptionShort}
             </p>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-5">

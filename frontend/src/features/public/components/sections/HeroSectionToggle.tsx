@@ -22,13 +22,13 @@ export default function HeroSectionToggle({ data }: { data: HeroData }) {
           onClick={() => setHeroVersion("A")}
           className={`px-3 py-1 md:px-4 md:py-1.5 text-[8px] md:text-[10px] font-bold transition-all rounded-full cursor-pointer ${heroVersion === "A" ? "bg-primary text-white" : "text-white/40 hover:text-white"}`}
         >
-          VER A
+          VER. A
         </button>
         <button
           onClick={() => setHeroVersion("B")}
           className={`px-3 py-1 md:px-4 md:py-1.5 text-[8px] md:text-[10px] font-bold transition-all rounded-full cursor-pointer ${heroVersion === "B" ? "bg-primary text-white" : "text-white/40 hover:text-white"}`}
         >
-          VER B
+          VER. B
         </button>
       </div>
 

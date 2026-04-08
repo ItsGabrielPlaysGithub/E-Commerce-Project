@@ -41,39 +41,62 @@ const GroupTray = ({ group, direction, isMobile }: { group: any, direction: numb
         ease: "easeOut" as any,
         times: [0, 0.11, 0.22, 0.33, 0.44, 0.55, 0.66, 0.77, 0.88, 1]
       }}
-      className="absolute inset-0 flex items-center justify-center gap-4 md:gap-8 lg:gap-12"
+      className="absolute inset-x-0 bottom-[55%] md:inset-0 flex items-center justify-center gap-4 md:gap-8 lg:gap-12"
       style={{ transformStyle: "preserve-3d" }}
     >
       {group.products.map((product: any, idx: number) => {
         const isMain = idx === 1;
+        const { scale = 1.25, translateY = 0, translateX = 0 } = product.heroSettings || {};
+
+        // Mobile Layout Normalization (Bowling Pin formation - Balanced)
+        const mobileYOffset = idx === 1 ? 90 : -130;
+        const mobileXOffset = idx === 0 ? -120 : idx === 2 ? 120 : 0;
+        
         return (
           <motion.a
             key={product.id}
             href={`/shop/${product.id}`}
             whileHover={isMobile ? {} : {
               y: -25,
-              scale: 1.05,
+              scale: (isMain ? 1.15 : 0.9) * 1.05,
               filter: "drop-shadow(0 30px 40px rgba(0,0,0,0.25))"
             }}
-            className="relative group cursor-pointer block"
+            className={isMobile ? "absolute" : "relative group cursor-pointer block"}
+            style={isMobile ? {
+              left: `calc(50% + ${mobileXOffset}px)`,
+              top: `calc(50% + ${mobileYOffset}px)`,
+              transform: 'translate(-50%, -50%)',
+              zIndex: isMain ? 20 : 10
+            } : {}}
           >
             <motion.div
               animate={{
-                y: isMain ? 20 : -10,
+                // Synchronize label + image movement on mobile by moving the container
+                y: isMobile 
+                  ? (translateY * 0.2) // mobile-normalized CMS translation
+                  : (isMain ? 20 : -10),
+                x: isMobile ? (translateX * 0.2) : 0,
                 scale: isMain ? 1.15 : 0.9,
                 z: isMain ? 250 : 0
               }}
               className="relative flex flex-col items-center"
             >
-              <img
+              <motion.img
                 src={product.image}
                 alt={product.name}
-                className="w-40 sm:w-56 md:w-72 lg:w-[400px] h-auto drop-shadow-2xl"
-                style={{ transform: "rotateY(0)" }}
+                animate={{
+                  // Proportional scale for mobile impact
+                  scale: isMobile ? Math.min(Math.max(scale * 1.3, 1.3), 2.0) : scale,
+                  // Desktop only translation (Mobile handled by container)
+                  y: isMobile ? 0 : translateY,
+                  x: isMobile ? 0 : translateX
+                }}
+                style={{ transformOrigin: "bottom center" }}
+                className="w-52 sm:w-56 md:w-72 lg:w-[400px] h-auto drop-shadow-2xl"
               />
               <div className={`w-full h-8 bg-black/10 blur-3xl rounded-full absolute -bottom-4 left-0 -z-10 scale-x-125 transition-opacity ${isMain ? 'opacity-40' : 'opacity-20'}`} />
 
-              <div className={`absolute -right-4 -bottom-4 md:-right-6 md:-bottom-6 z-50 bg-white/98 backdrop-blur-md p-3 md:p-5 rounded-2xl md:rounded-[2rem] shadow-2xl flex flex-col gap-1 w-32 md:w-48 border border-white/50 transition-all duration-500 ${isMain ? 'ring-1 ring-primary/20 scale-100' : 'scale-90 opacity-85'}`}>
+              <div className={`absolute -right-4 -bottom-4 md:-right-6 md:-bottom-6 z-[60] bg-white/98 backdrop-blur-md p-3 md:p-5 rounded-2xl md:rounded-[2rem] shadow-2xl flex flex-col gap-1 w-32 md:w-48 border border-white/50 transition-all duration-500 ${isMain ? 'ring-1 ring-primary/20 scale-100' : 'scale-90 opacity-85'}`}>
                 <div className="flex justify-between items-start mb-1">
                   <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest text-primary">In Stock</span>
                   <ShoppingCart size={12} className="text-neutral-300 md:block hidden" />
@@ -93,7 +116,7 @@ const GroupTray = ({ group, direction, isMobile }: { group: any, direction: numb
 };
 
 const Hero = ({ data }: { data: HeroData["versionA"] }) => {
-  const { productGroups, headlinePart1, headlineItalic, description, ctaPrimary, ctaSecondary, bgImage } = data;
+  const { productGroups, headlinePart1, headlineItalic, heroDescriptionShort, bgImage, ctaPrimary, ctaSecondary } = data;
   const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
@@ -160,12 +183,12 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
     <section
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative min-h-[900px] md:min-h-[1100px] lg:h-[95vh] lg:min-h-[900px] w-full overflow-hidden flex items-center bg-[#FDFDFD] pt-32 lg:pt-32 pb-20 md:pb-32"
+      className="relative min-h-[700px] md:min-h-[1100px] lg:h-[95vh] lg:min-h-[900px] w-full overflow-hidden flex flex-col justify-end bg-[#FDFDFD] pt-[clamp(80px,15vh,140px)] pb-[clamp(30px,4vh,220px)]"
     >
-      <div className="absolute inset-0 z-0 select-none overflow-hidden">
+      <div className="absolute inset-0 z-0 select-none overflow-hidden pointer-events-none">
         {/* Main Background Layer with Mouse Follow */}
         <motion.div
-          className="w-full h-full relative"
+          className="w-full h-full relative pointer-events-none"
           style={{
             x,
             y,
@@ -183,25 +206,25 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
         </motion.div>
 
         {/* Table Image Layer - Remains Fixed for Grounding */}
-        <div className="absolute bottom-[0px] left-0 w-full h-[1200px] md:h-[1300px] lg:h-[1350px] z-[70] flex items-end pointer-events-none">
+        <div className="absolute bottom-0 left-0 w-full h-[1200px] md:h-[1300px] lg:h-[1350px] z-[70] flex items-end pointer-events-none">
           <img
             src="/assets/modernkitchen_bg_hero_table.png"
-            className="w-full h-full object-cover object-center translate-y-[0%] md:translate-y-[0%]"
+            className="w-full h-full object-cover object-bottom"
             alt="Kitchen Table"
           />
         </div>
 
-        <div className="absolute inset-0 bg-linear-to-b lg:bg-linear-to-r from-white/95 via-white/80 lg:via-white/50 to-white/40 lg:to-transparent z-20" />
+        <div className="absolute inset-0 bg-linear-to-b lg:bg-linear-to-r from-white/95 via-white/80 lg:via-white/50 to-white/40 lg:to-transparent z-20 pointer-events-none" />
       </div>
 
-      <div className="container mx-auto px-4 md:px-8 relative z-10">
-        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-12 items-center h-full">
+      <div className="container mx-auto px-4 md:px-8 relative z-10 w-full mt-auto mb-0 lg:mb-10 xl:mb-20">
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12 lg:gap-12 items-center w-full">
           {/* Left Side: Content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="w-full lg:col-span-5 pb-0 lg:pb-32 relative z-20 text-center lg:text-left flex flex-col items-center lg:items-start"
+            className="w-full lg:col-span-5 pb-0 lg:pb-12 relative z-20 text-center lg:text-left flex flex-col items-center lg:items-start"
           >
             <h1 className="text-4xl md:text-6xl lg:text-7xl xl:text-[100px] font-display font-black text-secondary leading-[0.95] mb-6 md:mb-8 tracking-tighter">
               {headlinePart1} <br />
@@ -209,7 +232,7 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
             </h1>
 
             <p className="text-neutral-500 text-sm md:text-lg lg:text-xl font-medium leading-relaxed mb-8 md:mb-12 max-w-sm">
-              {description}
+              {heroDescriptionShort}
             </p>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-5">
@@ -225,24 +248,24 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
           </motion.div>
 
           {/* Right Side: High-Speed Orbit Carousel */}
-          <div className="w-full lg:col-span-7 relative h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] perspective-[3000px] flex items-center justify-center mt-12 lg:mt-0">
+          <div className="w-full lg:col-span-7 relative h-[350px] sm:h-[500px] md:h-[600px] lg:h-[700px] perspective-[3000px] flex items-end md:items-center justify-center mt-6 lg:mt-0 mb-20 md:mb-0 -mx-4 w-[calc(100%+2rem)]">
             {/* Absolute Controls */}
-            <div className="absolute left-0 lg:-left-12 top-1/2 -translate-y-1/2 flex items-center gap-3 z-50">
+            <div className="absolute inset-x-0 lg:-inset-x-8 top-1/2 -translate-y-1/2 flex items-center justify-between z-50 pointer-events-none">
               <button
                 onClick={prev}
-                className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-white border border-neutral-100 flex items-center justify-center text-secondary hover:bg-primary hover:text-white transition-all shadow-2xl active:scale-90"
+                className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-white border border-neutral-100 flex items-center justify-center text-secondary hover:bg-primary hover:text-white transition-all shadow-2xl active:scale-90 pointer-events-auto"
               >
                 <ChevronLeft size={20} className="md:w-7 md:h-7" />
               </button>
               <button
                 onClick={next}
-                className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-white border border-neutral-100 flex items-center justify-center text-secondary hover:bg-primary hover:text-white transition-all shadow-2xl active:scale-90"
+                className="w-10 h-10 md:w-16 md:h-16 rounded-full bg-white border border-neutral-100 flex items-center justify-center text-secondary hover:bg-primary hover:text-white transition-all shadow-2xl active:scale-90 pointer-events-auto"
               >
                 <ChevronRight size={20} className="md:w-7 md:h-7" />
               </button>
             </div>
 
-            <div className="relative w-[130%] sm:w-[150%] h-full flex items-center justify-center scale-75 sm:scale-90 lg:scale-100" style={{ transformStyle: "preserve-3d" }}>
+            <div className="relative w-[130%] sm:w-[150%] h-full flex items-center justify-center scale-90 sm:scale-90 lg:scale-100" style={{ transformStyle: "preserve-3d" }}>
               <AnimatePresence initial={false} mode="popLayout" custom={direction}>
                 <GroupTray
                   key={currentGroupIndex}
@@ -256,7 +279,7 @@ const Hero = ({ data }: { data: HeroData["versionA"] }) => {
         </div>
       </div>
 
-      <div className="absolute right-0 top-1/4 w-[600px] h-[600px] bg-red-100/10 rounded-full blur-[150px] -z-10" />
+      <div className="absolute right-0 top-1/4 w-[600px] h-[600px] bg-red-100/10 rounded-full blur-[150px] -z-10 pointer-events-none" />
     </section>
   );
 };
