@@ -80,18 +80,18 @@ export const heroData: HeroData = {
         id: 2,
         name: "Elegant Glassware",
         products: [
-          { id: 201, image: "/assets/product_category/glassware/glassware1.png", name: "Robbia Rectangular Glass Food Keeper", price: "₱549", heroSettings: { scale: 1.5 } },
-          { id: 202, image: "/assets/product_category/glassware/glassware2.png", name: "Shaula Square Glass Food Keeper", price: "₱449", isMain: true, heroSettings: { scale: 1.5, translateY: 5 } },
-          { id: 203, image: "/assets/product_category/glassware/glassware3.png", name: "Crumpet Plastic French Press With Stainless Steel Filter", price: "₱339", heroSettings: { scale: 1.5 } },
+          { id: 201, image: "/assets/product_category/glassware/glassware1.png", name: "Robbia Rectangular Glass Food Keeper", price: "₱549", heroSettings: { scale: 2, translateY: 40 } },
+          { id: 202, image: "/assets/product_category/glassware/glassware2.png", name: "Shaula Square Glass Food Keeper", price: "₱449", isMain: true, heroSettings: { scale: 2.3, translateY: 60 } },
+          { id: 203, image: "/assets/product_category/glassware/glassware3.png", name: "Crumpet Plastic French Press With Stainless Steel Filter", price: "₱339", heroSettings: { scale: 2, translateY: 40 } },
         ]
       },
       {
         id: 3,
         name: "Professional Bakeware",
         products: [
-          { id: 301, image: "/assets/product_category/bakeware/bakeware1.png", name: "Adolf Rectangular Glass Bakedish", price: "₱629", heroSettings: { scale: 1.5 } },
-          { id: 302, image: "/assets/product_category/bakeware/bakeware2.png", name: "Ceramic Baking Dish", price: "₱559", isMain: true, heroSettings: { scale: 1.5, translateY: 15 } },
-          { id: 303, image: "/assets/product_category/bakeware/bakeware1.png", name: "Vendome Rectangular Tempered Glass Bakedish", price: "₱429", heroSettings: { scale: 1.5 } },
+          { id: 301, image: "/assets/product_category/bakeware/bakeware1.png", name: "Adolf Rectangular Glass Bakedish", price: "₱629", heroSettings: { scale: 2.5, translateY: 40 } },
+          { id: 302, image: "/assets/product_category/bakeware/bakeware2.png", name: "Ceramic Baking Dish", price: "₱559", isMain: true, heroSettings: { scale: 2.5, translateY: 60 } },
+          { id: 303, image: "/assets/product_category/bakeware/bakeware1.png", name: "Vendome Rectangular Tempered Glass Bakedish", price: "₱429", heroSettings: { scale: 2.5, translateY: 40 } },
         ]
       }
     ]
