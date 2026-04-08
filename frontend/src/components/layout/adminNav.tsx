@@ -11,7 +11,6 @@ import {
   LogOut, BarChart3, Layers,
   Menu, X, Settings, ChevronDown,
 } from "lucide-react";
-import omegaLogo from "@/assets/omega_logo_456x150_1_456x150.avif";
 import { NotificationDropdown } from "@/features/admin/notifications/components/NotificationDropdown";
 import { GET_NOTIFICATIONS } from "@/features/b2b/orders/services/query";
 
@@ -91,7 +90,7 @@ export default function AdminNav({ children }: { children?: React.ReactNode }) {
       >
         {sidebarOpen && (
           <Image 
-            src={omegaLogo}
+            src="/omega_logo_456x150_1_456x150.avif"
             alt="Omega Logo"
             width={100}
             height={33}
