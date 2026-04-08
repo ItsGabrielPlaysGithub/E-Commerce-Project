@@ -15,13 +15,13 @@ export default function FeaturedSectionToggle() {
           onClick={() => setFeaturedVersion("A")}
           className={`px-3 py-1 md:px-4 md:py-1.5 text-[8px] md:text-[10px] font-bold transition-all rounded-full cursor-pointer ${featuredVersion === "A" ? "bg-primary text-white" : "text-white/40 hover:text-white"}`}
         >
-          VER A
+          VER. A
         </button>
         <button
           onClick={() => setFeaturedVersion("B")}
           className={`px-3 py-1 md:px-4 md:py-1.5 text-[8px] md:text-[10px] font-bold transition-all rounded-full cursor-pointer ${featuredVersion === "B" ? "bg-primary text-white" : "text-white/40 hover:text-white"}`}
         >
-          VER B
+          VER. B
         </button>
       </div>
 
