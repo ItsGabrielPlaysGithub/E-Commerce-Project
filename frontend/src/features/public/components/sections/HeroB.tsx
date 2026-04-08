@@ -29,7 +29,7 @@ export default function HeroB({ data }: { data: HeroData["versionB"] }) {
   const handleTimeUpdate = () => {
     if (!videoRef.current) return;
     const currentTime = videoRef.current.currentTime;
-    
+
     // Find matching scene by time range
     const matchingIndex = scenes.findIndex((s, idx) => {
       const isLast = idx === scenes.length - 1;

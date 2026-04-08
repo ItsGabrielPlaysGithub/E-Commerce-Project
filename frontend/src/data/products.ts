@@ -174,17 +174,101 @@ export const reviews: Review[] = [
   },
 ];
 
-export const productsData: ProductCard[] = [
-  { id: 1, name: "Premium Chef Pan", price: "₱1,250", image: "/assets/products/cookware/cookware-1.jpg", category: "Cookware" },
-  { id: 2, name: "Ceramic Dish Set", price: "₱3,200", image: "/assets/products/dinnerware/dinnerware-1.jpg", category: "Dinnerware" },
-  { id: 3, name: "Essential Skillet", price: "₱1,850", image: "/assets/products/cookware/cookware-2.jpg", category: "Cookware" },
-  { id: 4, name: "Professional Bakeware", price: "₱2,100", image: "/assets/products/bakeware/bakeware-1.jpg", category: "Bakeware" },
-  { id: 5, name: "Enamel Dutch Oven", price: "₱2,450", image: "/assets/products/cookware/cookware-3.jpg", category: "Cookware" },
-  { id: 6, name: "Glass Casserole", price: "₱1,899", image: "/assets/products/glassware/glassware-1.jpg", category: "Glassware" },
-  { id: 7, name: "Heritage Vacuum Flask", price: "₱1,200", image: "/assets/products/vacuum-flask/vacuum-flask-1.jpg", category: "Vacuum Flask" },
-  { id: 8, name: "Hydration Bottle", price: "₱850", image: "/assets/products/hydration/hydration-1.jpg", category: "Hydration" },
-  { id: 9, name: "Crystal Tumbler", price: "₱550", image: "/assets/products/glassware/glassware-2.jpg", category: "Glassware" },
-  { id: 10, name: "Tableware Set", price: "₱4,500", image: "/assets/products/tableware/tableware-1.jpg", category: "Tableware" },
-  { id: 11, name: "Drinkware Mug", price: "₱350", image: "/assets/products/drinkware/drinkware-1.jpg", category: "Drinkware" },
-  { id: 12, name: "Stainless Flask", price: "₱1,500", image: "/assets/products/vacuum-flask/vacuum-flask-2.jpg", category: "Vacuum Flask" },
+export const productsData: ProductCard[] & { description?: string }[] = [
+  { 
+    id: 1, 
+    name: "Premium Chef Pan", 
+    price: "₱1,250", 
+    image: "/assets/products/cookware/cookware-1.jpg", 
+    category: "Cookware",
+    description: "The ultimate kitchen workhorse. 5-ply construction for even heat distribution and professional results every time."
+  },
+  { 
+    id: 2, 
+    name: "Ceramic Dish Set", 
+    price: "₱3,200", 
+    image: "/assets/products/dinnerware/dinnerware-1.jpg", 
+    category: "Dinnerware",
+    description: "Elegant ceramic dinnerware set with a chip-resistant glaze. Perfect for both casual family meals and formal dinner parties."
+  },
+  { 
+    id: 3, 
+    name: "Essential Skillet", 
+    price: "₱1,850", 
+    image: "/assets/products/cookware/cookware-2.jpg", 
+    category: "Cookware",
+    description: "Heavy-duty cast aluminum skillet with a superior non-stick coating for effortless cooking and cleaning."
+  },
+  { 
+    id: 4, 
+    name: "Professional Bakeware", 
+    price: "₱2,100", 
+    image: "/assets/products/bakeware/bakeware-1.jpg", 
+    category: "Bakeware",
+    description: "Multi-piece baking set made from carbon steel for optimal heat conduction and perfect browning."
+  },
+  { 
+    id: 5, 
+    name: "Enamel Dutch Oven", 
+    price: "₱2,450", 
+    image: "/assets/products/cookware/cookware-3.jpg", 
+    category: "Cookware",
+    description: "Classic Enameled Cast Iron Dutch Oven, ideal for slow-cooking, roasting, and bread making."
+  },
+  { 
+    id: 6, 
+    name: "Glass Casserole", 
+    price: "₱1,899", 
+    image: "/assets/products/glassware/glassware-1.jpg", 
+    category: "Glassware",
+    description: "Heat-resistant borosilicate glass casserole with a secure lid. Oven-to-table convenience."
+  },
+  { 
+    id: 7, 
+    name: "Heritage Vacuum Flask", 
+    price: "₱1,200", 
+    image: "/assets/products/vacuum-flask/vacuum-flask-1.jpg", 
+    category: "Vacuum Flask",
+    description: "Signature Omega vacuum insulation technology keeps your beverages at the ideal temperature for 24+ hours."
+  },
+  { 
+    id: 8, 
+    name: "Hydration Bottle", 
+    price: "₱850", 
+    image: "/assets/products/hydration/hydration-1.jpg", 
+    category: "Hydration",
+    description: "Eco-friendly, BPA-free hydration bottle with a leak-proof cap for your active lifestyle."
+  },
+  { 
+    id: 9, 
+    name: "Crystal Tumbler", 
+    price: "₱550", 
+    image: "/assets/products/glassware/glassware-2.jpg", 
+    category: "Glassware",
+    description: "Lead-free crystal tumblers with brilliant clarity and a weighted base for a premium feel."
+  },
+  { 
+    id: 10, 
+    name: "Tableware Set", 
+    price: "₱4,500", 
+    image: "/assets/products/tableware/tableware-1.jpg", 
+    category: "Tableware",
+    description: "Complete 24-piece polished stainless steel cutlery set with an ergonomic handle design."
+  },
+  { 
+    id: 11, 
+    name: "Drinkware Mug", 
+    price: "₱350", 
+    image: "/assets/products/drinkware/drinkware-1.jpg", 
+    category: "Drinkware",
+    description: "Double-walled ceramic mug that keeps your coffee hot while staying cool to the touch."
+  },
+  { 
+    id: 12, 
+    name: "Stainless Flask", 
+    price: "₱1,500", 
+    image: "/assets/products/vacuum-flask/vacuum-flask-2.jpg", 
+    category: "Vacuum Flask",
+    description: "Sleek matte-finish stainless steel flask, 100% leak-proof and ready for any adventure."
+  },
 ];

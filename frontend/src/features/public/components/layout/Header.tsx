@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Search, ShoppingCart, Menu, X, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/ui/Logo";
 
 const NavLinks = [
   { name: "Products", href: "#product-catalog", hasDropdown: true },
@@ -52,23 +53,11 @@ const Header = () => {
     >
       <div className="container mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className={cn(
-            "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300",
-            isScrolled ? "bg-primary" : (isDarkHero ? "bg-white/10 backdrop-blur-md border border-white/20" : "bg-primary")
-          )}>
-            <span className={cn(
-              "font-bold text-xl transition-colors",
-              isScrolled ? "text-white" : (isDarkHero ? "text-white" : "text-white")
-            )}>Ω</span>
-          </div>
-          <span className={cn(
-            "font-display text-2xl font-bold tracking-tight transition-colors",
-            headerTextColor
-          )}>
-            OMEGA
-          </span>
-        </Link>
+        <Logo 
+          href="/" 
+          white={!isScrolled && isDarkHero}
+          className="transition-all duration-300"
+        />
 
         {/* Desktop Nav */}
         <nav className="hidden lg:flex items-center gap-8">

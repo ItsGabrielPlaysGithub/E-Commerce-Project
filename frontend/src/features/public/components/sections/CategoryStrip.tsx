@@ -16,7 +16,7 @@ const IconMap: Record<string, React.ReactNode> = {
 
 const CategoryStrip = ({ categories }: { categories: CategoryData[] }) => {
   return (
-    <section className="relative z-[80] -mt-24 md:-mt-32 lg:-mt-60 mb-12 pointer-events-none">
+    <section className="relative z-[80] -mt-24 md:-mt-32 lg:-mt-60 mb-0 pointer-events-none">
 
       <div className="container mx-auto px-4 md:px-6 pointer-events-auto">
 

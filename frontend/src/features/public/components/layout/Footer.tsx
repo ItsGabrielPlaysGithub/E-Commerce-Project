@@ -3,38 +3,39 @@
 import React from "react";
 import Link from "next/link";
 import { Mail, Phone, MapPin, Truck, Store, ShieldCheck, ChevronRight } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 
 const Footer = () => {
   return (
-    <footer className="bg-white text-secondary pt-20 pb-12 border-t border-neutral-100">
+    <footer className="bg-primary text-white pt-20 pb-12 border-t border-white/10">
       <div className="container mx-auto px-6">
         {/* Top Benefits Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pb-16 mb-20 border-b border-neutral-100">
           <div className="flex items-center gap-6 group">
-            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-primary transition-all group-hover:scale-110">
+            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white transition-all group-hover:scale-110">
               <Truck size={32} strokeWidth={1.5} />
             </div>
             <div>
               <h4 className="font-bold text-lg leading-tight">Home Delivery</h4>
-              <p className="text-neutral-500 text-sm">Nationwide shipping available</p>
+              <p className="text-white/70 text-sm">Nationwide shipping available</p>
             </div>
           </div>
           <div className="flex items-center gap-6 group">
-            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-primary transition-all group-hover:scale-110">
+            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white transition-all group-hover:scale-110">
               <Store size={32} strokeWidth={1.5} />
             </div>
             <div>
               <h4 className="font-bold text-lg leading-tight">Pick-up Only</h4>
-              <p className="text-neutral-500 text-sm">Reserve online & pick up in-store</p>
+              <p className="text-white/70 text-sm">Reserve online & pick up in-store</p>
             </div>
           </div>
           <div className="flex items-center gap-6 group">
-            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-primary transition-all group-hover:scale-110">
+            <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-white transition-all group-hover:scale-110">
               <ShieldCheck size={32} strokeWidth={1.5} />
             </div>
             <div>
               <h4 className="font-bold text-lg leading-tight">Secure Payment</h4>
-              <p className="text-neutral-500 text-sm">100% safe checkout options</p>
+              <p className="text-white/70 text-sm">100% safe checkout options</p>
             </div>
           </div>
         </div>
@@ -42,25 +43,21 @@ const Footer = () => {
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
           <div className="space-y-8">
-            <div className="flex items-center gap-2">
-              <h2 className="font-display text-4xl font-black text-primary leading-tight">
-                Ωmega Houseware
-              </h2>
-            </div>
-            <p className="text-neutral-500 text-sm leading-relaxed max-w-sm line-clamp-4">
+            <Logo href="/" white className="mb-6 block" />
+            <p className="text-white/80 text-sm leading-relaxed max-w-sm line-clamp-4">
               Dedicated to bringing quality to houseware in every Filipino kitchen since 1985. We believe in modern tools that preserve traditional culinary excellence.
             </p>
             <div className="flex gap-6">
-              <Link href="#" className="text-neutral-400 hover:text-primary transition-colors hover:scale-110 transition-transform">
+              <Link href="#" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
                 <Facebook size={20} />
               </Link>
-              <Link href="#" className="text-neutral-400 hover:text-primary transition-colors hover:scale-110 transition-transform">
+              <Link href="#" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
                 <Instagram size={20} />
               </Link>
-              <Link href="#" className="text-neutral-400 hover:text-primary transition-colors hover:scale-110 transition-transform">
+              <Link href="#" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
                 <Youtube size={20} />
               </Link>
-              <Link href="#" className="text-neutral-400 hover:text-primary transition-colors hover:scale-110 transition-transform">
+              <Link href="#" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
                 <Twitter size={20} />
               </Link>
             </div>
@@ -68,38 +65,38 @@ const Footer = () => {
 
           <div className="space-y-6">
             <h4 className="font-bold text-lg">Products</h4>
-            <ul className="space-y-4 text-neutral-500 text-sm font-medium">
-              <li><Link href="#" className="hover:text-primary transition-colors">Glassware</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Bakeware</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Dinnerware</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Flasks</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Utensils</Link></li>
+            <ul className="space-y-4 text-white/70 text-sm font-medium">
+              <li><Link href="#" className="hover:text-white transition-colors">Glassware</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Bakeware</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Dinnerware</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Flasks</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Utensils</Link></li>
             </ul>
           </div>
 
           <div className="space-y-6">
             <h4 className="font-bold text-lg">Support</h4>
-            <ul className="space-y-4 text-neutral-500 text-sm font-medium">
-              <li><Link href="#" className="hover:text-primary transition-colors">Shipping Policy</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Returns & Refunds</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Affiliate Disclaimer</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Terms of Service</Link></li>
+            <ul className="space-y-4 text-white/70 text-sm font-medium">
+              <li><Link href="#" className="hover:text-white transition-colors">Shipping Policy</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Returns & Refunds</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Affiliate Disclaimer</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
 
           <div className="space-y-6">
             <h4 className="font-bold text-lg">Join the Circle</h4>
-            <p className="text-neutral-500 text-sm font-medium">
+            <p className="text-white/70 text-sm font-medium">
               Subscribe for exclusive deals and recipes.
             </p>
-            <div className="flex bg-neutral-50 rounded-xl overflow-hidden border border-neutral-100 p-1 group focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+            <div className="flex bg-white/10 backdrop-blur-md rounded-xl overflow-hidden border border-white/20 p-1 group focus-within:ring-2 focus-within:ring-white/20 transition-all">
               <input 
                 type="email" 
                 placeholder="Your email" 
-                className="bg-transparent border-none rounded-none px-4 py-3 text-sm grow outline-none placeholder:text-neutral-400"
+                className="bg-transparent border-none rounded-none px-4 py-3 text-sm grow outline-none placeholder:text-white/40 text-white"
               />
-              <button className="bg-primary hover:bg-red-800 text-white w-12 h-12 flex items-center justify-center rounded-lg transition-all shadow-lg active:scale-95">
+              <button className="bg-white text-primary hover:bg-neutral-100 w-12 h-12 flex items-center justify-center rounded-lg transition-all shadow-lg active:scale-95">
                 <ChevronRight size={20} />
               </button>
             </div>
@@ -107,12 +104,12 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-10 border-t border-neutral-100 flex flex-col md:flex-row justify-between items-center gap-6 text-neutral-400 text-xs font-medium uppercase tracking-widest">
+        <div className="pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-white/50 text-xs font-medium uppercase tracking-widest">
           <p>© 2026 Omega Houseware. All rights reserved.</p>
           <div className="flex gap-8 items-center lowercase font-sans">
-            <Link href="mailto:hello@omegahouseware.com" className="hover:text-primary transition-colors">hello@omegahouseware.com</Link>
-            <span className="w-1 h-1 bg-neutral-200 rounded-full" />
-            <Link href="tel:+639171234567" className="hover:text-primary transition-colors">+63 917 123 4567</Link>
+            <Link href="mailto:hello@omegahouseware.com" className="hover:text-white transition-colors">hello@omegahouseware.com</Link>
+            <span className="w-1 h-1 bg-white/20 rounded-full" />
+            <Link href="tel:+639171234567" className="hover:text-white transition-colors">+63 917 123 4567</Link>
           </div>
         </div>
       </div>

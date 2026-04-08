@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "../ui/Button";
 
@@ -14,14 +15,19 @@ type Product = {
 };
 
 const ProductCatalog = ({ products }: { products: Product[] }) => {
+  const router = useRouter();
   const [visibleCount, setVisibleCount] = useState(8);
 
-  const showMore = () => {
-    setVisibleCount(prev => Math.min(prev + 4, products.length));
+  const handleProductClick = (productId: string | number) => {
+    router.push(`/catalog?productId=${productId}`);
+  };
+
+  const handleViewMore = () => {
+    router.push("/catalog");
   };
 
   return (
-    <section id="product-catalog" className="pt-36 pb-24 bg-white">
+    <section id="product-catalog" className="pt-12 pb-24 bg-white">
       <div className="container mx-auto px-6">
         <div className="flex flex-col items-center mb-16 space-y-4">
           <h2 className="text-4xl md:text-5xl font-display font-black text-primary text-center">
@@ -39,6 +45,7 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
               viewport={{ once: true }}
               transition={{ delay: (i % 4) * 0.1 }}
               className="group cursor-pointer flex flex-col"
+              onClick={() => handleProductClick(product.id)}
             >
               <div className="relative aspect-square mb-8 bg-[#F4F4F4] rounded-3xl overflow-hidden flex items-center justify-center p-12 transition-all duration-700 group-hover:bg-[#EFEFEF]">
                 <img
@@ -59,25 +66,23 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
                 <Button 
                   className="w-full mt-auto bg-primary hover:bg-red-800 text-white rounded-2xl py-6 h-auto text-base font-bold shadow-[0_10px_20px_rgba(200,16,46,0.15)] transition-all duration-300"
                 >
-                  Add to Cart
+                  View Details
                 </Button>
               </div>
             </motion.div>
           ))}
         </div>
 
-        {products.length > 8 && visibleCount < products.length && (
-          <div className="mt-20 flex justify-center">
-            <Button 
-              variant="outline" 
-              size="lg" 
-              onClick={showMore}
-              className="border-primary text-primary hover:bg-primary/5 rounded-full px-12 py-6 h-auto font-bold"
-            >
-              View More Products
-            </Button>
-          </div>
-        )}
+        <div className="mt-20 flex justify-center">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            onClick={handleViewMore}
+            className="border-primary text-primary hover:bg-primary/5 rounded-full px-12 py-6 h-auto font-bold"
+          >
+            {products.length > visibleCount ? "View All Products" : "Visit Full Catalog"}
+          </Button>
+        </div>
       </div>
     </section>
   );
