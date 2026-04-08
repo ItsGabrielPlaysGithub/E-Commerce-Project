@@ -33,15 +33,15 @@ export const featuredOffersData: FeaturedOfferCardData[] = [
     product: {
       id: "p1",
       name: "Omega Premium Cookware Set",
-      image: "/assets/products/fry-pan-1.png",
+      image: "/assets/products/cookware/cookware-1.jpg",
       link: "/catalog?productId=p1"
     },
   },
   {
     id: "offer-2",
     socialMedia: {
-      mediaType: "video",
-      mediaUrl: "/assets/hero/hero-video.mp4",
+      mediaType: "image",
+      mediaUrl: "https://images.unsplash.com/photo-1577106263724-2c8e03bfe9cf?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       title: "Sustainable Cooking Habits",
       hashtags: ["#EcoKitchen", "#OmegaOrganic"],
     },
@@ -50,8 +50,8 @@ export const featuredOffersData: FeaturedOfferCardData[] = [
     },
     product: {
       id: "p2",
-      name: "Eco-Friendly Storage Jars",
-      image: "/assets/products/thermos-1.png",
+      name: "Premium Non-Stick Frying Pan",
+      image: "/assets/products/cookware/cookware-7.jpg",
       link: "/catalog?productId=p2"
     },
   },
@@ -68,8 +68,8 @@ export const featuredOffersData: FeaturedOfferCardData[] = [
     },
     product: {
       id: "p3",
-      name: "Professional Knife Collection",
-      image: "/assets/products/knife-set.png",
+      name: "Professional Bakeware Collection",
+      image: "/assets/products/bakeware/bakeware-1.jpg",
       link: "/catalog?productId=p3"
     },
   },
