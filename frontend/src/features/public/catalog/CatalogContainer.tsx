@@ -68,6 +68,19 @@ const CatalogContainer = () => {
 
   // Deep Linking Effect
   useEffect(() => {
+    // Handle Category Deep Linking
+    const categoryParam = searchParams.get("category");
+    if (categoryParam && categories.length > 0) {
+      const foundCategory = categories.find((c: any) => 
+        c.slug === categoryParam.toLowerCase() || 
+        c.categoryName.toLowerCase() === categoryParam.toLowerCase()
+      );
+      if (foundCategory) {
+        setSelectedCategoryId(foundCategory.categoryId);
+      }
+    }
+
+    // Handle Product Deep Linking
     if (products.length > 0) {
       const productId = searchParams.get("productId");
       if (productId) {
@@ -78,7 +91,7 @@ const CatalogContainer = () => {
         }
       }
     }
-  }, [products, searchParams]);
+  }, [products, categories, searchParams]);
 
   // Filtering & Sorting Logic
   const filteredProducts = useMemo(() => {
@@ -115,7 +128,7 @@ const CatalogContainer = () => {
 
   return (
     <div className="flex flex-col w-full bg-white min-h-screen">
-      <Header />
+      <Header forceTheme="A" />
       
       <CatalogHeader 
         searchTerm={searchTerm} 

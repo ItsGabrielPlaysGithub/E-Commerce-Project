@@ -47,7 +47,7 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
               className="group cursor-pointer flex flex-col"
               onClick={() => handleProductClick(product.id)}
             >
-              <div className="relative aspect-square mb-8 bg-[#F4F4F4] rounded-3xl overflow-hidden flex items-center justify-center p-12 transition-all duration-700 group-hover:bg-[#EFEFEF]">
+              <div className="relative aspect-square mb-8 bg-[#F4F4F4] rounded-3xl overflow-hidden flex items-center justify-center transition-all duration-700 group-hover:bg-[#EFEFEF]">
                 <img
                   src={product.image || placeholderImg}
                   alt={product.name}
@@ -63,7 +63,7 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
                 </h3>
 
                 <p className="text-neutral-500 font-bold text-base mb-4 opacity-80">{product.price}</p>
-                <Button 
+                <Button
                   className="w-full mt-auto bg-primary hover:bg-red-800 text-white rounded-2xl py-6 h-auto text-base font-bold shadow-[0_10px_20px_rgba(200,16,46,0.15)] transition-all duration-300"
                 >
                   View Details
@@ -74,9 +74,9 @@ const ProductCatalog = ({ products }: { products: Product[] }) => {
         </div>
 
         <div className="mt-20 flex justify-center">
-          <Button 
-            variant="outline" 
-            size="lg" 
+          <Button
+            variant="outline"
+            size="lg"
             onClick={handleViewMore}
             className="border-primary text-primary hover:bg-primary/5 rounded-full px-12 py-6 h-auto font-bold"
           >

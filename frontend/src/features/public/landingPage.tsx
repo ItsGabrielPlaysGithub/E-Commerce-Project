@@ -37,6 +37,7 @@ export default function Home() {
           subtitle={highlight.subtitle}
           items={highlight.items}
           bgColor={highlight.bgColor}
+          floatingImageScale={highlight.floatingImageScale}
         />
       ))}
 

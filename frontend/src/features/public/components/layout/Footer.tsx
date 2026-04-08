@@ -48,17 +48,17 @@ const Footer = () => {
               Dedicated to bringing quality to houseware in every Filipino kitchen since 1985. We believe in modern tools that preserve traditional culinary excellence.
             </p>
             <div className="flex gap-6">
-              <Link href="#" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
-                <Facebook size={20} />
+              <Link href="https://www.tiktok.com/@omegahousewareph" target="_blank" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
+                <Tiktok size={20} />
               </Link>
-              <Link href="#" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
+              <Link href="https://www.instagram.com/omegahousewareph" target="_blank" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
                 <Instagram size={20} />
               </Link>
-              <Link href="#" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
+              <Link href="https://www.youtube.com/@omegahousewareph" target="_blank" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
                 <Youtube size={20} />
               </Link>
-              <Link href="#" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
-                <Twitter size={20} />
+              <Link href="https://shopee.ph/omegahouseware" target="_blank" className="text-white/60 hover:text-white transition-colors hover:scale-110 transition-transform">
+                <Shopee size={20} />
               </Link>
             </div>
           </div>
@@ -66,22 +66,22 @@ const Footer = () => {
           <div className="space-y-6">
             <h4 className="font-bold text-lg">Products</h4>
             <ul className="space-y-4 text-white/70 text-sm font-medium">
-              <li><Link href="#" className="hover:text-white transition-colors">Glassware</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Bakeware</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Dinnerware</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Flasks</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Utensils</Link></li>
+              <li><Link href="/catalog" className="hover:text-white transition-colors">All Products</Link></li>
+              <li><Link href="/catalog?category=glassware" className="hover:text-white transition-colors">Glassware</Link></li>
+              <li><Link href="/catalog?category=bakeware" className="hover:text-white transition-colors">Bakeware</Link></li>
+              <li><Link href="/catalog?category=dinnerware" className="hover:text-white transition-colors">Dinnerware</Link></li>
+              <li><Link href="/catalog?category=vacuum-flask" className="hover:text-white transition-colors">Flasks</Link></li>
             </ul>
           </div>
 
           <div className="space-y-6">
-            <h4 className="font-bold text-lg">Support</h4>
+            <h4 className="font-bold text-lg">Quick Links</h4>
             <ul className="space-y-4 text-white/70 text-sm font-medium">
-              <li><Link href="#" className="hover:text-white transition-colors">Shipping Policy</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Returns & Refunds</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Affiliate Disclaimer</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/#about-us" className="hover:text-white transition-colors">About Us</Link></li>
+              <li><Link href="/#omega-stories" className="hover:text-white transition-colors">Omega Stories</Link></li>
+              <li><Link href="/#contact-us" className="hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link href="/" className="hover:text-white transition-colors text-primary font-bold">Omega Affiliate</Link></li>
+              <li><Link href="/b2b/login" className="hover:text-white transition-colors">B2B Portal</Link></li>
             </ul>
           </div>
 
@@ -109,7 +109,7 @@ const Footer = () => {
           <div className="flex gap-8 items-center lowercase font-sans">
             <Link href="mailto:hello@omegahouseware.com" className="hover:text-white transition-colors">hello@omegahouseware.com</Link>
             <span className="w-1 h-1 bg-white/20 rounded-full" />
-            <Link href="tel:+639171234567" className="hover:text-white transition-colors">+63 917 123 4567</Link>
+            <Link href="tel:+63283623766" className="hover:text-white transition-colors">+632 8362 3766</Link>
           </div>
         </div>
       </div>
@@ -117,16 +117,16 @@ const Footer = () => {
   );
 };
 
-const Facebook = ({ size }: { size: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+const Tiktok = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/></svg>
 );
 
 const Instagram = ({ size }: { size: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
 );
 
-const Twitter = ({ size }: { size: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
+const Shopee = ({ size }: { size: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M9 22V12h6v10"/><path d="M2 9h20"/><path d="M12 2v7"/><path d="m8 5 4-3 4 3"/></svg>
 );
 
 const Youtube = ({ size }: { size: number }) => (

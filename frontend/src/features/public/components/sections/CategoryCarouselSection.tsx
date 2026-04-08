@@ -14,6 +14,7 @@ interface CategoryCarouselProps {
   items: AffiliateSocialPost[];
   themeColor?: string;
   bgColor?: string;
+  floatingImageScale?: number;
 }
 
 // Map category IDs to their asset folders for floating visuals
@@ -30,7 +31,8 @@ const CategoryCarouselSection: React.FC<CategoryCarouselProps> = ({
   subtitle,
   items,
   themeColor = "bg-primary",
-  bgColor = "bg-white"
+  bgColor = "bg-white",
+  floatingImageScale = 1
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showFloatingImage, setShowFloatingImage] = useState(true);
@@ -51,11 +53,10 @@ const CategoryCarouselSection: React.FC<CategoryCarouselProps> = ({
     <section id={id} className={cn("py-16 md:py-28 overflow-hidden relative", bgColor)}>
 
       {/* 1. Background Container Block */}
-      <div className="container mx-auto px-4 md:px-8 relative z-10">
-        <div className="bg-neutral-50/50 rounded-[3rem] p-4 md:p-8 lg:p-12 relative overflow-visible border border-neutral-100/50 shadow-sm">
+      <div className="w-full max-w-full px-0 md:container md:mx-auto md:px-8 relative z-10">
+        <div className="bg-neutral-50/50 rounded-none md:rounded-[3rem] p-6 md:p-8 lg:p-12 relative overflow-visible border-y md:border border-neutral-100/50 shadow-sm">
 
           {/* 3. Category Product Visual (Floating BEHIND cards but ABOVE background) */}
-          {/* Placed at left-[65%] to match the green circle requirement and overlapping the top boundary */}
           <div className="absolute top-[-10rem] left-[65%] w-[35%] h-[20rem] pointer-events-none z-10 hidden md:block overflow-visible">
             <AnimatePresence mode="wait">
               <motion.img
@@ -66,7 +67,8 @@ const CategoryCarouselSection: React.FC<CategoryCarouselProps> = ({
                 whileInView={{ opacity: 0.8, x: 0, y: 0, rotate: -8 }}
                 exit={{ opacity: 0, x: 100 }}
                 transition={{ duration: 1.2, ease: "easeOut" }}
-                className="absolute top-0 left-0 w-full max-w-[450px] h-auto object-contain drop-shadow-[0_45px_60px_rgba(0,0,0,0.35)]"
+                style={{ scale: floatingImageScale }}
+                className="absolute top-0 left-0 w-full max-w-[450px] h-auto object-contain drop-shadow-[0_45px_60px_rgba(0,0,0,0.35)] origin-center"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   // Fallback to AVIF if PNG fails (some assets might be AVIF)

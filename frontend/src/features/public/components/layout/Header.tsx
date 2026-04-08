@@ -8,13 +8,17 @@ import { Logo } from "@/components/ui/Logo";
 
 const NavLinks = [
   { name: "Products", href: "/catalog" },
-  { name: "About", href: "#about-us" },
-  { name: "Omega Stories", href: "#omega-stories" },
-  { name: "Contact Us", href: "#contact-us" },
+  { name: "About", href: "/#about-us" },
+  { name: "Omega Stories", href: "/#omega-stories" },
+  { name: "Contact Us", href: "/#contact-us" },
   { name: "Omega Affiliate", href: "/", highlight: true },
 ];
 
-const Header = () => {
+interface HeaderProps {
+  forceTheme?: "A" | "B";
+}
+
+const Header = ({ forceTheme }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [heroVersion, setHeroVersion] = useState<"A" | "B">("B");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,7 +42,7 @@ const Header = () => {
     };
   }, []);
 
-  const isDarkHero = heroVersion === "B";
+  const isDarkHero = (forceTheme || heroVersion) === "B";
   const headerTextColor = isScrolled ? "text-secondary" : (isDarkHero ? "text-white" : "text-secondary");
 
   return (
