@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ShoppingBag, ArrowRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -20,7 +21,7 @@ const FeaturedOffers = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-10">
           {featuredOffersData.map((offer, i) => (
             <OfferCard key={offer.id} offer={offer} index={i} />
           ))}
@@ -39,10 +40,10 @@ const OfferCard = ({ offer, index }: { offer: FeaturedOfferCardData; index: numb
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
-      className="group relative bg-white rounded-[2.5rem] overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.08)] border border-neutral-100 flex flex-col md:flex-row transition-all duration-500 hover:shadow-[0_25px_60px_rgba(0,0,0,0.12)] hover:-translate-y-2 h-full"
+      className="group relative bg-white rounded-[2.5rem] overflow-hidden shadow-[0_15px_45px_rgba(0,0,0,0.08)] border border-neutral-100 flex flex-row transition-all duration-500 hover:shadow-[0_25px_60px_rgba(0,0,0,0.12)] hover:-translate-y-2 h-full"
     >
       {/* Left Part: Social Media Block (60% width on Desktop) */}
-      <div className="relative w-full md:w-[60%] aspect-[4/5] md:aspect-auto overflow-hidden">
+      <div className="relative w-full sm:w-[70%] md:w-[60%] aspect-[4/5] md:aspect-auto overflow-hidden">
         {socialMedia.mediaType === "video" ? (
           <div className="relative w-full h-full">
             <video
@@ -91,7 +92,7 @@ const OfferCard = ({ offer, index }: { offer: FeaturedOfferCardData; index: numb
       </div>
 
       {/* Right Part: Product Block (40% width on Desktop) */}
-      <div className="w-full md:w-[40%] bg-white p-6 md:py-10 md:px-6 flex flex-col justify-between items-center text-center">
+      <div className="w-full sm:w-[30%] md:w-[40%] bg-white p-6 md:py-10 md:px-6 flex flex-col justify-between items-center text-center">
         <div className="w-full space-y-4">
           <div className="relative aspect-square w-full max-w-[140px] mx-auto bg-neutral-50 rounded-2xl overflow-hidden p-4 group-hover:bg-neutral-100 transition-colors duration-500">
             <img
@@ -111,17 +112,17 @@ const OfferCard = ({ offer, index }: { offer: FeaturedOfferCardData; index: numb
           </div>
         </div>
 
-        <a 
-          href={product.link}
+        <Link
+          href={product.link || "/catalog"}
           className="w-full mt-6 group/btn"
         >
-          <Button 
+          <Button
             className="w-full bg-primary hover:bg-red-800 text-white rounded-xl py-4 h-auto text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/10 transition-all duration-300 flex items-center justify-center gap-2"
           >
             <span>View Product</span>
             <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
           </Button>
-        </a>
+        </Link>
       </div>
     </motion.div>
   );

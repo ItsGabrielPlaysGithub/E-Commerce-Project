@@ -1,13 +1,13 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Diamond, Eye, Target, ChevronDown } from "lucide-react";
+import { Diamond, Eye, Target, ChevronDown, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 
 export default function AboutUsSection() {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <section className="relative w-full overflow-hidden bg-white">
+    <section id="about-us" className="relative w-full overflow-hidden bg-white">
 
       {/* Background Section */}
       <div className="relative w-full h-auto min-h-[450px] md:min-h-[600px] overflow-hidden transition-all duration-700 ease-in-out">
@@ -83,10 +83,9 @@ export default function AboutUsSection() {
           </motion.button>
         </div>
       </div>
-
       {/* Info Cards Overlay Grid - Sit on the Gradient Transition */}
-      <div className="relative z-40 -mt-10 md:-mt-24 max-w-[1400px] mx-auto px-4 md:px-12 lg:px-24 pb-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+      <div className="relative z-40 -mt-10 md:-mt-24 max-w-[1600px] mx-auto px-4 md:px-12 lg:px-24 pb-24">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
 
           {/* Mission */}
           <motion.div
@@ -111,14 +110,31 @@ export default function AboutUsSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-10 shadow-[0_15px_45px_rgba(0,0,0,0.06)] border border-gray-100/60 hover:shadow-[0_25px_60px_rgba(0,0,0,0.1)] transition-all duration-500 group"
+            className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_15px_45px_rgba(0,0,0,0.06)] border border-gray-100/60 hover:shadow-[0_25px_60px_rgba(0,0,0,0.1)] transition-all duration-500 group"
           >
-            <div className="w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-primary/10 transition-colors duration-300">
-              <Eye className="text-primary" size={28} />
+            <div className="w-12 h-12 md:w-14 md:h-14 bg-primary/5 rounded-2xl flex items-center justify-center mb-6 md:mb-8 group-hover:bg-primary/10 transition-colors duration-300">
+              <Eye className="text-primary" size={24} />
             </div>
-            <h4 className="text-2xl font-serif text-secondary mb-5">Our Vision</h4>
-            <p className="text-gray-500 leading-relaxed text-base font-light">
+            <h4 className="text-lg md:text-2xl font-serif text-secondary mb-4 md:mb-5">Our Vision</h4>
+            <p className="text-gray-500 leading-relaxed text-sm md:text-base font-light">
               To be recognized as a trusted and leading houseware brand in the Philippines, known for quality, innovation, and customer satisfaction.
+            </p>
+          </motion.div>
+
+          {/* Our Business */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_15px_45px_rgba(0,0,0,0.06)] border border-gray-100/60 hover:shadow-[0_25px_60px_rgba(0,0,0,0.1)] transition-all duration-500 group"
+          >
+            <div className="w-12 h-12 md:w-14 md:h-14 bg-primary/5 rounded-2xl flex items-center justify-center mb-6 md:mb-8 group-hover:bg-primary/10 transition-colors duration-300">
+              <ShoppingBag className="text-primary" size={24} />
+            </div>
+            <h4 className="text-lg md:text-2xl font-serif text-secondary mb-4 md:mb-5">Our Business</h4>
+            <p className="text-gray-500 leading-relaxed text-sm md:text-base font-light">
+              Omega sources and distributes high-quality houseware products worldwide, ensuring modern families have access to the best home solutions.
             </p>
           </motion.div>
 
@@ -127,29 +143,28 @@ export default function AboutUsSection() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-10 shadow-[0_15px_45px_rgba(0,0,0,0.06)] border border-gray-100/60 hover:shadow-[0_25px_60px_rgba(0,0,0,0.1)] transition-all duration-500 group"
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-8 md:p-10 shadow-[0_15px_45px_rgba(0,0,0,0.06)] border border-gray-100/60 hover:shadow-[0_25px_60px_rgba(0,0,0,0.1)] transition-all duration-500 group"
           >
-            <div className="w-14 h-14 bg-primary/5 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-primary/10 transition-colors duration-300">
-              <Diamond className="text-primary" size={28} />
+            <div className="w-12 h-12 md:w-14 md:h-14 bg-primary/5 rounded-2xl flex items-center justify-center mb-6 md:mb-8 group-hover:bg-primary/10 transition-colors duration-300">
+              <Diamond className="text-primary" size={24} />
             </div>
-            <h4 className="text-2xl font-serif text-secondary mb-5">Our Values</h4>
+            <h4 className="text-lg md:text-2xl font-serif text-secondary mb-4 md:mb-5">Our Values</h4>
             <div className="space-y-3">
               <div className="flex flex-col">
-                <span className="font-bold text-secondary text-sm">Magaling (Excellence)</span>
-                <span className="text-gray-400 text-xs font-light">Continuous improvement in everything we do.</span>
+                <span className="font-bold text-secondary text-[10px] md:text-xs">Magaling (Excellence)</span>
+                <span className="text-gray-400 text-[10px] font-light">Continuous improvement in everything we do.</span>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-secondary text-sm">Madiskarte (Resourcefulness)</span>
-                <span className="text-gray-400 text-xs font-light">Finding practical solutions for our customers.</span>
+                <span className="font-bold text-secondary text-[10px] md:text-xs">Madiskarte (Resourcefulness)</span>
+                <span className="text-gray-400 text-[10px] font-light">Practical solutions for our customers.</span>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-secondary text-sm">Maasahan (Reliability)</span>
-                <span className="text-gray-400 text-xs font-light">Dependable products you can trust every day.</span>
+                <span className="font-bold text-secondary text-[10px] md:text-xs">Maasahan (Reliability)</span>
+                <span className="text-gray-400 text-[10px] font-light">Dependable products you can trust every day.</span>
               </div>
             </div>
           </motion.div>
-
 
         </div>
       </div>

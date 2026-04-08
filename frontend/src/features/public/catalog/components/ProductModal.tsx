@@ -213,13 +213,11 @@ const ProductModal: React.FC<ProductModalProps> = ({ product, isOpen, onClose })
               </div>
 
               {/* Combined Action Section */}
-              <div className="bg-neutral-50 p-4 md:p-6 rounded-[32px] flex flex-col md:flex-row items-center gap-6">
-                <p className="text-xs font-bold text-neutral-500 leading-relaxed flex-grow text-center md:text-left">
-                  Sign in to access partner pricing and place orders.
-                </p>
+              <div className="p-4 md:p-6 flex flex-col md:flex-row items-center justify-end gap-6">
+
                 <Button className="w-full md:w-auto h-auto py-4 px-10 rounded-2xl text-sm font-black bg-primary hover:bg-red-800 shadow-xl shadow-primary/10 flex items-center justify-center gap-3 group shrink-0">
                   <LogIn size={18} className="transition-transform group-hover:translate-x-1" />
-                  Sign In To Order
+                  Add to cart
                 </Button>
               </div>
             </div>
